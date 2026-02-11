@@ -9,6 +9,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import is.hbv601g.gamecatalog.pages.specific_game.SpecificGameFragment;
 import is.hbv601g.gamecatalog.services.GameService;
 import is.hbv601g.gamecatalog.services.NetworkService;
 
@@ -19,8 +20,6 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
-
-    private GameService gameService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,25 +32,15 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        NetworkService networkService = new NetworkService();
-        gameService = new GameService(networkService);
+        if (savedInstanceState == null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(
+                            R.id.fragmentContainer,
+                            SpecificGameFragment.newInstance(7L)
+                    )
+                    .commit();
+        }
 
-        gameService.getAllGames(1, "title", false, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                runOnUiThread(() ->
-                        Log.e("API", "Request failed", e)
-                );
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseBody = response.body().string();
-
-                runOnUiThread(() ->
-                        Log.d("API", responseBody)
-                );
-            }
-        });
     }
 }

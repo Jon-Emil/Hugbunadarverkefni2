@@ -1,14 +1,6 @@
 package is.hbv601g.gamecatalog.entities.game;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import is.hbv601g.gamecatalog.entities.genre.SimpleGenreEntity;
-import is.hbv601g.gamecatalog.entities.review.SimpleReviewEntity;
-import is.hbv601g.gamecatalog.entities.user.SimpleUserEntity;
-
-public class DetailedGameEntity {
-
+public class SimpleGameEntity {
     private long id;
     private String title;
     private String description;
@@ -17,14 +9,9 @@ public class DetailedGameEntity {
     private String coverImage;
     private String developer;
     private String publisher;
+    private Float averageRating;
 
-    private List<SimpleGenreEntity> genres = new ArrayList<>();
-    private List<SimpleReviewEntity> reviews = new ArrayList<>();
-    private List<SimpleUserEntity> favoriteOf = new ArrayList<>();
-    private List<SimpleUserEntity> wantToPlay = new ArrayList<>();
-    private List<SimpleUserEntity> havePlayed = new ArrayList<>();
-
-    public DetailedGameEntity(
+    public SimpleGameEntity(
             long id,
             String title,
             String description,
@@ -33,11 +20,7 @@ public class DetailedGameEntity {
             String coverImage,
             String developer,
             String publisher,
-            List<SimpleGenreEntity> genres,
-            List<SimpleReviewEntity> reviews,
-            List<SimpleUserEntity> favoriteOf,
-            List<SimpleUserEntity> wantToPlay,
-            List<SimpleUserEntity> havePlayed
+            Float averageRating
     ) {
         this.id = id;
         this.title = title;
@@ -47,11 +30,7 @@ public class DetailedGameEntity {
         this.coverImage = coverImage;
         this.developer = developer;
         this.publisher = publisher;
-        this.genres = genres;
-        this.reviews = reviews;
-        this.favoriteOf = favoriteOf;
-        this.wantToPlay = wantToPlay;
-        this.havePlayed = havePlayed;
+        this.averageRating = averageRating;
     }
 
     public long getId() {
@@ -118,43 +97,11 @@ public class DetailedGameEntity {
         this.publisher = publisher;
     }
 
-    public List<SimpleGenreEntity> getGenres() {
-        return genres;
+    public Float getAverageRating() {
+        return averageRating;
     }
 
-    public void setGenres(List<SimpleGenreEntity> genres) {
-        this.genres = genres;
-    }
-
-    public List<SimpleReviewEntity> getReviews() {
-        return reviews;
-    }
-
-    public void setReviews(List<SimpleReviewEntity> reviews) {
-        this.reviews = reviews;
-    }
-
-    public List<SimpleUserEntity> getFavoriteOf() {
-        return favoriteOf;
-    }
-
-    public void setFavoriteOf(List<SimpleUserEntity> favoriteOf) {
-        this.favoriteOf = favoriteOf;
-    }
-
-    public List<SimpleUserEntity> getWantToPlay() {
-        return wantToPlay;
-    }
-
-    public void setWantToPlay(List<SimpleUserEntity> wantToPlay) {
-        this.wantToPlay = wantToPlay;
-    }
-
-    public List<SimpleUserEntity> getHavePlayed() {
-        return havePlayed;
-    }
-
-    public void setHavePlayed(List<SimpleUserEntity> havePlayed) {
-        this.havePlayed = havePlayed;
+    public void setAverageRating(Float averageRating) {
+        this.averageRating = averageRating;
     }
 }
