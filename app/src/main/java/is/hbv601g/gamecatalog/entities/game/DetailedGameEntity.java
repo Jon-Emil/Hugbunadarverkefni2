@@ -17,6 +17,7 @@ public class DetailedGameEntity {
     private String coverImage;
     private String developer;
     private String publisher;
+    private Float averageRating;
 
     private List<SimpleGenreEntity> genres = new ArrayList<>();
     private List<SimpleReviewEntity> reviews = new ArrayList<>();
@@ -33,6 +34,7 @@ public class DetailedGameEntity {
             String coverImage,
             String developer,
             String publisher,
+            Float averageRating,
             List<SimpleGenreEntity> genres,
             List<SimpleReviewEntity> reviews,
             List<SimpleUserEntity> favoriteOf,
@@ -47,6 +49,7 @@ public class DetailedGameEntity {
         this.coverImage = coverImage;
         this.developer = developer;
         this.publisher = publisher;
+        this.averageRating = averageRating;
         this.genres = genres;
         this.reviews = reviews;
         this.favoriteOf = favoriteOf;
@@ -116,6 +119,14 @@ public class DetailedGameEntity {
 
     public void setPublisher(String publisher) {
         this.publisher = publisher;
+    }
+
+    public Float getAverageRating() {
+        return averageRating;
+    }
+
+    public void setAverageRating(Float averageRating) {
+        this.averageRating = averageRating;
     }
 
     public List<SimpleGenreEntity> getGenres() {

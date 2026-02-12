@@ -61,6 +61,7 @@ public class SpecificGameViewModel extends ViewModel {
                     String coverImage = json.getString("coverImage");
                     String developer = json.getString("developer");
                     String publisher = json.getString("publisher");
+                    Float averageRating = (float) json.getDouble("averageRating");
 
                     JSONArray genresJson = json.getJSONArray("genres");
                     List<SimpleGenreEntity> genres = JSONArrayHelper.makeGenreList(genresJson);
@@ -86,6 +87,7 @@ public class SpecificGameViewModel extends ViewModel {
                             coverImage,
                             developer,
                             publisher,
+                            averageRating,
                             genres,
                             reviews,
                             favoriteOf,
