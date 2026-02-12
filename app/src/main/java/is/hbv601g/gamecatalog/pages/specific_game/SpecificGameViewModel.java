@@ -57,11 +57,15 @@ public class SpecificGameViewModel extends ViewModel {
                     String title = json.getString("title");
                     String description = json.getString("description");
                     String releaseDate = json.getString("releaseDate");
-                    float price = (float) json.getDouble("price");
+                    float price = (float) json.getDouble("price"); // no getFloat so casting is needed
                     String coverImage = json.getString("coverImage");
                     String developer = json.getString("developer");
                     String publisher = json.getString("publisher");
-                    Float averageRating = (float) json.getDouble("averageRating");
+
+                    Float averageRating = null;
+                    if (!json.isNull("averageRating")) {
+                        averageRating = (float) json.getDouble("averageRating");
+                    }
 
                     JSONArray genresJson = json.getJSONArray("genres");
                     List<SimpleGenreEntity> genres = JSONArrayHelper.makeGenreList(genresJson);

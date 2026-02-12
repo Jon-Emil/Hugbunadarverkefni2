@@ -11,10 +11,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
 import is.hbv601g.gamecatalog.R;
+import is.hbv601g.gamecatalog.adapters.GenreAdapter;
+import is.hbv601g.gamecatalog.adapters.ReviewAdapter;
 import is.hbv601g.gamecatalog.entities.game.DetailedGameEntity;
 import is.hbv601g.gamecatalog.services.GameService;
 import is.hbv601g.gamecatalog.services.NetworkService;
@@ -33,6 +37,15 @@ public class SpecificGameFragment extends Fragment {
     private TextView developerText;
     private TextView publisherText;
     private TextView ratingText;
+    private TextView favoriteAmountText;
+    private TextView wantToPlayAmountText;
+    private TextView havePlayedAmountText;
+
+    private RecyclerView genreRecycler;
+    private GenreAdapter genreAdapter;
+
+    private RecyclerView reviewRecycler;
+    private ReviewAdapter reviewAdapter;
 
     public static SpecificGameFragment newInstance(long gameId) {
         SpecificGameFragment fragment = new SpecificGameFragment();
@@ -64,6 +77,31 @@ public class SpecificGameFragment extends Fragment {
         developerText = view.findViewById(R.id.gameDeveloper);
         publisherText = view.findViewById(R.id.gamePublisher);
         ratingText = view.findViewById(R.id.gameRating);
+        favoriteAmountText = view.findViewById(R.id.gameFavoriteAmount);
+        wantToPlayAmountText = view.findViewById(R.id.gameWantToPlayAmount);
+        havePlayedAmountText = view.findViewById(R.id.gameHavePlayedAmount);
+
+        genreRecycler = view.findViewById(R.id.genreRecycler);
+        genreAdapter = new GenreAdapter();
+        genreRecycler.setLayoutManager(
+                new LinearLayoutManager(
+                        requireContext(),
+                        LinearLayoutManager.HORIZONTAL,
+                        false
+                )
+        );
+        genreRecycler.setAdapter(genreAdapter);
+
+        reviewRecycler = view.findViewById(R.id.reviewRecycler);
+        reviewAdapter = new ReviewAdapter();
+        reviewRecycler.setLayoutManager(
+                new LinearLayoutManager(
+                        requireContext(),
+                        LinearLayoutManager.VERTICAL,
+                        false
+                )
+        );
+        reviewRecycler.setAdapter(reviewAdapter);
 
         long gameId = getArguments().getLong(ARG_GAME_ID);
 
@@ -100,6 +138,18 @@ public class SpecificGameFragment extends Fragment {
 
         String rating = "Rating: " + game.getAverageRating();
         ratingText.setText(rating);
+
+        String favoriteAmount = "FavoriteAmount: " + game.getFavoriteOf().size();
+        favoriteAmountText.setText(favoriteAmount);
+
+        String wantToPlayAmount = "WantToPlayAmount: " + game.getWantToPlay().size();
+        wantToPlayAmountText.setText(wantToPlayAmount);
+
+        String havePlayedAmount = "HavePlayedAmount: " + game.getHavePlayed().size();
+        havePlayedAmountText.setText(havePlayedAmount);
+
+        genreAdapter.setData(game.getGenres());
+        reviewAdapter.setData(game.getReviews());
     }
 }
 
