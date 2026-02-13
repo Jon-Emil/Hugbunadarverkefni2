@@ -2,4 +2,7 @@
     <string name="app_name">Game Catalog</string>
     <string name="test_string">Testing</string>
     <string name="game_image_description">A cover image for this game</string>
+    <string name="game_details_button_text">View Game</string>
+    <string name="previous_page">Previous Page</string>
+    <string name="next_page">Next Page</string>
 </resources>

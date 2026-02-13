@@ -1,7 +1,6 @@
 package is.hbv601g.gamecatalog;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,15 +8,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import is.hbv601g.gamecatalog.pages.specific_game.SpecificGameFragment;
-import is.hbv601g.gamecatalog.services.GameService;
-import is.hbv601g.gamecatalog.services.NetworkService;
-
-import java.io.IOException;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
+import is.hbv601g.gamecatalog.pages.all_games.AllGamesFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
                     .beginTransaction()
                     .replace(
                             R.id.fragmentContainer,
-                            SpecificGameFragment.newInstance(7L)
+                            AllGamesFragment.newInstance(1)
                     )
                     .commit();
         }
