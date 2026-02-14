@@ -11,4 +11,5 @@ This semester and this repository is an Android application for that API.
 ## Authors
 Sigurður Ari Stefánsson (sas122@hi.is)
 
+Yi Hu (yih2@hi.is)
 ...
