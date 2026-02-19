@@ -1,4 +1,4 @@
-package is.hbv601g.gamecatalog.pages.all_games;
+package is.hbv601g.gamecatalog.pages.search_games;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -24,7 +24,9 @@ public class SearchGamesViewModel extends ViewModel {
     private final MutableLiveData<List<ListedGameEntity>> games = new MutableLiveData<>();
     private GameService gameService;
     private int currentPage = 1;
-    private String gameTitleParam = "cel";
+    private String gameTitleParam = "";
+    private boolean sortReverse = false;
+    private String sortBy = "title";
 
     public LiveData<List<ListedGameEntity>> getGames() {
         return games;
@@ -56,8 +58,20 @@ public class SearchGamesViewModel extends ViewModel {
         }
     }
 
+    public void setGameTitleParam(String newGameTitleParam) {
+        gameTitleParam = newGameTitleParam;
+    }
+
+    public void setSortReverse(boolean sortReverse) {
+        this.sortReverse = sortReverse;
+    }
+
+    public void setSortBy(String sortBy) {
+        this.sortBy = sortBy;
+    }
+
     private void fetchGames(int pageNr) {
-        gameService.getSearchedGames(gameTitleParam, pageNr, "title", false, new Callback() {
+        gameService.getSearchedGames(gameTitleParam, pageNr, sortBy, sortReverse, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();

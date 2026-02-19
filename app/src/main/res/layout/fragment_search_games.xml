@@ -5,6 +5,36 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <EditText
+        android:id="@+id/titleInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Game Title"
+        android:inputType="text"
+        android:maxLines="1"
+        />
+
+    <Spinner
+        android:id="@+id/sortBySelector"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+
+    <ToggleButton
+        android:id="@+id/sortReverseToggleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textOn="Reverse On"
+        android:textOff="Reverse Off"
+        />
+
+    <Button
+        android:id="@+id/searchButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/holo_red_light"
+        android:text="Search" />
+
     <TextView
         android:id="@+id/pageDisplay"
         android:layout_width="wrap_content"
