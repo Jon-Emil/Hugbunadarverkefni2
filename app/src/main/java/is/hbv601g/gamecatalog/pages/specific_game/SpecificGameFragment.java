@@ -47,6 +47,8 @@ public class SpecificGameFragment extends Fragment {
     }
      */
 
+    //Code boilerplate from developer.android.com
+    //Inflates the layout for this fragment
     @Nullable
     @Override
     public View onCreateView(
@@ -140,6 +142,8 @@ public class SpecificGameFragment extends Fragment {
         reviewAdapter.setData(game.getReviews());
     }
 
+    //Code from developer.android.com
+    //Ensures binding is null when fragment is destroyed to avoid memory leaks
     @Override
     public void onDestroyView() {
         super.onDestroyView();
