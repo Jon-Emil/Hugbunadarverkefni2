@@ -33,12 +33,11 @@ public class SpecificGameFragment extends Fragment {
 
     private FragmentSpecificGameBinding binding;
 
-    private RecyclerView genreRecycler;
     private GenreAdapter genreAdapter;
 
-    private RecyclerView reviewRecycler;
     private ReviewAdapter reviewAdapter;
 
+    /**
     public static SpecificGameFragment newInstance(long gameId) {
         SpecificGameFragment fragment = new SpecificGameFragment();
         Bundle args = new Bundle();
@@ -46,6 +45,7 @@ public class SpecificGameFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+     */
 
     @Nullable
     @Override
@@ -62,29 +62,36 @@ public class SpecificGameFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        genreRecycler = view.findViewById(R.id.genreRecycler);
+
         genreAdapter = new GenreAdapter();
-        genreRecycler.setLayoutManager(
+        binding.genreRecycler.setLayoutManager(
                 new LinearLayoutManager(
                         requireContext(),
                         LinearLayoutManager.HORIZONTAL,
                         false
                 )
         );
-        genreRecycler.setAdapter(genreAdapter);
+        binding.genreRecycler.setAdapter(genreAdapter);
 
-        reviewRecycler = view.findViewById(R.id.reviewRecycler);
+
         reviewAdapter = new ReviewAdapter();
-        reviewRecycler.setLayoutManager(
+        binding.reviewRecycler.setLayoutManager(
                 new LinearLayoutManager(
                         requireContext(),
                         LinearLayoutManager.VERTICAL,
                         false
                 )
         );
-        reviewRecycler.setAdapter(reviewAdapter);
+        binding.reviewRecycler.setAdapter(reviewAdapter);
 
-        long gameId = getArguments().getLong(ARG_GAME_ID);
+        //catch args missing error to prevent crash
+        Bundle args = getArguments();
+        if(args == null || !args.containsKey(ARG_GAME_ID)) {
+            throw new IllegalArgumentException("Missing gameId argument");
+        }
+        long gameId = args.getLong(ARG_GAME_ID);
+
+
 
         NetworkService networkService = new NetworkService();
         GameService gameService = new GameService(networkService);
@@ -131,6 +138,12 @@ public class SpecificGameFragment extends Fragment {
 
         genreAdapter.setData(game.getGenres());
         reviewAdapter.setData(game.getReviews());
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }
 

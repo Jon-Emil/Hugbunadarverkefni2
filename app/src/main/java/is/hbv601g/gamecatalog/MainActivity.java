@@ -42,7 +42,9 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = navHostFragment.getNavController();
 
         appBarConfiguration = new AppBarConfiguration.Builder(
-                navController.getGraph()).setOpenableLayout(drawerLayout)
+                R.id.navigation_home,
+                R.id.navigation_login
+                ).setOpenableLayout(drawerLayout)
                         .build();
 
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
@@ -70,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //Code gotten from https://developer.android.com/guide/navigation/integrations/ui#action_bar
     @Override
     public boolean onSupportNavigateUp(){
             NavController navController =

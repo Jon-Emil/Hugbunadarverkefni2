@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,7 +32,6 @@ public class AllGamesFragment extends Fragment {
     private AllGamesViewModel viewModel;
 
     private FragmentAllGamesBinding binding;
-    private RecyclerView gameRecycler;
     private GameAdapter gameAdapter;
 
     public AllGamesFragment() {
@@ -51,16 +52,15 @@ public class AllGamesFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        gameRecycler = view.findViewById(R.id.gameRecycler);
         gameAdapter = new GameAdapter(game -> openSpecificGame(game.getId()));
-        gameRecycler.setLayoutManager(
+        binding.gameRecycler.setLayoutManager(
                 new LinearLayoutManager(
                         requireContext(),
                         LinearLayoutManager.VERTICAL,
                         false
                 )
         );
-        gameRecycler.setAdapter(gameAdapter);
+        binding.gameRecycler.setAdapter(gameAdapter);
 
         //Initialize ViewModel
         viewModel = new ViewModelProvider(this).get(AllGamesViewModel.class);
@@ -88,15 +88,30 @@ public class AllGamesFragment extends Fragment {
     }
 
     private void openSpecificGame(long gameId) {
-        Fragment fragment = SpecificGameFragment.newInstance(gameId);
-        String pageDisplay = "Page " + viewModel.getCurrentPage();
-        binding.pageDisplay.setText(pageDisplay);
+        Bundle bundle = new Bundle();
+        bundle.putLong("game_id", gameId);
 
-        requireActivity()
-                .getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.nav_host_fragment_activity_main, fragment)
-                .addToBackStack(null)
-                .commit();
+        NavController navController = Navigation.findNavController(requireView());
+        navController.navigate(R.id.navigation_specific_game, bundle);
+        /**
+         Fragment fragment = SpecificGameFragment.newInstance(gameId);
+         String pageDisplay = "Page " + viewModel.getCurrentPage();
+         binding.pageDisplay.setText(pageDisplay);
+
+         requireActivity()
+         .getSupportFragmentManager()
+         .beginTransaction()
+         .replace(R.id.nav_host_fragment_activity_main, fragment)
+         .addToBackStack(null)
+         .commit();
+         }
+         */
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
 }

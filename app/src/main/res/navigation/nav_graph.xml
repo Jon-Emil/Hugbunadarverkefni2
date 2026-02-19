@@ -19,5 +19,16 @@
         tools:layout="@layout/fragment_login"
         />
 
+    <fragment
+        android:id="@+id/navigation_specific_game"
+        android:name="is.hbv601g.gamecatalog.pages.specific_game.SpecificGameFragment"
+        android:label="Game Details">
+
+        <argument
+            android:name="game_id"
+            app:argType="long" />
+    </fragment>
+
+
 
 </navigation>
