@@ -13,6 +13,13 @@
         />
 
     <fragment
+        android:id="@+id/navigation_search_games"
+        android:name="is.hbv601g.gamecatalog.pages.search_games.SearchGamesFragment"
+        android:label="Search Games"
+        tools:layout="@layout/fragment_all_games"
+        />
+
+    <fragment
         android:id="@+id/navigation_login"
         android:name="is.hbv601g.gamecatalog.pages.login.LogInFragment"
         android:label="Log In"

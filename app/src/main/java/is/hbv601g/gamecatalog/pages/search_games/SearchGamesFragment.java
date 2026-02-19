@@ -1,4 +1,4 @@
-package is.hbv601g.gamecatalog.pages.all_games;
+package is.hbv601g.gamecatalog.pages.search_games;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -22,19 +22,19 @@ import is.hbv601g.gamecatalog.R;
 import is.hbv601g.gamecatalog.adapters.GameAdapter;
 import is.hbv601g.gamecatalog.databinding.FragmentAllGamesBinding;
 import is.hbv601g.gamecatalog.entities.game.ListedGameEntity;
+import is.hbv601g.gamecatalog.pages.all_games.SearchGamesViewModel;
 import is.hbv601g.gamecatalog.pages.specific_game.SpecificGameFragment;
 import is.hbv601g.gamecatalog.services.GameService;
 import is.hbv601g.gamecatalog.services.NetworkService;
 
-public class AllGamesFragment extends Fragment {
+public class SearchGamesFragment extends Fragment {
 
-
-    private AllGamesViewModel viewModel;
+    private SearchGamesViewModel viewModel;
 
     private FragmentAllGamesBinding binding;
     private GameAdapter gameAdapter;
 
-    public AllGamesFragment() {
+    public SearchGamesFragment() {
         //Required empty constructor
     }
 
@@ -65,7 +65,7 @@ public class AllGamesFragment extends Fragment {
         binding.gameRecycler.setAdapter(gameAdapter);
 
         //Initialize ViewModel
-        viewModel = new ViewModelProvider(this).get(AllGamesViewModel.class);
+        viewModel = new ViewModelProvider(this).get(SearchGamesViewModel.class);
 
         NetworkService networkService = new NetworkService();
         GameService gameService = new GameService(networkService);

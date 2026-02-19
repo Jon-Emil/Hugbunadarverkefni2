@@ -24,4 +24,12 @@ public class GameService {
 
         networkService.getRequest(url, callback);
     }
+
+    public void getSearchedGames(String gameTitleParam, int page, String sortBy, boolean sortReverse, Callback callback) {
+        String pageString = String.valueOf(page);
+        String reverseString = sortReverse ? "true" : "false";
+        String url = "/games/search?title=" + gameTitleParam + "&pageNr=" + pageString + "&sortBy=" + sortBy + "&sortReverse=" + reverseString;
+
+        networkService.getRequest(url, callback);
+    }
 }
