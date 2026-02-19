@@ -36,13 +36,7 @@ public class AllGamesFragment extends Fragment {
     private RecyclerView gameRecycler;
     private GameAdapter gameAdapter;
 
-    public static AllGamesFragment newInstance(int pageNr) {
-        AllGamesFragment fragment = new AllGamesFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_PAGE_NR, pageNr);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    public AllGamesFragment() {}
 
     @Nullable
     @Override
@@ -73,6 +67,14 @@ public class AllGamesFragment extends Fragment {
         );
         gameRecycler.setAdapter(gameAdapter);
 
+        //Initialize ViewModel
+        viewModel = new ViewModelProvider(this).get(AllGamesViewModel.class);
+
+        NetworkService networkService = new NetworkService();
+        GameService gameService = new GameService(networkService);
+
+        viewModel.init(gameService);
+
         nextPageButton.setOnClickListener(v -> {
             viewModel.nextPage();
         });
@@ -81,13 +83,6 @@ public class AllGamesFragment extends Fragment {
             viewModel.previousPage();
         });
 
-        int pageNr = getArguments().getInt(ARG_PAGE_NR);
-
-        NetworkService networkService = new NetworkService();
-        GameService gameService = new GameService(networkService);
-
-        viewModel = new ViewModelProvider(this).get(AllGamesViewModel.class);
-        viewModel.init(gameService, pageNr);
         viewModel.getGames().observe(getViewLifecycleOwner(), this::updateGamesInfo);
     }
 
@@ -105,7 +100,7 @@ public class AllGamesFragment extends Fragment {
         requireActivity()
                 .getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragmentContainer, fragment)
+                .replace(R.id.nav_host_fragment_activity_main, fragment)
                 .addToBackStack(null)
                 .commit();
     }
