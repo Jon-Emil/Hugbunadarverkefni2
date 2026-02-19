@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import is.hbv601g.gamecatalog.R;
 import is.hbv601g.gamecatalog.databinding.FragmentLoginBinding;
 
 public class LogInFragment extends Fragment {

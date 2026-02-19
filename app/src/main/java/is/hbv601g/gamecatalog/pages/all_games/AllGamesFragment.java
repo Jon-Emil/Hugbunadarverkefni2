@@ -18,6 +18,7 @@ import java.util.List;
 
 import is.hbv601g.gamecatalog.R;
 import is.hbv601g.gamecatalog.adapters.GameAdapter;
+import is.hbv601g.gamecatalog.databinding.FragmentAllGamesBinding;
 import is.hbv601g.gamecatalog.entities.game.ListedGameEntity;
 import is.hbv601g.gamecatalog.pages.specific_game.SpecificGameFragment;
 import is.hbv601g.gamecatalog.services.GameService;
@@ -25,14 +26,10 @@ import is.hbv601g.gamecatalog.services.NetworkService;
 
 public class AllGamesFragment extends Fragment {
 
-    private static final String ARG_PAGE_NR = "page_nr";
 
     private AllGamesViewModel viewModel;
 
-    private TextView pageDisplayText;
-    private Button previousPageButton;
-    private Button nextPageButton;
-
+    private FragmentAllGamesBinding binding;
     private RecyclerView gameRecycler;
     private GameAdapter gameAdapter;
 
@@ -47,17 +44,13 @@ public class AllGamesFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState
     ) {
-        return inflater.inflate(R.layout.fragment_all_games, container, false);
+        binding = FragmentAllGamesBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        pageDisplayText = view.findViewById(R.id.pageDisplay);
-        previousPageButton = view.findViewById(R.id.previousPage);
-        nextPageButton = view.findViewById(R.id.nextPage);
-
         gameRecycler = view.findViewById(R.id.gameRecycler);
         gameAdapter = new GameAdapter(game -> openSpecificGame(game.getId()));
         gameRecycler.setLayoutManager(
@@ -77,11 +70,11 @@ public class AllGamesFragment extends Fragment {
 
         viewModel.init(gameService);
 
-        nextPageButton.setOnClickListener(v -> {
+        binding.nextPage.setOnClickListener(v -> {
             viewModel.nextPage();
         });
 
-        previousPageButton.setOnClickListener(v -> {
+        binding.previousPage.setOnClickListener(v -> {
             viewModel.previousPage();
         });
 
@@ -91,13 +84,13 @@ public class AllGamesFragment extends Fragment {
     public void updateGamesInfo(List<ListedGameEntity> games) {
         gameAdapter.setData(games);
         String pageDisplay = "Page " + viewModel.getCurrentPage();
-        pageDisplayText.setText(pageDisplay);
+        binding.pageDisplay.setText(pageDisplay);
     }
 
     private void openSpecificGame(long gameId) {
         Fragment fragment = SpecificGameFragment.newInstance(gameId);
         String pageDisplay = "Page " + viewModel.getCurrentPage();
-        pageDisplayText.setText(pageDisplay);
+        binding.pageDisplay.setText(pageDisplay);
 
         requireActivity()
                 .getSupportFragmentManager()
