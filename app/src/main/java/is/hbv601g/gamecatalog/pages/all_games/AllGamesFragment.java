@@ -36,7 +36,9 @@ public class AllGamesFragment extends Fragment {
     private RecyclerView gameRecycler;
     private GameAdapter gameAdapter;
 
-    public AllGamesFragment() {}
+    public AllGamesFragment() {
+        //Required empty constructor
+    }
 
     @Nullable
     @Override
