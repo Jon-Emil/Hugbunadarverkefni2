@@ -19,6 +19,8 @@ import com.bumptech.glide.Glide;
 import is.hbv601g.gamecatalog.R;
 import is.hbv601g.gamecatalog.adapters.GenreAdapter;
 import is.hbv601g.gamecatalog.adapters.ReviewAdapter;
+import is.hbv601g.gamecatalog.databinding.FragmentAllGamesBinding;
+import is.hbv601g.gamecatalog.databinding.FragmentSpecificGameBinding;
 import is.hbv601g.gamecatalog.entities.game.DetailedGameEntity;
 import is.hbv601g.gamecatalog.services.GameService;
 import is.hbv601g.gamecatalog.services.NetworkService;
@@ -29,24 +31,13 @@ public class SpecificGameFragment extends Fragment {
 
     private SpecificGameViewModel viewModel;
 
-    private ImageView gameImage;
-    private TextView titleText;
-    private TextView descriptionText;
-    private TextView releaseDateText;
-    private TextView priceText;
-    private TextView developerText;
-    private TextView publisherText;
-    private TextView ratingText;
-    private TextView favoriteAmountText;
-    private TextView wantToPlayAmountText;
-    private TextView havePlayedAmountText;
+    private FragmentSpecificGameBinding binding;
 
-    private RecyclerView genreRecycler;
     private GenreAdapter genreAdapter;
 
-    private RecyclerView reviewRecycler;
     private ReviewAdapter reviewAdapter;
 
+    /**
     public static SpecificGameFragment newInstance(long gameId) {
         SpecificGameFragment fragment = new SpecificGameFragment();
         Bundle args = new Bundle();
@@ -54,7 +45,10 @@ public class SpecificGameFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+     */
 
+    //Code boilerplate from developer.android.com
+    //Inflates the layout for this fragment
     @Nullable
     @Override
     public View onCreateView(
@@ -62,48 +56,44 @@ public class SpecificGameFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState
     ) {
-        return inflater.inflate(R.layout.fragment_specific_game, container, false);
+        binding = FragmentSpecificGameBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        gameImage = view.findViewById(R.id.gameImage);
-        titleText = view.findViewById(R.id.gameTitle);
-        descriptionText = view.findViewById(R.id.gameDescription);
-        releaseDateText = view.findViewById(R.id.gameReleaseDate);
-        priceText = view.findViewById(R.id.gamePrice);
-        developerText = view.findViewById(R.id.gameDeveloper);
-        publisherText = view.findViewById(R.id.gamePublisher);
-        ratingText = view.findViewById(R.id.gameRating);
-        favoriteAmountText = view.findViewById(R.id.gameFavoriteAmount);
-        wantToPlayAmountText = view.findViewById(R.id.gameWantToPlayAmount);
-        havePlayedAmountText = view.findViewById(R.id.gameHavePlayedAmount);
 
-        genreRecycler = view.findViewById(R.id.genreRecycler);
         genreAdapter = new GenreAdapter();
-        genreRecycler.setLayoutManager(
+        binding.genreRecycler.setLayoutManager(
                 new LinearLayoutManager(
                         requireContext(),
                         LinearLayoutManager.HORIZONTAL,
                         false
                 )
         );
-        genreRecycler.setAdapter(genreAdapter);
+        binding.genreRecycler.setAdapter(genreAdapter);
 
-        reviewRecycler = view.findViewById(R.id.reviewRecycler);
+
         reviewAdapter = new ReviewAdapter();
-        reviewRecycler.setLayoutManager(
+        binding.reviewRecycler.setLayoutManager(
                 new LinearLayoutManager(
                         requireContext(),
                         LinearLayoutManager.VERTICAL,
                         false
                 )
         );
-        reviewRecycler.setAdapter(reviewAdapter);
+        binding.reviewRecycler.setAdapter(reviewAdapter);
 
-        long gameId = getArguments().getLong(ARG_GAME_ID);
+        //catch args missing error to prevent crash
+        Bundle args = getArguments();
+        if(args == null || !args.containsKey(ARG_GAME_ID)) {
+            throw new IllegalArgumentException("Missing gameId argument");
+        }
+        long gameId = args.getLong(ARG_GAME_ID);
+
+
 
         NetworkService networkService = new NetworkService();
         GameService gameService = new GameService(networkService);
@@ -117,39 +107,47 @@ public class SpecificGameFragment extends Fragment {
 
     public void updateGameInfo(DetailedGameEntity game) {
         String title = "Title: " + game.getTitle();
-        titleText.setText(title);
+        binding.gameTitle.setText(title);
 
         String description = "Description:\n" + game.getDescription();
-        descriptionText.setText(description);
+        binding.gameDescription.setText(description);
 
-        Glide.with(requireContext()).load(game.getCoverImage()).into(gameImage);
+        Glide.with(requireContext()).load(game.getCoverImage()).into(binding.gameImage);
 
         String releaseDate = "ReleaseDate: " + game.getReleaseDate();
-        releaseDateText.setText(releaseDate);
+        binding.gameReleaseDate.setText(releaseDate);
 
         String price = "Price: " + game.getPrice();
-        priceText.setText(price);
+        binding.gamePrice.setText(price);
 
         String developer = "Developer: " + game.getDeveloper();
-        developerText.setText(developer);
+        binding.gameDeveloper.setText(developer);
 
         String publisher = "Publisher: " + game.getPublisher();
-        publisherText.setText(publisher);
+        binding.gamePublisher.setText(publisher);
 
         String rating = "Rating: " + game.getAverageRating();
-        ratingText.setText(rating);
+        binding.gameRating.setText(rating);
 
         String favoriteAmount = "FavoriteAmount: " + game.getFavoriteOf().size();
-        favoriteAmountText.setText(favoriteAmount);
+        binding.gameFavoriteAmount.setText(favoriteAmount);
 
         String wantToPlayAmount = "WantToPlayAmount: " + game.getWantToPlay().size();
-        wantToPlayAmountText.setText(wantToPlayAmount);
+        binding.gameWantToPlayAmount.setText(wantToPlayAmount);
 
         String havePlayedAmount = "HavePlayedAmount: " + game.getHavePlayed().size();
-        havePlayedAmountText.setText(havePlayedAmount);
+        binding.gameHavePlayedAmount.setText(havePlayedAmount);
 
         genreAdapter.setData(game.getGenres());
         reviewAdapter.setData(game.getReviews());
+    }
+
+    //Code from developer.android.com
+    //Ensures binding is null when fragment is destroyed to avoid memory leaks
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }
 

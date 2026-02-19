@@ -29,10 +29,9 @@ public class AllGamesViewModel extends ViewModel {
         return games;
     }
 
-    public void init(GameService gameService, int startPage) {
+    public void init(GameService gameService) {
         this.gameService = gameService;
         if (games.getValue() == null) {
-            currentPage = startPage;
             fetchGames(currentPage);
         }
     }

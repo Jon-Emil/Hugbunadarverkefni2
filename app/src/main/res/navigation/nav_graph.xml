@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/navigation_home"
+    >
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="is.hbv601g.gamecatalog.pages.all_games.AllGamesFragment"
+        android:label="All Games"
+        tools:layout="@layout/fragment_all_games"
+        />
+
+    <fragment
+        android:id="@+id/navigation_login"
+        android:name="is.hbv601g.gamecatalog.pages.login.LogInFragment"
+        android:label="Log In"
+        tools:layout="@layout/fragment_login"
+        />
+
+    <fragment
+        android:id="@+id/navigation_specific_game"
+        android:name="is.hbv601g.gamecatalog.pages.specific_game.SpecificGameFragment"
+        android:label="Game Details">
+
+        <argument
+            android:name="game_id"
+            app:argType="long" />
+    </fragment>
+
+
+
+</navigation>

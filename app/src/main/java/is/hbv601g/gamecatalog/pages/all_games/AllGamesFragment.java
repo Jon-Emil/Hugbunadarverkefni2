@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,6 +20,7 @@ import java.util.List;
 
 import is.hbv601g.gamecatalog.R;
 import is.hbv601g.gamecatalog.adapters.GameAdapter;
+import is.hbv601g.gamecatalog.databinding.FragmentAllGamesBinding;
 import is.hbv601g.gamecatalog.entities.game.ListedGameEntity;
 import is.hbv601g.gamecatalog.pages.specific_game.SpecificGameFragment;
 import is.hbv601g.gamecatalog.services.GameService;
@@ -25,25 +28,18 @@ import is.hbv601g.gamecatalog.services.NetworkService;
 
 public class AllGamesFragment extends Fragment {
 
-    private static final String ARG_PAGE_NR = "page_nr";
 
     private AllGamesViewModel viewModel;
 
-    private TextView pageDisplayText;
-    private Button previousPageButton;
-    private Button nextPageButton;
-
-    private RecyclerView gameRecycler;
+    private FragmentAllGamesBinding binding;
     private GameAdapter gameAdapter;
 
-    public static AllGamesFragment newInstance(int pageNr) {
-        AllGamesFragment fragment = new AllGamesFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_PAGE_NR, pageNr);
-        fragment.setArguments(args);
-        return fragment;
+    public AllGamesFragment() {
+        //Required empty constructor
     }
 
+    //Code boilerplate from developer.android.com
+    //Inflates the layout for this fragment
     @Nullable
     @Override
     public View onCreateView(
@@ -51,62 +47,75 @@ public class AllGamesFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState
     ) {
-        return inflater.inflate(R.layout.fragment_all_games, container, false);
+        binding = FragmentAllGamesBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        pageDisplayText = view.findViewById(R.id.pageDisplay);
-        previousPageButton = view.findViewById(R.id.previousPage);
-        nextPageButton = view.findViewById(R.id.nextPage);
-
-        gameRecycler = view.findViewById(R.id.gameRecycler);
         gameAdapter = new GameAdapter(game -> openSpecificGame(game.getId()));
-        gameRecycler.setLayoutManager(
+        binding.gameRecycler.setLayoutManager(
                 new LinearLayoutManager(
                         requireContext(),
                         LinearLayoutManager.VERTICAL,
                         false
                 )
         );
-        gameRecycler.setAdapter(gameAdapter);
+        binding.gameRecycler.setAdapter(gameAdapter);
 
-        nextPageButton.setOnClickListener(v -> {
-            viewModel.nextPage();
-        });
-
-        previousPageButton.setOnClickListener(v -> {
-            viewModel.previousPage();
-        });
-
-        int pageNr = getArguments().getInt(ARG_PAGE_NR);
+        //Initialize ViewModel
+        viewModel = new ViewModelProvider(this).get(AllGamesViewModel.class);
 
         NetworkService networkService = new NetworkService();
         GameService gameService = new GameService(networkService);
 
-        viewModel = new ViewModelProvider(this).get(AllGamesViewModel.class);
-        viewModel.init(gameService, pageNr);
+        viewModel.init(gameService);
+
+        binding.nextPage.setOnClickListener(v -> {
+            viewModel.nextPage();
+        });
+
+        binding.previousPage.setOnClickListener(v -> {
+            viewModel.previousPage();
+        });
+
         viewModel.getGames().observe(getViewLifecycleOwner(), this::updateGamesInfo);
     }
 
     public void updateGamesInfo(List<ListedGameEntity> games) {
         gameAdapter.setData(games);
         String pageDisplay = "Page " + viewModel.getCurrentPage();
-        pageDisplayText.setText(pageDisplay);
+        binding.pageDisplay.setText(pageDisplay);
     }
 
     private void openSpecificGame(long gameId) {
-        Fragment fragment = SpecificGameFragment.newInstance(gameId);
-        String pageDisplay = "Page " + viewModel.getCurrentPage();
-        pageDisplayText.setText(pageDisplay);
+        Bundle bundle = new Bundle();
+        bundle.putLong("game_id", gameId);
 
-        requireActivity()
-                .getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragmentContainer, fragment)
-                .addToBackStack(null)
-                .commit();
+        NavController navController = Navigation.findNavController(requireView());
+        navController.navigate(R.id.navigation_specific_game, bundle);
+        /**
+         Fragment fragment = SpecificGameFragment.newInstance(gameId);
+         String pageDisplay = "Page " + viewModel.getCurrentPage();
+         binding.pageDisplay.setText(pageDisplay);
+
+         requireActivity()
+         .getSupportFragmentManager()
+         .beginTransaction()
+         .replace(R.id.nav_host_fragment_activity_main, fragment)
+         .addToBackStack(null)
+         .commit();
+         }
+         */
     }
+
+    //Code from developer.android.com
+    //Ensures binding is null when fragment is destroyed to avoid memory leaks
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
 }
