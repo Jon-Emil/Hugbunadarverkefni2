@@ -1,17 +1,67 @@
 package is.hbv601g.gamecatalog.helpers;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import is.hbv601g.gamecatalog.entities.game.ListedGameEntity;
 import is.hbv601g.gamecatalog.entities.game.SimpleGameEntity;
 import is.hbv601g.gamecatalog.entities.genre.SimpleGenreEntity;
 import is.hbv601g.gamecatalog.entities.review.SimpleReviewEntity;
 import is.hbv601g.gamecatalog.entities.user.SimpleUserEntity;
 
 public class JSONArrayHelper {
+
+    public static List<ListedGameEntity> getListedGame(JSONArray jsonArray) throws JSONException {
+        List<ListedGameEntity> fetchedGames = new ArrayList<>();
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject json = jsonArray.getJSONObject(i);
+            long id = json.getLong("id");
+            String title = json.getString("title");
+            String description = json.getString("description");
+            String releaseDate = json.getString("releaseDate");
+            float price = (float) json.getDouble("price"); // no getFloat so casting is needed
+            String coverImage = json.getString("coverImage");
+            String developer = json.getString("developer");
+            String publisher = json.getString("publisher");
+            int reviewAmount = json.getInt("reviewAmount");
+
+            Float averageRating = null;
+            if (!json.isNull("averageRating")) {
+                averageRating = (float) json.getDouble("averageRating");
+            }
+
+            int favoriteAmount = json.getInt("favoriteAmount");
+            int wantToPlayAmount = json.getInt("wantToPlayAmount");
+            int havePlayedAmount = json.getInt("havePlayedAmount");
+
+            JSONArray genresJson = json.getJSONArray("genres");
+            List<SimpleGenreEntity> genres = JSONArrayHelper.makeGenreList(genresJson);
+
+            ListedGameEntity fetchedGame = new ListedGameEntity(
+                    id,
+                    title,
+                    description,
+                    releaseDate,
+                    price,
+                    coverImage,
+                    developer,
+                    publisher,
+                    reviewAmount,
+                    averageRating,
+                    favoriteAmount,
+                    wantToPlayAmount,
+                    havePlayedAmount,
+                    genres
+            );
+            fetchedGames.add(fetchedGame);
+        }
+        return fetchedGames;
+    }
 
     public static List<SimpleGameEntity> makeGameList(JSONArray array) {
         try {
