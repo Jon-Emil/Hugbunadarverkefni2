@@ -11,9 +11,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import is.hbv601g.gamecatalog.entities.game.DetailedGameEntity;
 import is.hbv601g.gamecatalog.entities.game.ListedGameEntity;
 import is.hbv601g.gamecatalog.entities.genre.SimpleGenreEntity;
 import is.hbv601g.gamecatalog.helpers.JSONArrayHelper;
+import is.hbv601g.gamecatalog.helpers.ServiceCallback;
 import is.hbv601g.gamecatalog.services.GameService;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -56,67 +58,15 @@ public class AllGamesViewModel extends ViewModel {
     }
 
     private void fetchGames(int pageNr) {
-        gameService.getAllGames(pageNr, "title", false, new Callback() {
+        gameService.getAllGames(pageNr, "title", false, new ServiceCallback<List<ListedGameEntity>>() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onError(Exception e) {
                 e.printStackTrace();
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                try {
-                    String body = response.body().string();
-                    JSONObject json = new JSONObject(body);
-                    JSONArray jsonArray = json.getJSONArray("data");
-                    List<ListedGameEntity> fetchedGames = new ArrayList<>();
-
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        json = jsonArray.getJSONObject(i);
-                        long id = json.getLong("id");
-                        String title = json.getString("title");
-                        String description = json.getString("description");
-                        String releaseDate = json.getString("releaseDate");
-                        float price = (float) json.getDouble("price"); // no getFloat so casting is needed
-                        String coverImage = json.getString("coverImage");
-                        String developer = json.getString("developer");
-                        String publisher = json.getString("publisher");
-                        int reviewAmount = json.getInt("reviewAmount");
-
-                        Float averageRating = null;
-                        if (!json.isNull("averageRating")) {
-                            averageRating = (float) json.getDouble("averageRating");
-                        }
-
-                        int favoriteAmount = json.getInt("favoriteAmount");
-                        int wantToPlayAmount = json.getInt("wantToPlayAmount");
-                        int havePlayedAmount = json.getInt("havePlayedAmount");
-
-                        JSONArray genresJson = json.getJSONArray("genres");
-                        List<SimpleGenreEntity> genres = JSONArrayHelper.makeGenreList(genresJson);
-
-                        ListedGameEntity fetchedGame = new ListedGameEntity(
-                                id,
-                                title,
-                                description,
-                                releaseDate,
-                                price,
-                                coverImage,
-                                developer,
-                                publisher,
-                                reviewAmount,
-                                averageRating,
-                                favoriteAmount,
-                                wantToPlayAmount,
-                                havePlayedAmount,
-                                genres
-                        );
-                        fetchedGames.add(fetchedGame);
-                    }
-                    games.postValue(fetchedGames);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            public void onSuccess(List<ListedGameEntity> fetchedGames) {
+                games.postValue(fetchedGames);
             }
         });
     }
