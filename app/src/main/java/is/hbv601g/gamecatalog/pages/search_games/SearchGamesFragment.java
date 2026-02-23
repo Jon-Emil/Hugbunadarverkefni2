@@ -1,8 +1,11 @@
 package is.hbv601g.gamecatalog.pages.search_games;
 
+import static android.content.ContentValues.TAG;
+
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +27,7 @@ import is.hbv601g.gamecatalog.adapters.GameAdapter;
 import is.hbv601g.gamecatalog.databinding.FragmentSearchGamesBinding;
 import is.hbv601g.gamecatalog.entities.game.ListedGameEntity;
 import is.hbv601g.gamecatalog.services.GameService;
+import is.hbv601g.gamecatalog.services.GenreService;
 import is.hbv601g.gamecatalog.services.NetworkService;
 
 public class SearchGamesFragment extends Fragment {
@@ -64,12 +68,13 @@ public class SearchGamesFragment extends Fragment {
         binding.gameRecycler.setAdapter(gameAdapter);
 
         //Initialize ViewModel
-        viewModel = new ViewModelProvider(this).get(SearchGamesViewModel.class);
+        viewModel = new ViewModelProvider(requireActivity()).get(SearchGamesViewModel.class);
 
         NetworkService networkService = new NetworkService();
         GameService gameService = new GameService(networkService);
+        GenreService genreService = new GenreService(networkService);
 
-        viewModel.init(gameService);
+        viewModel.init(gameService, genreService);
 
         String[] modes = {"title", "releaseDate", "price", "developer", "publisher", "reviewAmount", "favoritesAmount", "wantToPlayAmount", "havePlayedAmount", "averageRating"};
 
@@ -121,6 +126,18 @@ public class SearchGamesFragment extends Fragment {
 
         binding.searchButton.setOnClickListener(v -> {
             viewModel.loadPage(viewModel.getCurrentPage());
+        });
+
+        binding.advancedSearchButton.setOnClickListener(v -> {
+            AdvancedSearchBottomSheet sheet =
+                    new AdvancedSearchBottomSheet();
+
+            sheet.setFilterListener((params) -> {
+                viewModel.setAdvancedSearchParameters(params);
+            });
+
+            sheet.show(getParentFragmentManager(),
+                    "AdvancedSheet");
         });
 
         binding.nextPage.setOnClickListener(v -> {
