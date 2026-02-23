@@ -1,20 +1,19 @@
 package is.hbv601g.gamecatalog.entities.extras;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AdvancedSearchParameters {
 
-    private String title;
-    private Float minPrice;
-    private Float maxPrice;
-    private String releasedAfter;
-    private String releasedBefore;
-    private String developer;
-    private String publisher;
-    private List<String> genres;
+    private Float minPrice = null;
+    private Float maxPrice = null;
+    private String releasedAfter = "";
+    private String releasedBefore = "";
+    private String developer = "";
+    private String publisher = "";
+    private List<String> genres = new ArrayList<>();
 
     public AdvancedSearchParameters(
-            String title,
             Float minPrice,
             Float maxPrice,
             String releasedAfter,
@@ -23,7 +22,6 @@ public class AdvancedSearchParameters {
             String publisher,
             List<String> genres
     ) {
-        this.title = title;
         this.minPrice = minPrice;
         this.maxPrice = maxPrice;
         this.releasedAfter = releasedAfter;
@@ -33,13 +31,7 @@ public class AdvancedSearchParameters {
         this.genres = genres;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    public AdvancedSearchParameters() {}
 
     public Float getMinPrice() {
         return minPrice;

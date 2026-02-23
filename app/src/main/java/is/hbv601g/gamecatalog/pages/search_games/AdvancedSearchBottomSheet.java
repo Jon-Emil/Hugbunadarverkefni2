@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 
 import androidx.lifecycle.ViewModelProvider;
 
@@ -21,6 +22,7 @@ import java.util.Set;
 
 import is.hbv601g.gamecatalog.adapters.GenreParamAdapter;
 import is.hbv601g.gamecatalog.databinding.BottomSheetAdvancedSearchBinding;
+import is.hbv601g.gamecatalog.entities.extras.AdvancedSearchParameters;
 
 public class AdvancedSearchBottomSheet extends BottomSheetDialogFragment {
 
@@ -55,53 +57,12 @@ public class AdvancedSearchBottomSheet extends BottomSheetDialogFragment {
         viewModel = new ViewModelProvider(requireActivity())
                 .get(SearchGamesViewModel.class); // same instance of the view model as the fragment
 
-        // should make this a function call in the future
         binding.releasedAfterInput.setOnClickListener(v -> {
-            Calendar calendar = Calendar.getInstance();
-
-            int year = calendar.get(Calendar.YEAR);
-            int month = calendar.get(Calendar.MONTH);
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-            DatePickerDialog picker = new DatePickerDialog(
-                    requireContext(),
-                    (pickerView, selectedYear, selectedMonth, selectedDay) -> {
-
-                        String date =
-                                selectedYear + "-" +
-                                (selectedMonth + 1) + "-" +
-                                selectedDay;
-
-                        binding.releasedAfterInput.setText(date);
-                    },
-                    year, month, day
-            );
-
-            picker.show();
+            showDatePicker(binding.releasedAfterInput);
         });
 
         binding.releasedBeforeInput.setOnClickListener(v -> {
-            Calendar calendar = Calendar.getInstance();
-
-            int year = calendar.get(Calendar.YEAR);
-            int month = calendar.get(Calendar.MONTH);
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-            DatePickerDialog picker = new DatePickerDialog(
-                    requireContext(),
-                    (pickerView, selectedYear, selectedMonth, selectedDay) -> {
-
-                        String date =
-                                selectedYear + "-" +
-                                (selectedMonth + 1) + "-" +
-                                selectedDay;
-
-                        binding.releasedBeforeInput.setText(date);
-                    },
-                    year, month, day
-            );
-
-            picker.show();
+            showDatePicker(binding.releasedBeforeInput);
         });
 
         binding.genreRecyclerView.setLayoutManager(new FlexboxLayoutManager(getContext()));
@@ -113,8 +74,43 @@ public class AdvancedSearchBottomSheet extends BottomSheetDialogFragment {
         });
 
         binding.applyButton.setOnClickListener(v -> {
+            String minPriceString = binding.minPriceInput.getText().toString();
+            String maxPriceString = binding.maxPriceInput.getText().toString();
 
-            sendResult();
+            Float minPrice;
+            Float maxPrice;
+
+            if (minPriceString.isEmpty()) {
+                minPrice = null;
+            } else {
+               minPrice = Float.valueOf(minPriceString);
+            }
+
+            if (maxPriceString.isEmpty()) {
+                maxPrice = null;
+            } else {
+                maxPrice = Float.valueOf(maxPriceString);
+            }
+
+            String releasedAfter = binding.releasedAfterInput.getText().toString();
+            String releasedBefore = binding.releasedBeforeInput.getText().toString();
+
+            String developer = binding.developerInput.getText().toString();
+            String publisher = binding.publisherInput.getText().toString();
+
+            List<String> genres = new ArrayList<>(genreParamAdapter.getSelectedGenres());
+
+            AdvancedSearchParameters params = new AdvancedSearchParameters(
+                    minPrice,
+                    maxPrice,
+                    releasedAfter,
+                    releasedBefore,
+                    developer,
+                    publisher,
+                    genres
+            );
+
+            sendResult(params);
             dismiss();
         });
     }
@@ -124,7 +120,7 @@ public class AdvancedSearchBottomSheet extends BottomSheetDialogFragment {
     }
 
     public interface FilterListener {
-        void onFiltersApplied();
+        void onFiltersApplied(AdvancedSearchParameters params);
     }
 
     private FilterListener listener;
@@ -133,9 +129,33 @@ public class AdvancedSearchBottomSheet extends BottomSheetDialogFragment {
         this.listener = listener;
     }
 
-    private void sendResult() {
+    private void sendResult(AdvancedSearchParameters params) {
         if (listener != null) {
-            listener.onFiltersApplied();
+            listener.onFiltersApplied(params);
         }
+    }
+
+    private void showDatePicker(EditText view) {
+        Calendar calendar = Calendar.getInstance();
+
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog picker = new DatePickerDialog(
+                requireContext(),
+                (pickerView, selectedYear, selectedMonth, selectedDay) -> {
+
+                    String date =
+                            selectedYear + "-" +
+                                    (selectedMonth + 1) + "-" +
+                                    selectedDay;
+
+                    view.setText(date);
+                },
+                year, month, day
+        );
+
+        picker.show();
     }
 }

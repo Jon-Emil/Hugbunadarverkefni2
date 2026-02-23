@@ -132,9 +132,8 @@ public class SearchGamesFragment extends Fragment {
             AdvancedSearchBottomSheet sheet =
                     new AdvancedSearchBottomSheet();
 
-            sheet.setFilterListener(() -> {
-
-
+            sheet.setFilterListener((params) -> {
+                viewModel.setAdvancedSearchParameters(params);
             });
 
             sheet.show(getParentFragmentManager(),

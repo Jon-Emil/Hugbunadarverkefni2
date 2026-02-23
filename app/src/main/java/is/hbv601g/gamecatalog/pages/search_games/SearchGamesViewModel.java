@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import is.hbv601g.gamecatalog.entities.extras.AdvancedSearchParameters;
 import is.hbv601g.gamecatalog.entities.game.ListedGameEntity;
 import is.hbv601g.gamecatalog.entities.genre.ListedGenreEntity;
 import is.hbv601g.gamecatalog.entities.genre.SimpleGenreEntity;
@@ -27,14 +28,17 @@ import okhttp3.Response;
 public class SearchGamesViewModel extends ViewModel {
 
     private final MutableLiveData<List<ListedGameEntity>> games = new MutableLiveData<>();
-    private GameService gameService;
-    private GenreService genreService;
-    private int currentPage = 1;
-    private String gameTitleParam = "";
-    private boolean sortReverse = false;
-    private String sortBy = "title";
     private final MutableLiveData<List<ListedGenreEntity>> genres =
             new MutableLiveData<>(new ArrayList<>());
+
+    private GameService gameService;
+    private GenreService genreService;
+
+    private int currentPage = 1;
+    private boolean sortReverse = false;
+    private String sortBy = "title";
+    private String gameTitleParam = "";
+    private AdvancedSearchParameters advancedSearchParameters = new AdvancedSearchParameters();
 
     public LiveData<List<ListedGameEntity>> getGames() {
         return games;
@@ -86,8 +90,13 @@ public class SearchGamesViewModel extends ViewModel {
         this.sortBy = sortBy;
     }
 
+    public void setAdvancedSearchParameters(AdvancedSearchParameters params) {
+        advancedSearchParameters = params;
+        Log.d("TAG", params.getDeveloper());
+    }
+
     private void fetchGames(int pageNr) {
-        gameService.getSearchedGames(gameTitleParam, pageNr, sortBy, sortReverse, new ServiceCallback<List<ListedGameEntity>>() {
+        gameService.getSearchedGames(gameTitleParam, advancedSearchParameters, pageNr, sortBy, sortReverse, new ServiceCallback<List<ListedGameEntity>>() {
             @Override
             public void onError(Exception e) {
                 e.printStackTrace();
