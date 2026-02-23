@@ -14,26 +14,46 @@
         android:maxLines="1"
         />
 
-    <Spinner
-        android:id="@+id/sortBySelector"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <ToggleButton
-        android:id="@+id/sortReverseToggleButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textOn="Reverse On"
-        android:textOff="Reverse Off"
-        />
+        <Spinner
+            android:id="@+id/sortBySelector"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
 
-    <Button
-        android:id="@+id/searchButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@android:color/holo_red_light"
-        android:text="Search" />
+        <ToggleButton
+            android:id="@+id/sortReverseToggleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOn="Reverse On"
+            android:textOff="Reverse Off"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/searchButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/holo_red_light"
+            android:text="Search"
+            android:layout_marginEnd="10dp"/>
+
+        <Button
+            android:id="@+id/advancedSearchButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/holo_red_light"
+            android:text="Advanced Search"/>
+    </LinearLayout>
 
     <TextView
         android:id="@+id/pageDisplay"
@@ -58,7 +78,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/holo_red_light"
-            android:text="@string/previous_page" />
+            android:text="@string/previous_page"
+            android:layout_marginEnd="10dp"/>
 
         <Button
             android:id="@+id/nextPage"

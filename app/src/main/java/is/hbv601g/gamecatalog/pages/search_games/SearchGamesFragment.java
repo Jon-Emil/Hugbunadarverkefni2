@@ -1,8 +1,11 @@
 package is.hbv601g.gamecatalog.pages.search_games;
 
+import static android.content.ContentValues.TAG;
+
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -121,6 +124,19 @@ public class SearchGamesFragment extends Fragment {
 
         binding.searchButton.setOnClickListener(v -> {
             viewModel.loadPage(viewModel.getCurrentPage());
+        });
+
+        binding.advancedSearchButton.setOnClickListener(v -> {
+            AdvancedSearchBottomSheet sheet =
+                    new AdvancedSearchBottomSheet();
+
+            sheet.setFilterListener(() -> {
+
+
+            });
+
+            sheet.show(getParentFragmentManager(),
+                    "AdvancedSheet");
         });
 
         binding.nextPage.setOnClickListener(v -> {
