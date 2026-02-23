@@ -30,7 +30,7 @@ public class AdvancedSearchBottomSheet extends BottomSheetDialogFragment {
     private GenreParamAdapter genreParamAdapter;
     private SearchGamesViewModel viewModel;
 
-    // drag behavior was very inconsistant if it worked correctly or not
+    // drag behavior was very inconsistent if it worked correctly or not
     // so we just disable it like this
     @Override
     public void onStart() {
@@ -57,16 +57,58 @@ public class AdvancedSearchBottomSheet extends BottomSheetDialogFragment {
         viewModel = new ViewModelProvider(requireActivity())
                 .get(SearchGamesViewModel.class); // same instance of the view model as the fragment
 
+        AdvancedSearchParameters savedParams = viewModel.getAdvancedSearchParameters();
+
+        Float savedMinPrice = savedParams.getMinPrice();
+        if (savedMinPrice != null) {
+            binding.minPriceInput.setText(String.valueOf(savedMinPrice));
+        }
+
+        Float savedMaxPrice = savedParams.getMaxPrice();
+        if (savedMaxPrice != null) {
+            binding.maxPriceInput.setText(String.valueOf(savedMaxPrice));
+        }
+
+        String savedReleasedAfter = savedParams.getReleasedAfter();
+        if (!savedReleasedAfter.isEmpty()) {
+            binding.releasedAfterInput.setText(savedReleasedAfter);
+        }
+
+        String savedReleasedBefore = savedParams.getReleasedBefore();
+        if (!savedReleasedBefore.isEmpty()) {
+            binding.releasedBeforeInput.setText(savedReleasedBefore);
+        }
+
+        String savedDeveloper = savedParams.getDeveloper();
+        if (!savedDeveloper.isEmpty()) {
+            binding.developerInput.setText(savedDeveloper);
+        }
+
+        String savedPublisher = savedParams.getPublisher();
+        if (!savedPublisher.isEmpty()) {
+            binding.publisherInput.setText(savedPublisher);
+        }
+
         binding.releasedAfterInput.setOnClickListener(v -> {
             showDatePicker(binding.releasedAfterInput);
+        });
+
+        binding.releasedAfterClearButton.setOnClickListener(v -> {
+            binding.releasedAfterInput.setText("");
         });
 
         binding.releasedBeforeInput.setOnClickListener(v -> {
             showDatePicker(binding.releasedBeforeInput);
         });
 
+        binding.releasedBeforeClearButton.setOnClickListener(v -> {
+            binding.releasedBeforeInput.setText("");
+        });
+
         binding.genreRecyclerView.setLayoutManager(new FlexboxLayoutManager(getContext()));
-        genreParamAdapter = new GenreParamAdapter(viewModel.getGenres().getValue());
+        genreParamAdapter = new GenreParamAdapter(
+                viewModel.getGenres().getValue(),
+                viewModel.getAdvancedSearchParameters().getGenres());
         binding.genreRecyclerView.setAdapter(genreParamAdapter);
 
         viewModel.getGenres().observe(getViewLifecycleOwner(), genres -> {

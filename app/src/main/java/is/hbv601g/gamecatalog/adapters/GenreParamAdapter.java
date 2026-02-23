@@ -19,10 +19,11 @@ import is.hbv601g.gamecatalog.entities.genre.ListedGenreEntity;
 public class GenreParamAdapter extends RecyclerView.Adapter<GenreParamAdapter.GenreViewHolder> {
 
     private List<ListedGenreEntity> genreList;
-    private Set<String> selectedGenres = new HashSet<>();
+    private Set<String> selectedGenres;
 
-    public GenreParamAdapter(List<ListedGenreEntity> genreList) {
+    public GenreParamAdapter(List<ListedGenreEntity> genreList, List<String> savedSelectedGenres) {
         this.genreList = genreList;
+        this.selectedGenres = new HashSet<>(savedSelectedGenres);
     }
 
     public Set<String> getSelectedGenres() {

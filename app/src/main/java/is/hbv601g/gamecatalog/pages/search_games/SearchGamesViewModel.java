@@ -92,7 +92,10 @@ public class SearchGamesViewModel extends ViewModel {
 
     public void setAdvancedSearchParameters(AdvancedSearchParameters params) {
         advancedSearchParameters = params;
-        Log.d("TAG", params.getDeveloper());
+    }
+
+    public AdvancedSearchParameters getAdvancedSearchParameters() {
+        return advancedSearchParameters;
     }
 
     private void fetchGames(int pageNr) {
