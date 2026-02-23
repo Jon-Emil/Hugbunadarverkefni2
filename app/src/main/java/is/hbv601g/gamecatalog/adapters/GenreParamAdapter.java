@@ -14,18 +14,24 @@ import java.util.List;
 import java.util.Set;
 
 import is.hbv601g.gamecatalog.R;
+import is.hbv601g.gamecatalog.entities.genre.ListedGenreEntity;
 
 public class GenreParamAdapter extends RecyclerView.Adapter<GenreParamAdapter.GenreViewHolder> {
 
-    private List<String> genreList;
+    private List<ListedGenreEntity> genreList;
     private Set<String> selectedGenres = new HashSet<>();
 
-    public GenreParamAdapter(List<String> genreList) {
+    public GenreParamAdapter(List<ListedGenreEntity> genreList) {
         this.genreList = genreList;
     }
 
     public Set<String> getSelectedGenres() {
         return selectedGenres;
+    }
+
+    public void updateData(List<ListedGenreEntity> newGenres) {
+        this.genreList = newGenres;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -38,17 +44,18 @@ public class GenreParamAdapter extends RecyclerView.Adapter<GenreParamAdapter.Ge
 
     @Override
     public void onBindViewHolder(@NonNull GenreViewHolder holder, int position) {
-        String genre = genreList.get(position);
-        holder.chip.setText(genre);
+        ListedGenreEntity genre = genreList.get(position);
+        String displayText = genre.getTitle() + " " + genre.getGameAmount();
+        holder.chip.setText(displayText);
 
         holder.chip.setOnCheckedChangeListener(null);
-        holder.chip.setChecked(selectedGenres.contains(genre));
+        holder.chip.setChecked(selectedGenres.contains(genre.getTitle()));
 
         holder.chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                selectedGenres.add(genre);
+                selectedGenres.add(genre.getTitle());
             } else {
-                selectedGenres.remove(genre);
+                selectedGenres.remove(genre.getTitle());
             }
         });
     }

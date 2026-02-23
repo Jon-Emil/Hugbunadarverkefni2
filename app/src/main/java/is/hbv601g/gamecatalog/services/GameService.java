@@ -64,7 +64,7 @@ public class GameService {
                     String body = response.body().string();
                     JSONObject json = new JSONObject(body);
                     JSONArray jsonArray = json.getJSONArray("data");
-                    List<ListedGameEntity> fetchedGames = JSONArrayHelper.getListedGame(jsonArray);
+                    List<ListedGameEntity> fetchedGames = JSONArrayHelper.getListedGames(jsonArray);
                     callback.onSuccess(fetchedGames);
                 } catch (Exception e) {
                     callback.onError(e);
@@ -90,7 +90,7 @@ public class GameService {
                     String body = response.body().string();
                     JSONObject json = new JSONObject(body);
                     JSONArray jsonArray = json.getJSONArray("data");
-                    List<ListedGameEntity> fetchedGames = JSONArrayHelper.getListedGame(jsonArray);
+                    List<ListedGameEntity> fetchedGames = JSONArrayHelper.getListedGames(jsonArray);
                     callback.onSuccess(fetchedGames);
                 } catch (Exception e) {
                     callback.onError(e);

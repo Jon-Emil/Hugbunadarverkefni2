@@ -7,11 +7,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.flexbox.FlexboxLayoutManager;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -24,6 +26,19 @@ public class AdvancedSearchBottomSheet extends BottomSheetDialogFragment {
 
     private BottomSheetAdvancedSearchBinding binding;
     private GenreParamAdapter genreParamAdapter;
+    private SearchGamesViewModel viewModel;
+
+    // drag behavior was very inconsistant if it worked correctly or not
+    // so we just disable it like this
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        View bottomSheet = (View) getView().getParent();
+        BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
+
+        behavior.setDraggable(false);
+    }
 
     @Override
     public View onCreateView(
@@ -37,7 +52,8 @@ public class AdvancedSearchBottomSheet extends BottomSheetDialogFragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        Button applyBtn = binding.applyButton;
+        viewModel = new ViewModelProvider(requireActivity())
+                .get(SearchGamesViewModel.class); // same instance of the view model as the fragment
 
         // should make this a function call in the future
         binding.releasedAfterInput.setOnClickListener(v -> {
@@ -77,8 +93,8 @@ public class AdvancedSearchBottomSheet extends BottomSheetDialogFragment {
 
                         String date =
                                 selectedYear + "-" +
-                                        (selectedMonth + 1) + "-" +
-                                        selectedDay;
+                                (selectedMonth + 1) + "-" +
+                                selectedDay;
 
                         binding.releasedBeforeInput.setText(date);
                     },
@@ -88,17 +104,15 @@ public class AdvancedSearchBottomSheet extends BottomSheetDialogFragment {
             picker.show();
         });
 
-        List<String> genres = Arrays.asList(
-                "Action", "Adventure", "RPG", "Shooter",
-                "Horror", "Strategy", "Simulation",
-                "Sports", "Puzzle", "Platformer"
-        );
-
         binding.genreRecyclerView.setLayoutManager(new FlexboxLayoutManager(getContext()));
-        genreParamAdapter = new GenreParamAdapter(genres);
+        genreParamAdapter = new GenreParamAdapter(viewModel.getGenres().getValue());
         binding.genreRecyclerView.setAdapter(genreParamAdapter);
 
-        applyBtn.setOnClickListener(v -> {
+        viewModel.getGenres().observe(getViewLifecycleOwner(), genres -> {
+            genreParamAdapter.updateData(genres);
+        });
+
+        binding.applyButton.setOnClickListener(v -> {
 
             sendResult();
             dismiss();
