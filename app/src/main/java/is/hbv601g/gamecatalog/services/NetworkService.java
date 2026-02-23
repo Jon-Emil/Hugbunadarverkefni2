@@ -1,5 +1,8 @@
 package is.hbv601g.gamecatalog.services;
 
+import android.content.Context;
+
+import is.hbv601g.gamecatalog.storage.TokenManager;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -13,16 +16,26 @@ public class NetworkService {
 
     private static final String baseUrl = "https://hbv1-gamecatalog.onrender.com";
     private final OkHttpClient client;
+    private final TokenManager tokenManager;
 
-    public NetworkService() {
+
+    public NetworkService(Context context) {
+
         this.client = new OkHttpClient();
+        this.tokenManager = new TokenManager(context);
     }
 
     public Call getRequest(String endpoint, Callback callback) {
-        Request request = new Request.Builder()
+        Request.Builder builder = new Request.Builder()
                 .url(baseUrl + endpoint)
-                .get()
-                .build();
+                .get();
+
+        String token = tokenManager.getToken();
+        if (token != null) {
+            builder.addHeader("Authorization", "Bearer " + token);
+        }
+
+        Request request = builder.build();
 
         Call call = client.newCall(request);
         call.enqueue(callback);
@@ -32,10 +45,16 @@ public class NetworkService {
     public Call postRequest(String endpoint, String jsonBody, Callback callback) {
         RequestBody body = RequestBody.create(jsonBody, JSON);
 
-        Request request = new Request.Builder()
+        Request.Builder builder = new Request.Builder()
                 .url(baseUrl + endpoint)
-                .post(body)
-                .build();
+                .post(body);
+
+        String token = tokenManager.getToken();
+        if (token != null) {
+            builder.addHeader("Authorization", "Bearer " + token);
+        }
+
+        Request request = builder.build();
 
         Call call = client.newCall(request);
         call.enqueue(callback);
@@ -45,10 +64,16 @@ public class NetworkService {
     public Call patchRequest(String endpoint, String jsonBody, Callback callback) {
         RequestBody body = RequestBody.create(jsonBody, JSON);
 
-        Request request = new Request.Builder()
+        Request.Builder builder = new Request.Builder()
                 .url(baseUrl + endpoint)
-                .patch(body)
-                .build();
+                .patch(body);
+
+        String token = tokenManager.getToken();
+        if (token != null) {
+            builder.addHeader("Authorization", "Bearer " + token);
+        }
+
+        Request request = builder.build();
 
         Call call = client.newCall(request);
         call.enqueue(callback);
@@ -56,10 +81,16 @@ public class NetworkService {
     }
 
     public Call deleteRequest(String endpoint, Callback callback) {
-        Request request = new Request.Builder()
+        Request.Builder builder = new Request.Builder()
                 .url(baseUrl + endpoint)
-                .delete()
-                .build();
+                .delete();
+
+        String token = tokenManager.getToken();
+        if (token != null) {
+            builder.addHeader("Authorization", "Bearer " + token);
+        }
+
+        Request request = builder.build();
 
         Call call = client.newCall(request);
         call.enqueue(callback);

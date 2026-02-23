@@ -95,7 +95,7 @@ public class SpecificGameFragment extends Fragment {
 
 
 
-        NetworkService networkService = new NetworkService();
+        NetworkService networkService = new NetworkService(requireContext());
         GameService gameService = new GameService(networkService);
 
         viewModel = new ViewModelProvider(this).get(SpecificGameViewModel.class);
