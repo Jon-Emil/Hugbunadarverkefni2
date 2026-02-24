@@ -1,6 +1,8 @@
 package is.hbv601g.gamecatalog.pages.login;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,12 +10,17 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import is.hbv601g.gamecatalog.databinding.FragmentLoginBinding;
+import is.hbv601g.gamecatalog.pages.search_games.SearchGamesViewModel;
+import is.hbv601g.gamecatalog.services.AuthService;
+import is.hbv601g.gamecatalog.services.NetworkService;
 
 public class LogInFragment extends Fragment {
 
     private FragmentLoginBinding binding;
+    private LogInViewModel viewModel;
 
 
     public LogInFragment() {
@@ -38,6 +45,56 @@ public class LogInFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        //Initialize ViewModel
+        viewModel = new ViewModelProvider(requireActivity()).get(LogInViewModel.class);
+
+        NetworkService networkService = new NetworkService(requireContext());
+        AuthService authService = new AuthService(networkService, requireContext());
+
+        viewModel.init(authService);
+
+        binding.EmailInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // required override
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                viewModel.setEmail(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // required override
+            }
+        });
+
+        binding.PasswordInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // required override
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                viewModel.setPassword(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // required override
+            }
+        });
+
+        binding.LoginButton.setOnClickListener(v -> {
+            viewModel.logIn();
+        });
+
+        binding.RegisterButton.setOnClickListener(v -> {
+            viewModel.register();
+        });
 
     }
 
