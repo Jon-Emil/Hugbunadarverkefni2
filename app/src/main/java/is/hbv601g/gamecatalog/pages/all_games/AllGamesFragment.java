@@ -67,7 +67,7 @@ public class AllGamesFragment extends Fragment {
         //Initialize ViewModel
         viewModel = new ViewModelProvider(this).get(AllGamesViewModel.class);
 
-        NetworkService networkService = new NetworkService();
+        NetworkService networkService = new NetworkService(requireContext());
         GameService gameService = new GameService(networkService);
 
         viewModel.init(gameService);

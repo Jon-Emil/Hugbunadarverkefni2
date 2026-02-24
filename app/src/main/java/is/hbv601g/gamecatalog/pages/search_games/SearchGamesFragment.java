@@ -70,7 +70,7 @@ public class SearchGamesFragment extends Fragment {
         //Initialize ViewModel
         viewModel = new ViewModelProvider(requireActivity()).get(SearchGamesViewModel.class);
 
-        NetworkService networkService = new NetworkService();
+        NetworkService networkService = new NetworkService(requireContext());
         GameService gameService = new GameService(networkService);
         GenreService genreService = new GenreService(networkService);
 
