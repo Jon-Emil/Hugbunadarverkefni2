@@ -6,6 +6,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -94,6 +95,21 @@ public class LogInFragment extends Fragment {
 
         binding.RegisterButton.setOnClickListener(v -> {
             viewModel.register();
+        });
+
+        // Code bits inspired from ChatGPT when trying to understand toasts
+        viewModel.getLoginError().observe(getViewLifecycleOwner(), message -> {
+            if (message != null) {
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        viewModel.getLoginSuccess().observe(getViewLifecycleOwner(), success -> {
+            if (Boolean.TRUE.equals(success)) {
+                Toast.makeText(requireContext(), "Login successful", Toast.LENGTH_SHORT).show();
+
+                // NAVIGATE HERE TO PERSONAL PROFILE
+            }
         });
 
     }

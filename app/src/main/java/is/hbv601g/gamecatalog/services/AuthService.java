@@ -1,18 +1,23 @@
 package is.hbv601g.gamecatalog.services;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 
 import is.hbv601g.gamecatalog.entities.extras.LogInCredentials;
-import is.hbv601g.gamecatalog.entities.game.DetailedGameEntity;
 import is.hbv601g.gamecatalog.helpers.JSONObjectHelper;
+import is.hbv601g.gamecatalog.helpers.LoginCallback;
 import is.hbv601g.gamecatalog.storage.TokenManager;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class AuthService {
     private final NetworkService networkService;
@@ -24,51 +29,84 @@ public class AuthService {
         this.tokenManager = new TokenManager(context);
     }
 
-    public void logIn(LogInCredentials credentials){
+    public void logIn(LogInCredentials credentials, LoginCallback callback){
         String url = "/login";
 
         String credentialString = JSONObjectHelper.convertCredentialsToJsonString(credentials);
-        System.out.println("LOGIN BODY: " + credentialString);
+
 
         networkService.postRequest(url, credentialString, new Callback(){
             @Override
             public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
+                //Code from ChatGPT to make sure the callback is executed on the main thread
+                new Handler(Looper.getMainLooper()).post(() ->
+                        callback.onError("Network error")
+                );
             }
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+                String body = response.body().string();
+
                 if(response.isSuccessful()){
-                    String token = response.body().string();
-                    tokenManager.saveToken(token);
-                    System.out.println("Login successful, Token saved!");
+                    try {
+                        //Parse token response to save only token string
+                        JSONObject json = new JSONObject(body);
+                        JSONArray dataArray = json.getJSONArray("data");
+                        if (dataArray.length() > 0) {
+                            String token = dataArray.getString(0);
+                            tokenManager.saveToken(token);
+                            callback.onSuccess();
+                        }
+                    }catch (JSONException e){
+                        e.printStackTrace();
+                    }
+                }
+                else if(response.code() == 401){
+                    callback.onError("Invalid credentials!");
                 }
                 else{
-                    System.out.println("Login failed" + response.code());
+                    callback.onError("Login failed, something went wrong!");
                 }
             }
         });
     }
 
-    public void register(LogInCredentials credentials){
+    public void register(LogInCredentials credentials, LoginCallback callback){
         String url = "/register";
 
         String credentialString = JSONObjectHelper.convertCredentialsToJsonString(credentials);
-        System.out.println("LOGIN BODY: " + credentialString);
 
         networkService.postRequest(url, credentialString, new Callback(){
             @Override
             public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
+                //Code from ChatGPT to make sure the callback is executed on the main thread
+                new Handler(Looper.getMainLooper()).post(() ->
+                        callback.onError("Network error")
+                );
             }
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+                String body = response.body().string();
+
                 if(response.isSuccessful()){
-                    String token = response.body().string();
-                    tokenManager.saveToken(token);
-                    System.out.println("Login successful, Token saved!");
+                    try {
+                        //Parse token response to save only token string
+                        JSONObject json = new JSONObject(body);
+                        JSONArray dataArray = json.getJSONArray("data");
+                        if (dataArray.length() > 0) {
+                            String token = dataArray.getString(0);
+                            tokenManager.saveToken(token);
+                            callback.onSuccess();
+                        }
+                    }catch (JSONException e){
+                        e.printStackTrace();
+                    }
+                }
+                else if(response.code() == 401){
+                    callback.onError("Invalid credentials!");
                 }
                 else{
-                    System.out.println("Login failed" + response.code());
+                    callback.onError("Registration failed, something went wrong!");
                 }
             }
         });
