@@ -125,7 +125,7 @@ public class SearchGamesFragment extends Fragment {
         }));
 
         binding.searchButton.setOnClickListener(v -> {
-            viewModel.loadPage(viewModel.getCurrentPage());
+            viewModel.refreshPage();
         });
 
         binding.advancedSearchButton.setOnClickListener(v -> {
@@ -136,8 +136,7 @@ public class SearchGamesFragment extends Fragment {
                 viewModel.setAdvancedSearchParameters(params);
             });
 
-            sheet.show(getParentFragmentManager(),
-                    "AdvancedSheet");
+            sheet.show(getParentFragmentManager(), "AdvancedSheet");
         });
 
         binding.nextPage.setOnClickListener(v -> {
@@ -149,12 +148,57 @@ public class SearchGamesFragment extends Fragment {
         });
 
         viewModel.getGames().observe(getViewLifecycleOwner(), this::updateGamesInfo);
+
+        // this calls updatePageInfo twice if both maxPage and currentPage change
+        // but that only happens if new games are added while browsing which is unlikely
+        viewModel.getCurrentPage().observe(getViewLifecycleOwner(), this::updatePageInfo);
+        viewModel.getPageAmount().observe(getViewLifecycleOwner(), this::updatePageInfo);
+
+        viewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            binding.nextPage.setEnabled(!isLoading);
+            binding.previousPage.setEnabled(!isLoading);
+            binding.searchButton.setEnabled(!isLoading);
+            if (isLoading) {
+                binding.loadingIndicator.setVisibility(View.VISIBLE);
+                binding.gameRecycler.setAlpha(0.3f);
+            } else {
+                binding.loadingIndicator.setVisibility(View.GONE);
+                binding.gameRecycler.setAlpha(1f);
+            }
+        });
+
+        viewModel.getErrorMessage().observe(getViewLifecycleOwner(), errorMessage -> {
+            binding.gameListErrorMessage.setText(errorMessage);
+            binding.gameRecycler.setVisibility(View.GONE);
+            binding.loadingIndicator.setVisibility(View.GONE);
+            binding.gameListErrorContainer.setVisibility(View.VISIBLE);
+            binding.previousPage.setEnabled(false);
+            binding.nextPage.setEnabled(false);
+            binding.searchButton.setEnabled(false);
+        });
+
+        binding.gameListRetryButton.setOnClickListener(v -> {
+            binding.gameListErrorContainer.setVisibility(View.GONE);
+            binding.gameRecycler.setVisibility(View.VISIBLE);
+            viewModel.refreshPage();
+        });
     }
 
     public void updateGamesInfo(List<ListedGameEntity> games) {
         gameAdapter.setData(games);
         String pageDisplay = "Page " + viewModel.getCurrentPage();
         binding.pageDisplay.setText(pageDisplay);
+    }
+
+    public void updatePageInfo(Integer ignored) {
+        Integer currentPage = viewModel.getCurrentPage().getValue();
+        Integer pageAmount = viewModel.getPageAmount().getValue();
+
+        String pageAmountDisplay = pageAmount == null ? "?" : pageAmount.toString();
+        String currentPageDisplay = currentPage == null ? "?" : currentPage.toString();
+
+        String pageDisplayText = currentPageDisplay + " / " + pageAmountDisplay;
+        binding.pageDisplay.setText(pageDisplayText);
     }
 
     private void openSpecificGame(long gameId) {
