@@ -100,16 +100,19 @@ public class PersonalProfileFragment extends Fragment {
 
         // Favourite games
         SimpleGameAdapter favouriteAdapter = new SimpleGameAdapter();
+        favouriteAdapter.setOnGameClickListener(gameId -> navigateToGame(gameId));
         favouriteAdapter.setData(user.getFavoriteGames());
         binding.favouriteGames.setAdapter(favouriteAdapter);
 
         // Wants to play
         SimpleGameAdapter wantsToPlayAdapter = new SimpleGameAdapter();
+        wantsToPlayAdapter.setOnGameClickListener(gameId -> navigateToGame(gameId));
         wantsToPlayAdapter.setData(user.getWantToPlayGames());
         binding.wantsToPlay.setAdapter(wantsToPlayAdapter);
 
         // Has played
         SimpleGameAdapter hasPlayedAdapter = new SimpleGameAdapter();
+        hasPlayedAdapter.setOnGameClickListener(gameId -> navigateToGame(gameId));
         hasPlayedAdapter.setData(user.getHavePlayedGames());
         binding.hasPlayed.setAdapter(hasPlayedAdapter);
 
@@ -117,6 +120,12 @@ public class PersonalProfileFragment extends Fragment {
         ReviewAdapter reviewAdapter = new ReviewAdapter();
         reviewAdapter.setData(user.getReviews());
         binding.reviews.setAdapter(reviewAdapter);
+    }
+
+    private void navigateToGame(long gameId) {
+        Bundle args = new Bundle();
+        args.putLong("game_id", gameId);
+        Navigation.findNavController(requireView()).navigate(R.id.navigation_specific_game, args);
     }
 
     public void modifyButtonClicked() {

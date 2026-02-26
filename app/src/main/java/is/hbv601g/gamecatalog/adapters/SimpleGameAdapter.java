@@ -16,7 +16,16 @@ import is.hbv601g.gamecatalog.entities.game.SimpleGameEntity;
 
 public class SimpleGameAdapter extends RecyclerView.Adapter<SimpleGameAdapter.SimpleGameViewHolder> {
 
+    public interface OnGameClickListener {
+        void onGameClick(long gameId);
+    }
+
     private final List<SimpleGameEntity> games = new ArrayList<>();
+    private OnGameClickListener listener;
+
+    public void setOnGameClickListener(OnGameClickListener listener) {
+        this.listener = listener;
+    }
 
     public void setData(List<SimpleGameEntity> newGames) {
         games.clear();
@@ -36,6 +45,11 @@ public class SimpleGameAdapter extends RecyclerView.Adapter<SimpleGameAdapter.Si
     public void onBindViewHolder(@NonNull SimpleGameViewHolder holder, int position) {
         SimpleGameEntity game = games.get(position);
         holder.title.setText(game.getTitle());
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onGameClick(game.getId());
+            }
+        });
     }
 
     @Override
