@@ -3,6 +3,8 @@ package is.hbv601g.gamecatalog.services;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -12,7 +14,9 @@ import java.util.List;
 import is.hbv601g.gamecatalog.entities.game.SimpleGameEntity;
 import is.hbv601g.gamecatalog.entities.review.SimpleReviewEntity;
 import is.hbv601g.gamecatalog.entities.user.DetailedUserEntity;
+import is.hbv601g.gamecatalog.entities.user.SimpleUserEntity;
 import is.hbv601g.gamecatalog.helpers.JSONArrayHelper;
+import is.hbv601g.gamecatalog.helpers.JSONObjectHelper;
 import is.hbv601g.gamecatalog.helpers.ServiceCallback;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -26,20 +30,20 @@ public class UserService {
         this.networkService = networkService;
     }
 
+    // Get own full profile (used by PersonalProfileFragment)
     public void getMyProfile(ServiceCallback<DetailedUserEntity> callback) {
-        // Correct endpoint confirmed from backend: /users/profile (not /users/me)
         String url = "/users/profile";
 
         networkService.getRequest(url, new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 new Handler(Looper.getMainLooper()).post(() ->
                         callback.onError(e)
                 );
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 try {
                     String body = response.body().string();
 
@@ -51,7 +55,7 @@ public class UserService {
                         return;
                     }
 
-                    // Backend always returns { status, message, data: [ MyselfUserDTO ] }
+                    // Backend returns { status, message, data: [ MyselfUserDTO ] }
                     JSONObject json = new JSONObject(body);
                     JSONObject data = json.getJSONArray("data").getJSONObject(0);
 
@@ -103,6 +107,66 @@ public class UserService {
                             callback.onError(e)
                     );
                 }
+            }
+        });
+    }
+
+    // Get own simple profile
+    public void getUserOwnProfile(ServiceCallback<SimpleUserEntity> callback) {
+        String url = "/users/profile";
+
+        networkService.getRequest(url, new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                callback.onError(e);
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try {
+                    String body = response.body().string();
+                    JSONObject json = new JSONObject(body).getJSONArray("data").getJSONObject(0);
+                    SimpleUserEntity user = JSONObjectHelper.getSimpleUser(json);
+                    callback.onSuccess(user);
+                } catch (Exception e) {
+                    callback.onError(e);
+                }
+            }
+        });
+    }
+
+    // Modify own profile
+    public void modifyProfile(SimpleUserEntity newProfile, ServiceCallback<Boolean> callback) {
+        String url = "/users/me";
+
+        String jsonBody = JSONObjectHelper.simpleUserToJson(newProfile).toString();
+
+        networkService.putRequest(url, jsonBody, new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                callback.onError(e);
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                callback.onSuccess(response.isSuccessful());
+            }
+        });
+    }
+
+    // Delete own account
+    public void deleteAccount(ServiceCallback<Boolean> callback) {
+        String url = "/users/me";
+
+        networkService.deleteRequest(url, new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                callback.onError(e);
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                callback.onSuccess(response.isSuccessful());
             }
         });
     }
