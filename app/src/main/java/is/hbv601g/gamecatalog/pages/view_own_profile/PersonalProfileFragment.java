@@ -1,4 +1,4 @@
-package is.hbv601g.gamecatalog.pages.profile;
+package is.hbv601g.gamecatalog.pages.view_own_profile;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -94,8 +94,16 @@ public class PersonalProfileFragment extends Fragment {
             }
         });
 
+        personalProfileViewModel.getAccountDeleted().observe(getViewLifecycleOwner(), deleted -> {
+            if (Boolean.TRUE.equals(deleted)) {
+                Toast.makeText(requireContext(), "Account deleted", Toast.LENGTH_LONG).show();
+                Navigation.findNavController(view).navigate(R.id.navigation_login);
+            }
+        });
+
         binding.modifyButton.setOnClickListener(v -> modifyButtonClicked());
         binding.logoutButton.setOnClickListener(v -> logOut());
+        binding.deleteAccountButton.setOnClickListener(v -> confirmDeleteAccount());
 
         personalProfileViewModel.loadProfile();
     }
@@ -212,6 +220,16 @@ public class PersonalProfileFragment extends Fragment {
 
     public void logOut() {
         personalProfileViewModel.logOut();
+    }
+
+    private void confirmDeleteAccount() {
+        new android.app.AlertDialog.Builder(requireContext())
+                .setTitle("Delete Account")
+                .setMessage("Are you sure you want to permanently delete your account? This cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) ->
+                        personalProfileViewModel.deleteAccount())
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     @Override

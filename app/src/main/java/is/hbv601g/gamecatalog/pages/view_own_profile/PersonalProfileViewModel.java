@@ -1,4 +1,4 @@
-package is.hbv601g.gamecatalog.pages.profile;
+package is.hbv601g.gamecatalog.pages.view_own_profile;
 
 import android.app.Application;
 
@@ -22,6 +22,7 @@ public class PersonalProfileViewModel extends AndroidViewModel {
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> loggedOut = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> accountDeleted = new MutableLiveData<>();
 
     public PersonalProfileViewModel(@NonNull Application application) {
         super(application);
@@ -34,6 +35,7 @@ public class PersonalProfileViewModel extends AndroidViewModel {
     public LiveData<String> getErrorMessage() { return errorMessage; }
     public LiveData<Boolean> getIsLoading() { return isLoading; }
     public LiveData<Boolean> getLoggedOut() { return loggedOut; }
+    public LiveData<Boolean> getAccountDeleted() { return accountDeleted; }
 
     public void loadProfile() {
         isLoading.setValue(true);
@@ -48,6 +50,25 @@ public class PersonalProfileViewModel extends AndroidViewModel {
             public void onError(Exception e) {
                 isLoading.setValue(false);
                 errorMessage.setValue("Failed to load profile: " + e.getMessage());
+            }
+        });
+    }
+
+    public void deleteAccount() {
+        userService.deleteAccount(new ServiceCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean success) {
+                if (Boolean.TRUE.equals(success)) {
+                    tokenManager.removeToken();
+                    accountDeleted.postValue(true);
+                } else {
+                    errorMessage.postValue("Failed to delete account");
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                errorMessage.postValue("Error deleting account: " + e.getMessage());
             }
         });
     }
