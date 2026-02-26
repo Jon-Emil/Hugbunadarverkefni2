@@ -1,6 +1,7 @@
 package is.hbv601g.gamecatalog;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,10 +19,13 @@ import androidx.navigation.ui.NavigationUI;
 import com.google.android.material.navigation.NavigationView;
 
 import is.hbv601g.gamecatalog.pages.all_games.AllGamesFragment;
+import is.hbv601g.gamecatalog.storage.TokenManager;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
+    private TokenManager tokenManager;
+    private NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,8 +37,20 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        tokenManager = new TokenManager(this);
+        navigationView = findViewById(R.id.nav_view);
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+
+        // 每次抽屉打开时，根据登录状态显示/隐藏 Log In 菜单项
+        drawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+            @Override
+            public void onDrawerOpened(android.view.View drawerView) {
+                MenuItem loginItem = navigationView.getMenu().findItem(R.id.navigation_login);
+                if (loginItem != null) {
+                    loginItem.setVisible(tokenManager.getToken() == null);
+                }
+            }
+        });
 
         NavHostFragment navHostFragment =
                 (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main);

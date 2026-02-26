@@ -8,30 +8,36 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import is.hbv601g.gamecatalog.entities.user.DetailedUserEntity;
+import is.hbv601g.gamecatalog.helpers.ServiceCallback;
 import is.hbv601g.gamecatalog.services.NetworkService;
 import is.hbv601g.gamecatalog.services.UserService;
+import is.hbv601g.gamecatalog.storage.TokenManager;
 
-public class ProfileViewModel extends AndroidViewModel {
+public class PersonalProfileViewModel extends AndroidViewModel {
 
     private final UserService userService;
+    private final TokenManager tokenManager;
 
     private final MutableLiveData<DetailedUserEntity> user = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> loggedOut = new MutableLiveData<>();
 
-    public ProfileViewModel(@NonNull Application application) {
+    public PersonalProfileViewModel(@NonNull Application application) {
         super(application);
         NetworkService networkService = new NetworkService(application);
         userService = new UserService(networkService);
+        tokenManager = new TokenManager(application);
     }
 
     public LiveData<DetailedUserEntity> getUser() { return user; }
     public LiveData<String> getErrorMessage() { return errorMessage; }
     public LiveData<Boolean> getIsLoading() { return isLoading; }
+    public LiveData<Boolean> getLoggedOut() { return loggedOut; }
 
     public void loadProfile() {
         isLoading.setValue(true);
-        userService.getMyProfile(new is.hbv601g.gamecatalog.helpers.ServiceCallback<DetailedUserEntity>() {
+        userService.getMyProfile(new ServiceCallback<DetailedUserEntity>() {
             @Override
             public void onSuccess(DetailedUserEntity result) {
                 isLoading.setValue(false);
@@ -44,5 +50,14 @@ public class ProfileViewModel extends AndroidViewModel {
                 errorMessage.setValue("Failed to load profile: " + e.getMessage());
             }
         });
+    }
+
+    public void logOut() {
+        tokenManager.removeToken();
+        loggedOut.setValue(true);
+    }
+
+    public void clearLoggedOut() {
+        loggedOut.setValue(null);
     }
 }
