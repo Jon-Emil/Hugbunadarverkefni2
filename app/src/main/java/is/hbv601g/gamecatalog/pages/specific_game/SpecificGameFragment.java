@@ -1,6 +1,8 @@
 package is.hbv601g.gamecatalog.pages.specific_game;
 
+import android.icu.text.SimpleDateFormat;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +17,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+
+import java.text.ParseException;
+import java.util.Date;
+import java.util.Locale;
 
 import is.hbv601g.gamecatalog.R;
 import is.hbv601g.gamecatalog.adapters.GenreAdapter;
@@ -106,37 +112,35 @@ public class SpecificGameFragment extends Fragment {
     }
 
     public void updateGameInfo(DetailedGameEntity game) {
-        String title = "Title: " + game.getTitle();
+        String title = game.getTitle();
         binding.gameTitle.setText(title);
-
-        String description = "Description:\n" + game.getDescription();
-        binding.gameDescription.setText(description);
+        binding.gameDescription.setText(game.getDescription());
 
         Glide.with(requireContext()).load(game.getCoverImage()).into(binding.gameImage);
 
-        String releaseDate = "ReleaseDate: " + game.getReleaseDate();
-        binding.gameReleaseDate.setText(releaseDate);
+        String formatted = "null";
+        try {
+            SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+            Date date = parser.parse(game.getReleaseDate());
+            formatted = DateFormat.getMediumDateFormat(getContext()).format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        binding.gameReleaseDate.setText(formatted);
 
-        String price = "Price: " + game.getPrice();
-        binding.gamePrice.setText(price);
+        String priceText = "$" + game.getPrice();
+        binding.gamePrice.setText(priceText);
 
-        String developer = "Developer: " + game.getDeveloper();
-        binding.gameDeveloper.setText(developer);
+        binding.gameDeveloper.setText(game.getDeveloper());
+        binding.gamePublisher.setText(game.getPublisher());
 
-        String publisher = "Publisher: " + game.getPublisher();
-        binding.gamePublisher.setText(publisher);
+        Float averageRating = game.getAverageRating();
+        String averageRatingText = averageRating == null ? "No Reviews" : String.valueOf(averageRating);
+        binding.gameRating.setText(averageRatingText);
 
-        String rating = "Rating: " + game.getAverageRating();
-        binding.gameRating.setText(rating);
-
-        String favoriteAmount = "FavoriteAmount: " + game.getFavoriteOf().size();
-        binding.gameFavoriteAmount.setText(favoriteAmount);
-
-        String wantToPlayAmount = "WantToPlayAmount: " + game.getWantToPlay().size();
-        binding.gameWantToPlayAmount.setText(wantToPlayAmount);
-
-        String havePlayedAmount = "HavePlayedAmount: " + game.getHavePlayed().size();
-        binding.gameHavePlayedAmount.setText(havePlayedAmount);
+        binding.gameFavoriteAmount.setText(String.valueOf(game.getFavoriteOf().size()));
+        binding.gameWantToPlayAmount.setText(String.valueOf(game.getWantToPlay().size()));
+        binding.gameHavePlayedAmount.setText(String.valueOf(game.getHavePlayed().size()));
 
         genreAdapter.setData(game.getGenres());
         reviewAdapter.setData(game.getReviews());
