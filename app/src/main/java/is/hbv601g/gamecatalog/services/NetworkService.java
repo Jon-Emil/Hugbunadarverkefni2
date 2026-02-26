@@ -65,4 +65,18 @@ public class NetworkService {
         call.enqueue(callback);
         return call;
     }
+
+    public Call putRequest(String endpoint, String jsonBody, Callback callback) {
+        RequestBody body = RequestBody.create(jsonBody, JSON);
+
+        Request request = new Request.Builder()
+                .url(baseUrl + endpoint)
+                .put(body)
+                .build();
+
+        Call call = client.newCall(request);
+        call.enqueue(callback);
+        return call;
+    }
+
 }

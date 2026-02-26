@@ -61,4 +61,32 @@ public class JSONObjectHelper {
         );
         return fetchedGame;
     }
+
+    public static SimpleUserEntity getSimpleUser(JSONObject json) throws JSONException {
+        Long id = json.getLong("id");
+        String username = json.getString("username");
+        String profilePictureURL = json.getString("profilePictureURL");
+        String description = json.getString("description");
+
+        return new SimpleUserEntity(
+                id,
+                username,
+                profilePictureURL,
+                description
+        );
+    }
+
+    public static JSONObject simpleUserToJson(SimpleUserEntity user) {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("id", user.getId());
+            json.put("username", user.getUsername());
+            json.put("profilePictureURL", user.getProfilePictureURL());
+            json.put("description", user.getDescription());
+            return json;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
