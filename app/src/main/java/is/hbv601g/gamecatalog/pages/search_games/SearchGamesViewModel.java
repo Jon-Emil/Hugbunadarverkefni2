@@ -18,6 +18,7 @@ import is.hbv601g.gamecatalog.entities.game.ListedGameEntity;
 import is.hbv601g.gamecatalog.entities.genre.ListedGenreEntity;
 import is.hbv601g.gamecatalog.entities.genre.SimpleGenreEntity;
 import is.hbv601g.gamecatalog.helpers.JSONArrayHelper;
+import is.hbv601g.gamecatalog.helpers.PaginatedCallback;
 import is.hbv601g.gamecatalog.helpers.ServiceCallback;
 import is.hbv601g.gamecatalog.services.GameService;
 import is.hbv601g.gamecatalog.services.GenreService;
@@ -28,35 +29,50 @@ import okhttp3.Response;
 public class SearchGamesViewModel extends ViewModel {
 
     private final MutableLiveData<List<ListedGameEntity>> games = new MutableLiveData<>();
-    private final MutableLiveData<List<ListedGenreEntity>> genres =
-            new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<List<ListedGenreEntity>> genres = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<Integer> pageAmount = new MutableLiveData<>();
+    private final MutableLiveData<Integer> currentPage = new MutableLiveData<>(1);
+    private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
+    private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
 
     private GameService gameService;
     private GenreService genreService;
 
-    private int currentPage = 1;
     private boolean sortReverse = false;
     private String sortBy = "title";
     private String gameTitleParam = "";
     private AdvancedSearchParameters advancedSearchParameters = new AdvancedSearchParameters();
 
-    public LiveData<List<ListedGameEntity>> getGames() {
-        return games;
-    }
-
     public void init(GameService gameService, GenreService genreService) {
         this.gameService = gameService;
         this.genreService = genreService;
         if (games.getValue() == null) {
-            fetchGames(currentPage);
+            Integer page = currentPage.getValue();
+            fetchGames(page == null ? 1 : page);
         }
-        if (genres.getValue().isEmpty()) {
+        if (genres.getValue() == null || genres.getValue().isEmpty()) {
             fetchGenres();
         }
     }
 
-    public int getCurrentPage() {
+    public LiveData<List<ListedGameEntity>> getGames() {
+        return games;
+    }
+
+    public LiveData<Integer> getPageAmount() {
+        return pageAmount;
+    }
+
+    public LiveData<Integer> getCurrentPage() {
         return currentPage;
+    }
+
+    public LiveData<Boolean> getIsLoading() {
+        return isLoading;
+    }
+
+    public LiveData<String> getErrorMessage() {
+        return errorMessage;
     }
 
     public LiveData<List<ListedGenreEntity>> getGenres() {
@@ -64,17 +80,27 @@ public class SearchGamesViewModel extends ViewModel {
     }
 
     public void loadPage(int pageNr) {
-        currentPage = pageNr;
+        currentPage.postValue(pageNr);
         fetchGames(pageNr);
     }
 
+    public void refreshPage() {
+        Integer page = currentPage.getValue();
+        fetchGames(page == null ? 1 : page);
+    }
+
     public void nextPage() {
-        loadPage(currentPage + 1);
+        Integer page = currentPage.getValue();
+        Integer lastPage = pageAmount.getValue();
+        if (page != null && (lastPage == null || page < lastPage)) {
+            loadPage(page + 1);
+        }
     }
 
     public void previousPage() {
-        if (currentPage > 1) {
-            loadPage(currentPage - 1);
+        Integer page = currentPage.getValue();
+        if (page != null && page > 1) {
+            loadPage(page - 1);
         }
     }
 
@@ -99,15 +125,18 @@ public class SearchGamesViewModel extends ViewModel {
     }
 
     private void fetchGames(int pageNr) {
-        gameService.getSearchedGames(gameTitleParam, advancedSearchParameters, pageNr, sortBy, sortReverse, new ServiceCallback<List<ListedGameEntity>>() {
+        isLoading.postValue(true);
+        gameService.getSearchedGames(gameTitleParam, advancedSearchParameters, pageNr, sortBy, sortReverse, new PaginatedCallback<ListedGameEntity>() {
             @Override
             public void onError(Exception e) {
-                e.printStackTrace();
+                errorMessage.postValue("Couldn't Fetch Games");
             }
 
             @Override
-            public void onSuccess(List<ListedGameEntity> fetchedGames) {
+            public void onSuccess(List<ListedGameEntity> fetchedGames, int newPageAmount) {
                 games.postValue(fetchedGames);
+                pageAmount.postValue(newPageAmount);
+                isLoading.postValue(false);
             }
         });
     }
