@@ -54,14 +54,14 @@ public class PersonalProfileFragment extends Fragment {
 
         personalProfileViewModel = new ViewModelProvider(this).get(PersonalProfileViewModel.class);
 
-        // 展开态 RecyclerView 用 FlexboxLayoutManager 自动换行
+        // make new lines for expanded game capsules
         binding.favouriteGamesExpanded.setLayoutManager(makeFlexLayout());
         binding.wantsToPlayExpanded.setLayoutManager(makeFlexLayout());
         binding.hasPlayedExpanded.setLayoutManager(makeFlexLayout());
 
         binding.reviews.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        // 展开/收起按钮
+        // expand and collapse
         binding.expandFavourites.setOnClickListener(v -> {
             favouritesExpanded = !favouritesExpanded;
             applyExpandState(binding.favouriteGamesScroll,
@@ -152,10 +152,6 @@ public class PersonalProfileFragment extends Fragment {
                 }).start();
     }
 
-    /**
-     * 把游戏列表直接作为 chip TextView inflate 到 LinearLayout 里。
-     * LinearLayout 在 HorizontalScrollView 中天然支持无限宽度，不受 RecyclerView 裁剪限制。
-     */
     private void populateChipRow(LinearLayout row, List<SimpleGameEntity> games) {
         row.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(requireContext());
@@ -191,12 +187,10 @@ public class PersonalProfileFragment extends Fragment {
             binding.profilePicture.setImageResource(android.R.drawable.ic_menu_myplaces);
         }
 
-        // 横向行：直接 inflate chip 到 LinearLayout（解决 RecyclerView 裁剪问题）
         populateChipRow(binding.favouriteGamesRow, user.getFavoriteGames());
         populateChipRow(binding.wantsToPlayRow, user.getWantToPlayGames());
         populateChipRow(binding.hasPlayedRow, user.getHavePlayedGames());
 
-        // 展开态：RecyclerView + FlexboxLayoutManager 自动换行
         binding.favouriteGamesExpanded.setAdapter(makeGameAdapter(user.getFavoriteGames()));
         binding.wantsToPlayExpanded.setAdapter(makeGameAdapter(user.getWantToPlayGames()));
         binding.hasPlayedExpanded.setAdapter(makeGameAdapter(user.getHavePlayedGames()));
