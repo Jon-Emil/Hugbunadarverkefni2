@@ -27,6 +27,12 @@
         />
 
     <fragment
+        android:id="@+id/navigation_profile"
+        android:name="is.hbv601g.gamecatalog.pages.profile.ProfileFragment"
+        android:label="My Profile"
+        tools:layout="@layout/fragment_profile" />
+
+    <fragment
         android:id="@+id/navigation_specific_game"
         android:name="is.hbv601g.gamecatalog.pages.specific_game.SpecificGameFragment"
         android:label="Game Details">
