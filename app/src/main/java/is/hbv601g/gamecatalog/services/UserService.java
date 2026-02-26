@@ -27,7 +27,8 @@ public class UserService {
     }
 
     public void getMyProfile(ServiceCallback<DetailedUserEntity> callback) {
-        String url = "/users/me";
+        // Correct endpoint confirmed from backend: /users/profile (not /users/me)
+        String url = "/users/profile";
 
         networkService.getRequest(url, new Callback() {
             @Override
@@ -50,37 +51,46 @@ public class UserService {
                         return;
                     }
 
+                    // Backend always returns { status, message, data: [ MyselfUserDTO ] }
                     JSONObject json = new JSONObject(body);
                     JSONObject data = json.getJSONArray("data").getJSONObject(0);
 
                     Long id = data.getLong("id");
-                    String username = data.getString("username");
+                    String username = data.optString("username", "");
                     String email = data.optString("email", "");
                     String profilePictureURL = data.optString("profilePictureURL", "");
                     String description = data.optString("description", "");
+
+                    // Follower / following counts from follows / followedBy arrays
+                    int followingCount = data.optJSONArray("follows") != null
+                            ? data.getJSONArray("follows").length() : 0;
+                    int followerCount = data.optJSONArray("followedBy") != null
+                            ? data.getJSONArray("followedBy").length() : 0;
+
+                    // Field names confirmed from MyselfUserDTO: favorites, wantsToPlay, hasPlayed, reviews
+                    JSONArray favoritesJson = data.optJSONArray("favorites");
+                    List<SimpleGameEntity> favoriteGames = favoritesJson != null
+                            ? JSONArrayHelper.makeGameList(favoritesJson)
+                            : new java.util.ArrayList<>();
+
+                    JSONArray wantToPlayJson = data.optJSONArray("wantsToPlay");
+                    List<SimpleGameEntity> wantToPlayGames = wantToPlayJson != null
+                            ? JSONArrayHelper.makeGameList(wantToPlayJson)
+                            : new java.util.ArrayList<>();
+
+                    JSONArray hasPlayedJson = data.optJSONArray("hasPlayed");
+                    List<SimpleGameEntity> havePlayedGames = hasPlayedJson != null
+                            ? JSONArrayHelper.makeGameList(hasPlayedJson)
+                            : new java.util.ArrayList<>();
 
                     JSONArray reviewsJson = data.optJSONArray("reviews");
                     List<SimpleReviewEntity> reviews = reviewsJson != null
                             ? JSONArrayHelper.makeReviewList(reviewsJson)
                             : new java.util.ArrayList<>();
 
-                    JSONArray favoritesJson = data.optJSONArray("favoriteGames");
-                    List<SimpleGameEntity> favoriteGames = favoritesJson != null
-                            ? JSONArrayHelper.makeGameList(favoritesJson)
-                            : new java.util.ArrayList<>();
-
-                    JSONArray wantToPlayJson = data.optJSONArray("wantToPlayGames");
-                    List<SimpleGameEntity> wantToPlayGames = wantToPlayJson != null
-                            ? JSONArrayHelper.makeGameList(wantToPlayJson)
-                            : new java.util.ArrayList<>();
-
-                    JSONArray havePlayedJson = data.optJSONArray("havePlayedGames");
-                    List<SimpleGameEntity> havePlayedGames = havePlayedJson != null
-                            ? JSONArrayHelper.makeGameList(havePlayedJson)
-                            : new java.util.ArrayList<>();
-
                     DetailedUserEntity user = new DetailedUserEntity(
                             id, username, email, profilePictureURL, description,
+                            followerCount, followingCount,
                             reviews, favoriteGames, wantToPlayGames, havePlayedGames
                     );
 

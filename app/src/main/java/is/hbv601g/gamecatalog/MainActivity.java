@@ -41,13 +41,17 @@ public class MainActivity extends AppCompatActivity {
         navigationView = findViewById(R.id.nav_view);
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
 
-        // 每次抽屉打开时，根据登录状态显示/隐藏 Log In 菜单项
         drawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
             @Override
             public void onDrawerOpened(android.view.View drawerView) {
+                boolean isLoggedIn = tokenManager.getToken() != null;
                 MenuItem loginItem = navigationView.getMenu().findItem(R.id.navigation_login);
                 if (loginItem != null) {
-                    loginItem.setVisible(tokenManager.getToken() == null);
+                    loginItem.setVisible(!isLoggedIn);
+                }
+                MenuItem profileItem = navigationView.getMenu().findItem(R.id.navigation_profile);
+                if (profileItem != null) {
+                    profileItem.setVisible(isLoggedIn);
                 }
             }
         });

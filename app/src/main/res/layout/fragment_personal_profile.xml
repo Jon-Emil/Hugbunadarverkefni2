@@ -171,12 +171,7 @@
             android:nestedScrollingEnabled="false"
             android:layout_marginBottom="16dp" />
 
-        <!-- Back Button -->
-        <Button
-            android:id="@+id/backButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Back" />
+
 
     </LinearLayout>
 

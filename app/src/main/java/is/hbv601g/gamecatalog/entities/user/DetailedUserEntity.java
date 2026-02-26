@@ -13,6 +13,9 @@ public class DetailedUserEntity {
     private String profilePictureURL;
     private String description;
 
+    private int followerCount;
+    private int followingCount;
+
     private List<SimpleReviewEntity> reviews = new ArrayList<>();
     private List<SimpleGameEntity> favoriteGames = new ArrayList<>();
     private List<SimpleGameEntity> wantToPlayGames = new ArrayList<>();
@@ -24,6 +27,8 @@ public class DetailedUserEntity {
             String email,
             String profilePictureURL,
             String description,
+            int followerCount,
+            int followingCount,
             List<SimpleReviewEntity> reviews,
             List<SimpleGameEntity> favoriteGames,
             List<SimpleGameEntity> wantToPlayGames,
@@ -34,6 +39,8 @@ public class DetailedUserEntity {
         this.email = email;
         this.profilePictureURL = profilePictureURL;
         this.description = description;
+        this.followerCount = followerCount;
+        this.followingCount = followingCount;
         this.reviews = reviews;
         this.favoriteGames = favoriteGames;
         this.wantToPlayGames = wantToPlayGames;
@@ -54,6 +61,12 @@ public class DetailedUserEntity {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public int getFollowerCount() { return followerCount; }
+    public void setFollowerCount(int followerCount) { this.followerCount = followerCount; }
+
+    public int getFollowingCount() { return followingCount; }
+    public void setFollowingCount(int followingCount) { this.followingCount = followingCount; }
 
     public List<SimpleReviewEntity> getReviews() { return reviews; }
     public void setReviews(List<SimpleReviewEntity> reviews) { this.reviews = reviews; }

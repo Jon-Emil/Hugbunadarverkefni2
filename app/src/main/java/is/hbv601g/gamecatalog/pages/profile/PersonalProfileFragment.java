@@ -13,6 +13,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.bumptech.glide.Glide;
+
 import is.hbv601g.gamecatalog.R;
 import is.hbv601g.gamecatalog.adapters.ReviewAdapter;
 import is.hbv601g.gamecatalog.adapters.SimpleGameAdapter;
@@ -71,7 +73,6 @@ public class PersonalProfileFragment extends Fragment {
         // Button listeners
         binding.modifyButton.setOnClickListener(v -> modifyButtonClicked());
         binding.logoutButton.setOnClickListener(v -> logOut());
-        binding.backButton.setOnClickListener(v -> onBackButtonClicked());
 
         personalProfileViewModel.loadProfile();
     }
@@ -81,9 +82,21 @@ public class PersonalProfileFragment extends Fragment {
         binding.emailText.setText(user.getEmail() != null ? user.getEmail() : "");
         binding.describtion.setText(user.getDescription() != null ? user.getDescription() : "");
 
-        // followerCount and followingCount — set to 0 until API supports it
-        binding.followerCount.setText("0 Followers");
-        binding.followingCount.setText("0 Following");
+        binding.followerCount.setText(user.getFollowerCount() + " Followers");
+        binding.followingCount.setText(user.getFollowingCount() + " Following");
+
+        // Load profile picture with Glide
+        String pictureUrl = user.getProfilePictureURL();
+        if (pictureUrl != null && !pictureUrl.isEmpty()) {
+            Glide.with(this)
+                    .load(pictureUrl)
+                    .circleCrop()
+                    .placeholder(android.R.drawable.ic_menu_myplaces)
+                    .error(android.R.drawable.ic_menu_myplaces)
+                    .into(binding.profilePicture);
+        } else {
+            binding.profilePicture.setImageResource(android.R.drawable.ic_menu_myplaces);
+        }
 
         // Favourite games
         SimpleGameAdapter favouriteAdapter = new SimpleGameAdapter();
@@ -113,10 +126,6 @@ public class PersonalProfileFragment extends Fragment {
 
     public void logOut() {
         personalProfileViewModel.logOut();
-    }
-
-    public void onBackButtonClicked() {
-        Navigation.findNavController(requireView()).navigateUp();
     }
 
     @Override
