@@ -4,29 +4,35 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="12dp"
-    android:layout_marginEnd="8dp">
+    android:layout_marginBottom="8dp">
 
     <ImageView
         android:id="@+id/gameImage"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:scaleType="centerCrop"
-        android:layout_marginBottom="16dp"
         android:contentDescription="@string/game_image_description"/>
 
-    <TextView
-        android:id="@+id/gameTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:text="" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <Button
-        android:id="@+id/gameDetailsButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@android:color/holo_orange_light"
-        android:text="@string/game_details_button_text" />
+        <TextView
+            android:id="@+id/gameTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text=""
+            android:layout_weight="6"/>
+
+        <Button
+            android:id="@+id/gameDetailsButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/holo_orange_light"
+            android:text="@string/game_details_button_text"
+            android:layout_weight="4"/>
+
+    </LinearLayout>
 
 </LinearLayout>
