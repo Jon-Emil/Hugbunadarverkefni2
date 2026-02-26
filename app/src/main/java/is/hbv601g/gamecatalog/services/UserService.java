@@ -137,26 +137,40 @@ public class UserService {
 
     // Modify own profile
     public void modifyProfile(SimpleUserEntity newProfile, ServiceCallback<Boolean> callback) {
-        String url = "/users/me";
+        String url = "/users";
 
-        String jsonBody = JSONObjectHelper.simpleUserToJson(newProfile).toString();
+        try {
+            org.json.JSONObject userInfoJson = new org.json.JSONObject();
+            userInfoJson.put("username", newProfile.getUsername());
+            userInfoJson.put("description", newProfile.getDescription());
 
-        networkService.putRequest(url, jsonBody, new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                callback.onError(e);
-            }
+            okhttp3.MultipartBody body = new okhttp3.MultipartBody.Builder()
+                    .setType(okhttp3.MultipartBody.FORM)
+                    .addFormDataPart("userInfo", null,
+                            okhttp3.RequestBody.create(
+                                    userInfoJson.toString(),
+                                    okhttp3.MediaType.get("application/json; charset=utf-8")))
+                    .build();
 
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) {
-                callback.onSuccess(response.isSuccessful());
-            }
-        });
+            networkService.patchMultipartRequest(url, body, new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    callback.onError(e);
+                }
+
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    callback.onSuccess(response.isSuccessful());
+                }
+            });
+        } catch (Exception e) {
+            callback.onError(e);
+        }
     }
 
     // Delete own account
     public void deleteAccount(ServiceCallback<Boolean> callback) {
-        String url = "/users/me";
+        String url = "/users";
 
         networkService.deleteRequest(url, new Callback() {
             @Override

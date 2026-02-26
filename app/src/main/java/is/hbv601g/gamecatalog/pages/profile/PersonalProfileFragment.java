@@ -207,7 +207,7 @@ public class PersonalProfileFragment extends Fragment {
     }
 
     public void modifyButtonClicked() {
-        Toast.makeText(requireContext(), "Edit profile coming soon", Toast.LENGTH_SHORT).show();
+        Navigation.findNavController(requireView()).navigate(R.id.navigation_modify_user);
     }
 
     public void logOut() {

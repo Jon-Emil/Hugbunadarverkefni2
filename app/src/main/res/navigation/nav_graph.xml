@@ -42,6 +42,10 @@
             app:argType="long" />
     </fragment>
 
-
+    <fragment
+        android:id="@+id/navigation_modify_user"
+        android:name="is.hbv601g.gamecatalog.pages.modify_user.ModifyUserFragment"
+        android:label="Edit Profile"
+        tools:layout="@layout/fragment_modify_user" />
 
 </navigation>

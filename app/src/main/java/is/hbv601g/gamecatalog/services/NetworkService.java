@@ -6,6 +6,7 @@ import is.hbv601g.gamecatalog.storage.TokenManager;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -93,6 +94,21 @@ public class NetworkService {
         Request request = builder.build();
 
         Call call = client.newCall(request);
+        call.enqueue(callback);
+        return call;
+    }
+
+    public Call patchMultipartRequest(String endpoint, MultipartBody body, Callback callback) {
+        Request.Builder builder = new Request.Builder()
+                .url(baseUrl + endpoint)
+                .patch(body);
+
+        String token = tokenManager.getToken();
+        if (token != null) {
+            builder.addHeader("Authorization", "Bearer " + token);
+        }
+
+        Call call = client.newCall(builder.build());
         call.enqueue(callback);
         return call;
     }
