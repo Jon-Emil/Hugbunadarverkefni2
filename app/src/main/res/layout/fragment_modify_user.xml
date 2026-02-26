@@ -43,14 +43,14 @@
             <EditText
                 android:id="@+id/nameInput"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="61dp"
                 android:hint="Change Name"
                 android:inputType="textPersonName" />
 
             <EditText
                 android:id="@+id/passwordInput"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="58dp"
                 android:hint="Change Password"
                 android:inputType="textPassword" />
         </LinearLayout>
@@ -68,7 +68,7 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="337dp"
         android:layout_weight="1" />
 
     <RelativeLayout

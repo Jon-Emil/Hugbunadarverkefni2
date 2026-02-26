@@ -47,7 +47,7 @@ public class ModifyUserViewModel extends ViewModel {
         userService.modifyProfile(current, new ServiceCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean success) {
-                statusMessage.postValue(success ? "Profile Updated!" : "Update Failed");
+                statusMessage.postValue(success ? "Profile Updated" : "Update Failed");
             }
             @Override
             public void onError(Exception e) {
@@ -65,7 +65,7 @@ public class ModifyUserViewModel extends ViewModel {
             }
             @Override
             public void onError(Exception e) {
-                statusMessage.postValue("Could not delete account");
+                statusMessage.postValue("Error deleting account");
             }
         });
     }

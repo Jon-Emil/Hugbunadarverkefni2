@@ -31,7 +31,6 @@ public class ModifyUserFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Matching your SpecificGameFragments service
         NetworkService networkService = new NetworkService(requireContext());
         UserService userService = new UserService(networkService);
 
@@ -61,7 +60,7 @@ public class ModifyUserFragment extends Fragment {
         binding.nameInput.setText(user.getUsername());
         binding.descriptionInput.setText(user.getDescription());
 
-        // Using Glide just like in your SpecificGameFragment
+        // matching  SpecificGameFragment
         Glide.with(this)
                 .load(user.getProfilePictureURL())
                 .placeholder(android.R.drawable.ic_menu_gallery)
