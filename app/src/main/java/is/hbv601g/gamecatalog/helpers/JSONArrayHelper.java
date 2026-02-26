@@ -25,7 +25,7 @@ public class JSONArrayHelper {
             String title = json.getString("title");
             String description = json.getString("description");
             String releaseDate = json.getString("releaseDate");
-            float price = (float) json.getDouble("price"); // no getFloat so casting is needed
+            float price = (float) json.getDouble("price");
             String coverImage = json.getString("coverImage");
             String developer = json.getString("developer");
             String publisher = json.getString("publisher");
@@ -44,20 +44,9 @@ public class JSONArrayHelper {
             List<SimpleGenreEntity> genres = JSONArrayHelper.makeGenreList(genresJson);
 
             ListedGameEntity fetchedGame = new ListedGameEntity(
-                    id,
-                    title,
-                    description,
-                    releaseDate,
-                    price,
-                    coverImage,
-                    developer,
-                    publisher,
-                    reviewAmount,
-                    averageRating,
-                    favoriteAmount,
-                    wantToPlayAmount,
-                    havePlayedAmount,
-                    genres
+                    id, title, description, releaseDate, price, coverImage,
+                    developer, publisher, reviewAmount, averageRating,
+                    favoriteAmount, wantToPlayAmount, havePlayedAmount, genres
             );
             fetchedGames.add(fetchedGame);
         }
@@ -74,39 +63,42 @@ public class JSONArrayHelper {
             String description = json.getString("description");
             int gameAmount = json.getInt("gameAmount");
 
-            ListedGenreEntity fetchedGenre = new ListedGenreEntity(
-                    id,
-                    title,
-                    description,
-                    gameAmount
-            );
-            fetchedGenres.add(fetchedGenre);
+            fetchedGenres.add(new ListedGenreEntity(id, title, description, gameAmount));
         }
         return fetchedGenres;
     }
 
+    /**
+     * Parses a JSONArray of ReferencedGameDTO objects.
+     * Fields confirmed from backend ReferencedGameDTO:
+     *   id, title, description, releaseDate, price, coverImage,
+     *   developer, publisher, averageRating (nullable)
+     */
     public static List<SimpleGameEntity> makeGameList(JSONArray array) {
         try {
             List<SimpleGameEntity> games = new ArrayList<>();
 
             for (int i = 0; i < array.length(); i++) {
-                JSONObject gameJson = array.getJSONObject(i);
+                JSONObject g = array.getJSONObject(i);
 
-                SimpleGameEntity genre = new SimpleGameEntity(
-                        gameJson.getLong("id"),
-                        gameJson.getString("title"),
-                        gameJson.getString("description"),
-                        gameJson.getString("releaseDate"),
-                        (float) gameJson.getDouble("price"), // idk how to do this without casting or if this works correctly
-                        gameJson.getString("coverImage"),
-                        gameJson.getString("developer"),
-                        gameJson.getString("publisher"),
-                        (float) gameJson.getDouble("averageRating") // this can be null so needs to be Float not float idk how
-                );
+                // averageRating is Float (nullable) in the backend entity
+                Float averageRating = null;
+                if (!g.isNull("averageRating")) {
+                    averageRating = (float) g.getDouble("averageRating");
+                }
 
-                games.add(genre);
+                games.add(new SimpleGameEntity(
+                        g.getLong("id"),
+                        g.optString("title", ""),
+                        g.optString("description", ""),
+                        g.optString("releaseDate", ""),
+                        (float) g.optDouble("price", 0.0),
+                        g.optString("coverImage", ""),
+                        g.optString("developer", ""),
+                        g.optString("publisher", ""),
+                        averageRating
+                ));
             }
-
             return games;
 
         } catch (Exception e) {
@@ -119,18 +111,14 @@ public class JSONArrayHelper {
             List<SimpleGenreEntity> genres = new ArrayList<>();
 
             for (int i = 0; i < array.length(); i++) {
-                JSONObject genreJson = array.getJSONObject(i);
-
-                SimpleGenreEntity genre = new SimpleGenreEntity(
-                        genreJson.getLong("id"),
-                        genreJson.getString("title"),
-                        genreJson.getString("description"),
-                        genreJson.getInt("gameAmount")
-                );
-
-                genres.add(genre);
+                JSONObject g = array.getJSONObject(i);
+                genres.add(new SimpleGenreEntity(
+                        g.getLong("id"),
+                        g.getString("title"),
+                        g.getString("description"),
+                        g.getInt("gameAmount")
+                ));
             }
-
             return genres;
 
         } catch (Exception e) {
@@ -143,18 +131,14 @@ public class JSONArrayHelper {
             List<SimpleUserEntity> users = new ArrayList<>();
 
             for (int i = 0; i < array.length(); i++) {
-                JSONObject userJson = array.getJSONObject(i);
-
-                SimpleUserEntity user = new SimpleUserEntity(
-                        userJson.getLong("id"),
-                        userJson.getString("username"),
-                        userJson.getString("profilePictureURL"),
-                        userJson.getString("description")
-                );
-
-                users.add(user);
+                JSONObject u = array.getJSONObject(i);
+                users.add(new SimpleUserEntity(
+                        u.getLong("id"),
+                        u.getString("username"),
+                        u.getString("profilePictureURL"),
+                        u.getString("description")
+                ));
             }
-
             return users;
 
         } catch (Exception e) {
@@ -162,25 +146,26 @@ public class JSONArrayHelper {
         }
     }
 
+    /**
+     * Parses a JSONArray of ReferencedReviewDTO objects.
+     * Fields confirmed from backend ReferencedReviewDTO:
+     *   id, rating, text, title, author (String), gameTitle (String)
+     */
     public static List<SimpleReviewEntity> makeReviewList(JSONArray array) {
         try {
             List<SimpleReviewEntity> reviews = new ArrayList<>();
 
             for (int i = 0; i < array.length(); i++) {
-                JSONObject reviewJson = array.getJSONObject(i);
-
-                SimpleReviewEntity review = new SimpleReviewEntity(
-                        reviewJson.getLong("id"),
-                        reviewJson.getInt("rating"),
-                        reviewJson.getString("text"),
-                        reviewJson.getString("title"),
-                        reviewJson.getString("author"),
-                        reviewJson.getString("gameTitle")
-                );
-
-                reviews.add(review);
+                JSONObject r = array.getJSONObject(i);
+                reviews.add(new SimpleReviewEntity(
+                        r.getLong("id"),
+                        r.getInt("rating"),
+                        r.optString("text", ""),
+                        r.optString("title", ""),
+                        r.optString("author", ""),
+                        r.optString("gameTitle", "")
+                ));
             }
-
             return reviews;
 
         } catch (Exception e) {

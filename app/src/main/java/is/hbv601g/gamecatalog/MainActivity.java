@@ -1,6 +1,7 @@
 package is.hbv601g.gamecatalog;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,10 +19,13 @@ import androidx.navigation.ui.NavigationUI;
 import com.google.android.material.navigation.NavigationView;
 
 import is.hbv601g.gamecatalog.pages.all_games.AllGamesFragment;
+import is.hbv601g.gamecatalog.storage.TokenManager;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
+    private TokenManager tokenManager;
+    private NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,8 +37,24 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        tokenManager = new TokenManager(this);
+        navigationView = findViewById(R.id.nav_view);
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+
+        drawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+            @Override
+            public void onDrawerOpened(android.view.View drawerView) {
+                boolean isLoggedIn = tokenManager.getToken() != null;
+                MenuItem loginItem = navigationView.getMenu().findItem(R.id.navigation_login);
+                if (loginItem != null) {
+                    loginItem.setVisible(!isLoggedIn);
+                }
+                MenuItem profileItem = navigationView.getMenu().findItem(R.id.navigation_profile);
+                if (profileItem != null) {
+                    profileItem.setVisible(isLoggedIn);
+                }
+            }
+        });
 
         NavHostFragment navHostFragment =
                 (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main);
@@ -44,9 +64,10 @@ public class MainActivity extends AppCompatActivity {
         appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_home,
                 R.id.navigation_login,
-                R.id.navigation_search_games
-                ).setOpenableLayout(drawerLayout)
-                        .build();
+                R.id.navigation_search_games,
+                R.id.navigation_profile
+        ).setOpenableLayout(drawerLayout)
+                .build();
 
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
@@ -76,11 +97,11 @@ public class MainActivity extends AppCompatActivity {
     //Code gotten from https://developer.android.com/guide/navigation/integrations/ui#action_bar
     @Override
     public boolean onSupportNavigateUp(){
-            NavController navController =
-                    Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+        NavController navController =
+                Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
 
-            return NavigationUI.navigateUp(navController, appBarConfiguration)
-                    || super.onSupportNavigateUp();
+        return NavigationUI.navigateUp(navController, appBarConfiguration)
+                || super.onSupportNavigateUp();
 
     }
 }

@@ -27,6 +27,12 @@
         />
 
     <fragment
+        android:id="@+id/navigation_profile"
+        android:name="is.hbv601g.gamecatalog.pages.view_own_profile.PersonalProfileFragment"
+        android:label="My Profile"
+        tools:layout="@layout/fragment_personal_profile" />
+
+    <fragment
         android:id="@+id/navigation_specific_game"
         android:name="is.hbv601g.gamecatalog.pages.specific_game.SpecificGameFragment"
         android:label="Game Details">
@@ -36,6 +42,10 @@
             app:argType="long" />
     </fragment>
 
-
+    <fragment
+        android:id="@+id/navigation_modify_user"
+        android:name="is.hbv601g.gamecatalog.pages.modify_user.ModifyUserFragment"
+        android:label="Edit Profile"
+        tools:layout="@layout/fragment_modify_user" />
 
 </navigation>
