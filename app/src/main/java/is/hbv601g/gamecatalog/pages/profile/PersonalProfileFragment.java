@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -14,17 +16,28 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
+import com.google.android.flexbox.FlexDirection;
+import com.google.android.flexbox.FlexWrap;
+import com.google.android.flexbox.FlexboxLayoutManager;
+import com.google.android.flexbox.JustifyContent;
+
+import java.util.List;
 
 import is.hbv601g.gamecatalog.R;
 import is.hbv601g.gamecatalog.adapters.ReviewAdapter;
 import is.hbv601g.gamecatalog.adapters.SimpleGameAdapter;
 import is.hbv601g.gamecatalog.databinding.FragmentPersonalProfileBinding;
+import is.hbv601g.gamecatalog.entities.game.SimpleGameEntity;
 import is.hbv601g.gamecatalog.entities.user.DetailedUserEntity;
 
 public class PersonalProfileFragment extends Fragment {
 
     private PersonalProfileViewModel personalProfileViewModel;
     private FragmentPersonalProfileBinding binding;
+
+    private boolean favouritesExpanded = false;
+    private boolean wantsToPlayExpanded = false;
+    private boolean hasPlayedExpanded = false;
 
     @Nullable
     @Override
@@ -41,28 +54,39 @@ public class PersonalProfileFragment extends Fragment {
 
         personalProfileViewModel = new ViewModelProvider(this).get(PersonalProfileViewModel.class);
 
-        // Set up RecyclerViews
-        binding.favouriteGames.setLayoutManager(new LinearLayoutManager(requireContext()));
-        binding.wantsToPlay.setLayoutManager(new LinearLayoutManager(requireContext()));
-        binding.hasPlayed.setLayoutManager(new LinearLayoutManager(requireContext()));
+        // 展开态 RecyclerView 用 FlexboxLayoutManager 自动换行
+        binding.favouriteGamesExpanded.setLayoutManager(makeFlexLayout());
+        binding.wantsToPlayExpanded.setLayoutManager(makeFlexLayout());
+        binding.hasPlayedExpanded.setLayoutManager(makeFlexLayout());
+
         binding.reviews.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        // Observe loading state
-        personalProfileViewModel.getIsLoading().observe(getViewLifecycleOwner(), loading -> {
-            binding.profileProgressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
+        // 展开/收起按钮
+        binding.expandFavourites.setOnClickListener(v -> {
+            favouritesExpanded = !favouritesExpanded;
+            applyExpandState(binding.favouriteGamesScroll,
+                    binding.favouriteGamesExpanded, binding.expandFavourites, favouritesExpanded);
+        });
+        binding.expandWantsToPlay.setOnClickListener(v -> {
+            wantsToPlayExpanded = !wantsToPlayExpanded;
+            applyExpandState(binding.wantsToPlayScroll,
+                    binding.wantsToPlayExpanded, binding.expandWantsToPlay, wantsToPlayExpanded);
+        });
+        binding.expandHasPlayed.setOnClickListener(v -> {
+            hasPlayedExpanded = !hasPlayedExpanded;
+            applyExpandState(binding.hasPlayedScroll,
+                    binding.hasPlayedExpanded, binding.expandHasPlayed, hasPlayedExpanded);
         });
 
-        // Observe errors
+        personalProfileViewModel.getIsLoading().observe(getViewLifecycleOwner(), loading ->
+                binding.profileProgressBar.setVisibility(loading ? View.VISIBLE : View.GONE));
+
         personalProfileViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
-            if (error != null) {
-                Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
-            }
+            if (error != null) Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
         });
 
-        // Observe user data
         personalProfileViewModel.getUser().observe(getViewLifecycleOwner(), this::bindUser);
 
-        // Observe logout
         personalProfileViewModel.getLoggedOut().observe(getViewLifecycleOwner(), loggedOut -> {
             if (Boolean.TRUE.equals(loggedOut)) {
                 personalProfileViewModel.clearLoggedOut();
@@ -70,27 +94,96 @@ public class PersonalProfileFragment extends Fragment {
             }
         });
 
-        // Button listeners
         binding.modifyButton.setOnClickListener(v -> modifyButtonClicked());
         binding.logoutButton.setOnClickListener(v -> logOut());
 
         personalProfileViewModel.loadProfile();
     }
 
+    private FlexboxLayoutManager makeFlexLayout() {
+        FlexboxLayoutManager flex = new FlexboxLayoutManager(requireContext());
+        flex.setFlexDirection(FlexDirection.ROW);
+        flex.setFlexWrap(FlexWrap.WRAP);
+        flex.setJustifyContent(JustifyContent.FLEX_START);
+        return flex;
+    }
+
+    private void applyExpandState(View scrollView, View expandedView,
+                                  TextView expandBtn, boolean expanded) {
+        if (expanded) {
+            animateOut(expandedView, () -> {
+                expandedView.setVisibility(View.GONE);
+                scrollView.setVisibility(View.VISIBLE);
+                animateIn(scrollView);
+            });
+        } else {
+            animateOut(scrollView, () -> {
+                scrollView.setVisibility(View.GONE);
+                expandedView.setVisibility(View.VISIBLE);
+                animateIn(expandedView);
+            });
+        }
+
+        android.view.animation.RotateAnimation rotate = new android.view.animation.RotateAnimation(
+                expanded ? 180f : 0f, expanded ? 0f : 180f,
+                android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f,
+                android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f);
+        rotate.setDuration(300);
+        rotate.setFillAfter(true);
+        rotate.setInterpolator(new android.view.animation.DecelerateInterpolator(1.5f));
+        expandBtn.startAnimation(rotate);
+        expandBtn.setText(expanded ? "▼" : "—");
+    }
+
+    private void animateIn(View view) {
+        view.setAlpha(0f);
+        view.setTranslationY(-12f);
+        view.animate().alpha(1f).translationY(0f).setDuration(280)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator(1.5f)).start();
+    }
+
+    private void animateOut(View view, Runnable onEnd) {
+        view.animate().alpha(0f).translationY(-8f).setDuration(200)
+                .setInterpolator(new android.view.animation.AccelerateInterpolator(1.5f))
+                .withEndAction(() -> {
+                    view.setAlpha(1f);
+                    view.setTranslationY(0f);
+                    onEnd.run();
+                }).start();
+    }
+
+    /**
+     * 把游戏列表直接作为 chip TextView inflate 到 LinearLayout 里。
+     * LinearLayout 在 HorizontalScrollView 中天然支持无限宽度，不受 RecyclerView 裁剪限制。
+     */
+    private void populateChipRow(LinearLayout row, List<SimpleGameEntity> games) {
+        row.removeAllViews();
+        LayoutInflater inflater = LayoutInflater.from(requireContext());
+        for (SimpleGameEntity game : games) {
+            TextView chip = (TextView) inflater.inflate(R.layout.item_chip_game, row, false);
+            chip.setText(game.getTitle());
+            chip.setOnClickListener(v -> navigateToGame(game.getId()));
+            row.addView(chip);
+        }
+    }
+
+    private SimpleGameAdapter makeGameAdapter(List<SimpleGameEntity> games) {
+        SimpleGameAdapter adapter = new SimpleGameAdapter();
+        adapter.setOnGameClickListener(this::navigateToGame);
+        adapter.setData(games);
+        return adapter;
+    }
+
     private void bindUser(DetailedUserEntity user) {
         binding.usernameText.setText(user.getUsername());
         binding.emailText.setText(user.getEmail() != null ? user.getEmail() : "");
         binding.describtion.setText(user.getDescription() != null ? user.getDescription() : "");
-
         binding.followerCount.setText(user.getFollowerCount() + " Followers");
         binding.followingCount.setText(user.getFollowingCount() + " Following");
 
-        // Load profile picture with Glide
         String pictureUrl = user.getProfilePictureURL();
         if (pictureUrl != null && !pictureUrl.isEmpty()) {
-            Glide.with(this)
-                    .load(pictureUrl)
-                    .circleCrop()
+            Glide.with(this).load(pictureUrl).circleCrop()
                     .placeholder(android.R.drawable.ic_menu_myplaces)
                     .error(android.R.drawable.ic_menu_myplaces)
                     .into(binding.profilePicture);
@@ -98,25 +191,16 @@ public class PersonalProfileFragment extends Fragment {
             binding.profilePicture.setImageResource(android.R.drawable.ic_menu_myplaces);
         }
 
-        // Favourite games
-        SimpleGameAdapter favouriteAdapter = new SimpleGameAdapter();
-        favouriteAdapter.setOnGameClickListener(gameId -> navigateToGame(gameId));
-        favouriteAdapter.setData(user.getFavoriteGames());
-        binding.favouriteGames.setAdapter(favouriteAdapter);
+        // 横向行：直接 inflate chip 到 LinearLayout（解决 RecyclerView 裁剪问题）
+        populateChipRow(binding.favouriteGamesRow, user.getFavoriteGames());
+        populateChipRow(binding.wantsToPlayRow, user.getWantToPlayGames());
+        populateChipRow(binding.hasPlayedRow, user.getHavePlayedGames());
 
-        // Wants to play
-        SimpleGameAdapter wantsToPlayAdapter = new SimpleGameAdapter();
-        wantsToPlayAdapter.setOnGameClickListener(gameId -> navigateToGame(gameId));
-        wantsToPlayAdapter.setData(user.getWantToPlayGames());
-        binding.wantsToPlay.setAdapter(wantsToPlayAdapter);
+        // 展开态：RecyclerView + FlexboxLayoutManager 自动换行
+        binding.favouriteGamesExpanded.setAdapter(makeGameAdapter(user.getFavoriteGames()));
+        binding.wantsToPlayExpanded.setAdapter(makeGameAdapter(user.getWantToPlayGames()));
+        binding.hasPlayedExpanded.setAdapter(makeGameAdapter(user.getHavePlayedGames()));
 
-        // Has played
-        SimpleGameAdapter hasPlayedAdapter = new SimpleGameAdapter();
-        hasPlayedAdapter.setOnGameClickListener(gameId -> navigateToGame(gameId));
-        hasPlayedAdapter.setData(user.getHavePlayedGames());
-        binding.hasPlayed.setAdapter(hasPlayedAdapter);
-
-        // Reviews
         ReviewAdapter reviewAdapter = new ReviewAdapter();
         reviewAdapter.setData(user.getReviews());
         binding.reviews.setAdapter(reviewAdapter);
@@ -129,7 +213,6 @@ public class PersonalProfileFragment extends Fragment {
     }
 
     public void modifyButtonClicked() {
-        // Navigate to edit profile screen when that page is ready
         Toast.makeText(requireContext(), "Edit profile coming soon", Toast.LENGTH_SHORT).show();
     }
 

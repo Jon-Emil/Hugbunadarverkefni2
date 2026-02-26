@@ -37,7 +37,7 @@ public class SimpleGameAdapter extends RecyclerView.Adapter<SimpleGameAdapter.Si
     @Override
     public SimpleGameViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_simple_game, parent, false);
+                .inflate(R.layout.item_chip_game, parent, false);
         return new SimpleGameViewHolder(view);
     }
 
@@ -46,9 +46,7 @@ public class SimpleGameAdapter extends RecyclerView.Adapter<SimpleGameAdapter.Si
         SimpleGameEntity game = games.get(position);
         holder.title.setText(game.getTitle());
         holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onGameClick(game.getId());
-            }
+            if (listener != null) listener.onGameClick(game.getId());
         });
     }
 
@@ -62,7 +60,7 @@ public class SimpleGameAdapter extends RecyclerView.Adapter<SimpleGameAdapter.Si
 
         SimpleGameViewHolder(View itemView) {
             super(itemView);
-            title = itemView.findViewById(R.id.simpleGameTitle);
+            title = itemView.findViewById(R.id.chipGameTitle);
         }
     }
 }
