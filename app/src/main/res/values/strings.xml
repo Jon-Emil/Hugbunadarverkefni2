@@ -13,4 +13,5 @@
     <string name="stat_favorites">%d</string>
     <string name="stat_want_to_play">%d</string>
     <string name="stat_have_played">%d</string>
+    <string name="placeholder_text">—</string>
 </resources>

@@ -47,7 +47,7 @@ public class ModifyUserViewModel extends ViewModel {
         userService.modifyProfile(current, new ServiceCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean success) {
-                statusMessage.postValue(success ? "Profile Updated" : "Update Failed");
+                statusMessage.postValue(success ? "Profile Update Successful" : "Update Failed");
             }
             @Override
             public void onError(Exception e) {

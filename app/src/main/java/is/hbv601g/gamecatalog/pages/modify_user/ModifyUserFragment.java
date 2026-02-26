@@ -10,6 +10,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
+import androidx.navigation.Navigation;
+import is.hbv601g.gamecatalog.R;
 import is.hbv601g.gamecatalog.databinding.FragmentModifyUserBinding;
 import is.hbv601g.gamecatalog.entities.user.SimpleUserEntity;
 import is.hbv601g.gamecatalog.services.NetworkService;
@@ -45,7 +47,11 @@ public class ModifyUserFragment extends Fragment {
         viewModel.getUserProfile().observe(getViewLifecycleOwner(), this::updateUI);
 
         viewModel.getStatusMessage().observe(getViewLifecycleOwner(), msg -> {
-            if (msg != null) Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
+            if (msg == null) return;
+            Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
+            if (msg.equals("Profile Update Successful")) {
+                Navigation.findNavController(requireView()).navigateUp();
+            }
         });
 
         viewModel.isUserDeleted().observe(getViewLifecycleOwner(), deleted -> {
