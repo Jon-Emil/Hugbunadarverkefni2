@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import java.util.List;
 
+import is.hbv601g.gamecatalog.entities.extras.LogInCredentials;
 import is.hbv601g.gamecatalog.entities.game.DetailedGameEntity;
 import is.hbv601g.gamecatalog.entities.genre.SimpleGenreEntity;
 import is.hbv601g.gamecatalog.entities.review.SimpleReviewEntity;
@@ -89,4 +90,19 @@ public class JSONObjectHelper {
         }
     }
 
+
+    //code from auto complete
+    public static String convertCredentialsToJsonString(LogInCredentials credentials) {
+        String json = "";
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("email", credentials.getEmail());
+            jsonObject.put("password", credentials.getPassword());
+            json = jsonObject.toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return json;
+
+    }
 }

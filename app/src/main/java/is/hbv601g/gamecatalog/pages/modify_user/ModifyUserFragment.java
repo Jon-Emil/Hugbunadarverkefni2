@@ -31,8 +31,8 @@ public class ModifyUserFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Matching your SpecificGameFragment's service setup
-        NetworkService networkService = new NetworkService();
+        // Matching your SpecificGameFragments service
+        NetworkService networkService = new NetworkService(requireContext());
         UserService userService = new UserService(networkService);
 
         viewModel = new ViewModelProvider(this).get(ModifyUserViewModel.class);

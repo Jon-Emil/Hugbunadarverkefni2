@@ -9,13 +9,14 @@ import java.util.List;
 
 import is.hbv601g.gamecatalog.entities.game.ListedGameEntity;
 import is.hbv601g.gamecatalog.entities.game.SimpleGameEntity;
+import is.hbv601g.gamecatalog.entities.genre.ListedGenreEntity;
 import is.hbv601g.gamecatalog.entities.genre.SimpleGenreEntity;
 import is.hbv601g.gamecatalog.entities.review.SimpleReviewEntity;
 import is.hbv601g.gamecatalog.entities.user.SimpleUserEntity;
 
 public class JSONArrayHelper {
 
-    public static List<ListedGameEntity> getListedGame(JSONArray jsonArray) throws JSONException {
+    public static List<ListedGameEntity> getListedGames(JSONArray jsonArray) throws JSONException {
         List<ListedGameEntity> fetchedGames = new ArrayList<>();
 
         for (int i = 0; i < jsonArray.length(); i++) {
@@ -61,6 +62,27 @@ public class JSONArrayHelper {
             fetchedGames.add(fetchedGame);
         }
         return fetchedGames;
+    }
+
+    public static List<ListedGenreEntity> getListedGenres(JSONArray jsonArray) throws JSONException {
+        List<ListedGenreEntity> fetchedGenres = new ArrayList<>();
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject json = jsonArray.getJSONObject(i);
+            long id = json.getLong("id");
+            String title = json.getString("title");
+            String description = json.getString("description");
+            int gameAmount = json.getInt("gameAmount");
+
+            ListedGenreEntity fetchedGenre = new ListedGenreEntity(
+                    id,
+                    title,
+                    description,
+                    gameAmount
+            );
+            fetchedGenres.add(fetchedGenre);
+        }
+        return fetchedGenres;
     }
 
     public static List<SimpleGameEntity> makeGameList(JSONArray array) {

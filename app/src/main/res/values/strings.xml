@@ -5,4 +5,8 @@
     <string name="game_details_button_text">View Game</string>
     <string name="previous_page">Previous Page</string>
     <string name="next_page">Next Page</string>
+    <string name="email_placeholder">Enter email</string>
+    <string name="password_placeholder">Enter password</string>
+    <string name="login_button_text">Log in</string>
+    <string name="register_button_text">Register</string>
 </resources>
