@@ -11,6 +11,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
+import androidx.navigation.NavGraph;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -60,6 +61,14 @@ public class MainActivity extends AppCompatActivity {
                 (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main);
 
         NavController navController = navHostFragment.getNavController();
+
+        NavGraph navGraph = navController.getNavInflater().inflate(R.navigation.nav_graph);
+        if (tokenManager.getToken() != null) {
+            navGraph.setStartDestination(R.id.navigation_home); // if logged in then direct to homepage
+        } else {
+            navGraph.setStartDestination(R.id.navigation_login); // if not direct to log in page.
+        }
+        navController.setGraph(navGraph);
 
         appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_home,
