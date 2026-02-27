@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import is.hbv601g.gamecatalog.R;
 import is.hbv601g.gamecatalog.databinding.FragmentLoginBinding;
 import is.hbv601g.gamecatalog.pages.search_games.SearchGamesViewModel;
 import is.hbv601g.gamecatalog.services.AuthService;
@@ -106,9 +107,9 @@ public class LogInFragment extends Fragment {
 
         viewModel.getLoginSuccess().observe(getViewLifecycleOwner(), success -> {
             if (Boolean.TRUE.equals(success)) {
-                Toast.makeText(requireContext(), "Login successful", Toast.LENGTH_SHORT).show();
-
-                // NAVIGATE HERE TO PERSONAL PROFILE
+                viewModel.clearLoginSuccess();
+                androidx.navigation.Navigation.findNavController(view)
+                        .navigate(R.id.navigation_profile);
             }
         });
 

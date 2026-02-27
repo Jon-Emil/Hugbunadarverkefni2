@@ -80,4 +80,8 @@ public class LogInViewModel extends ViewModel {
     public LiveData<Boolean> getLoginSuccess() {
         return loginSuccess;
     }
+
+    public void clearLoginSuccess() {
+        loginSuccess.setValue(null);
+    }
 }

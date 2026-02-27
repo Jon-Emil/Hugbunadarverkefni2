@@ -12,6 +12,7 @@ import is.hbv601g.gamecatalog.entities.game.DetailedGameEntity;
 import is.hbv601g.gamecatalog.entities.game.ListedGameEntity;
 import is.hbv601g.gamecatalog.helpers.JSONArrayHelper;
 import is.hbv601g.gamecatalog.helpers.JSONObjectHelper;
+import is.hbv601g.gamecatalog.helpers.PaginatedCallback;
 import is.hbv601g.gamecatalog.helpers.ServiceCallback;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -51,7 +52,7 @@ public class GameService {
         });
     }
 
-    public void getAllGames(int page , String sortBy, boolean sortReverse, ServiceCallback<List<ListedGameEntity>> callback) {
+    public void getAllGames(int page , String sortBy, boolean sortReverse, PaginatedCallback<ListedGameEntity> callback) {
         String pageString = String.valueOf(page);
         String reverseString = sortReverse ? "true" : "false";
         String url = "/games?pageNr=" + pageString + "&sortBy=" + sortBy + "&sortReverse=" + reverseString;
@@ -69,7 +70,10 @@ public class GameService {
                     JSONObject json = new JSONObject(body);
                     JSONArray jsonArray = json.getJSONArray("data");
                     List<ListedGameEntity> fetchedGames = JSONArrayHelper.getListedGames(jsonArray);
-                    callback.onSuccess(fetchedGames);
+                    int perPage = json.getInt("perPage");
+                    int total = json.getInt("total");
+                    int pageAmount = (total / perPage) + 1;
+                    callback.onSuccess(fetchedGames, pageAmount);
                 } catch (Exception e) {
                     callback.onError(e);
                 }
@@ -83,7 +87,7 @@ public class GameService {
             int page,
             String sortBy,
             boolean sortReverse,
-            ServiceCallback<List<ListedGameEntity>> callback
+            PaginatedCallback<ListedGameEntity> callback
     ) {
         // safe way to make urls with user parameters
         Uri.Builder builder = new Uri.Builder()
@@ -149,7 +153,10 @@ public class GameService {
                     JSONObject json = new JSONObject(body);
                     JSONArray jsonArray = json.getJSONArray("data");
                     List<ListedGameEntity> fetchedGames = JSONArrayHelper.getListedGames(jsonArray);
-                    callback.onSuccess(fetchedGames);
+                    int perPage = json.getInt("perPage");
+                    int total = json.getInt("total");
+                    int pageAmount = (total / perPage) + 1;
+                    callback.onSuccess(fetchedGames, pageAmount);
                 } catch (Exception e) {
                     callback.onError(e);
                 }

@@ -5,104 +5,239 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <ImageView
-        android:id="@+id/gameImage"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:scaleType="centerCrop"
-        android:layout_marginBottom="16dp"
-        android:contentDescription="@string/game_image_description"/>
+        android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/gameTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="24sp"
-        android:textStyle="bold" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/gameDescription"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="18sp"
-        android:layout_marginTop="8dp" />
+            <ImageView
+                android:id="@+id/gameImage"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:layout_marginBottom="16dp"
+                android:contentDescription="@string/game_image_description"/>
 
-    <TextView
-        android:id="@+id/gameReleaseDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="18sp"
-        android:layout_marginTop="8dp" />
+            <TextView
+                android:id="@+id/gameTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/placeholder_text"
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/gamePrice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="18sp"
-        android:layout_marginTop="8dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Description:"
+                android:textSize="18sp"
+                android:layout_marginTop="8dp"
+                android:textStyle="bold"/>
 
-    <TextView
-        android:id="@+id/gameDeveloper"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="18sp"
-        android:layout_marginTop="8dp" />
+            <TextView
+                android:id="@+id/gameDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/placeholder_text"
+                android:textSize="18sp"
+                android:layout_marginTop="8dp" />
 
-    <TextView
-        android:id="@+id/gamePublisher"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="18sp"
-        android:layout_marginTop="8dp" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/gameRating"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="18sp"
-        android:layout_marginTop="8dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Released: "
+                    android:textSize="18sp"
+                    android:layout_marginTop="8dp"
+                    android:textStyle="bold"/>
 
-    <TextView
-        android:id="@+id/gameFavoriteAmount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="18sp"
-        android:layout_marginTop="8dp" />
+                <TextView
+                    android:id="@+id/gameReleaseDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/placeholder_text"
+                    android:textSize="18sp"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
 
-    <TextView
-        android:id="@+id/gameWantToPlayAmount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="18sp"
-        android:layout_marginTop="8dp" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/gameHavePlayedAmount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="18sp"
-        android:layout_marginTop="8dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Price: "
+                    android:textSize="18sp"
+                    android:layout_marginTop="8dp"
+                    android:textStyle="bold"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/genreRecycler"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"/>
+                <TextView
+                    android:id="@+id/gamePrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/placeholder_text"
+                    android:textSize="18sp"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/reviewRecycler"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Developed By:"
+                android:textSize="18sp"
+                android:layout_marginTop="8dp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/gameDeveloper"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/placeholder_text"
+                android:textSize="18sp"
+                android:layout_marginTop="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Published By:"
+                android:textSize="18sp"
+                android:layout_marginTop="8dp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/gamePublisher"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/placeholder_text"
+                android:textSize="18sp"
+                android:layout_marginTop="8dp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rating: "
+                    android:textSize="18sp"
+                    android:layout_marginTop="8dp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/gameRating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/placeholder_text"
+                    android:textSize="18sp"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Favorites: "
+                    android:textSize="18sp"
+                    android:layout_marginTop="8dp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/gameFavoriteAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/placeholder_text"
+                    android:textSize="18sp"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="WantToPlay: "
+                    android:textSize="18sp"
+                    android:layout_marginTop="8dp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/gameWantToPlayAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/placeholder_text"
+                    android:textSize="18sp"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="HavePlayed: "
+                    android:textSize="18sp"
+                    android:layout_marginTop="8dp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/gameHavePlayedAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/placeholder_text"
+                    android:textSize="18sp"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Genres:"
+                android:textSize="18sp"
+                android:layout_marginTop="8dp"
+                android:textStyle="bold"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/genreRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reviews:"
+                android:textSize="18sp"
+                android:layout_marginTop="8dp"
+                android:textStyle="bold"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/reviewRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="12dp"/>
+        </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>

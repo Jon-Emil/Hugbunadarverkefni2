@@ -9,4 +9,9 @@
     <string name="password_placeholder">Enter password</string>
     <string name="login_button_text">Log in</string>
     <string name="register_button_text">Register</string>
+    <string name="stat_reviews">%d</string>
+    <string name="stat_favorites">%d</string>
+    <string name="stat_want_to_play">%d</string>
+    <string name="stat_have_played">%d</string>
+    <string name="placeholder_text">—</string>
 </resources>
