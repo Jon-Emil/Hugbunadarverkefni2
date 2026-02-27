@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Allows sharing files from the app's cache directory (used for cropped image output) -->
+    <cache-path
+        name="cropped_images"
+        path="." />
+</paths>

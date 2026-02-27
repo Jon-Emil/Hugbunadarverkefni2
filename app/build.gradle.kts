@@ -51,4 +51,5 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:5.0.5")
     implementation("com.google.android.flexbox:flexbox:3.0.0")
     annotationProcessor("com.github.bumptech.glide:compiler:5.0.5")
+    implementation("com.github.yalantis:ucrop:2.2.9")
 }

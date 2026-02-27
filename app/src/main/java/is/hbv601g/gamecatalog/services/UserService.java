@@ -136,7 +136,8 @@ public class UserService {
     }
 
     // Modify own profile
-    public void modifyProfile(SimpleUserEntity newProfile, ServiceCallback<Boolean> callback) {
+    public void modifyProfile(SimpleUserEntity newProfile, android.net.Uri imageUri,
+                              android.content.Context context, ServiceCallback<Boolean> callback) {
         String url = "/users";
 
         try {
@@ -144,15 +145,32 @@ public class UserService {
             userInfoJson.put("username", newProfile.getUsername());
             userInfoJson.put("description", newProfile.getDescription());
 
-            okhttp3.MultipartBody body = new okhttp3.MultipartBody.Builder()
+            okhttp3.MultipartBody.Builder builder = new okhttp3.MultipartBody.Builder()
                     .setType(okhttp3.MultipartBody.FORM)
                     .addFormDataPart("userInfo", null,
                             okhttp3.RequestBody.create(
                                     userInfoJson.toString(),
-                                    okhttp3.MediaType.get("application/json; charset=utf-8")))
-                    .build();
+                                    okhttp3.MediaType.get("application/json; charset=utf-8")));
 
-            networkService.patchMultipartRequest(url, body, new Callback() {
+            // If a new profile picture was selected, attach it as a multipart image part
+            if (imageUri != null) {
+                java.io.InputStream inputStream = context.getContentResolver().openInputStream(imageUri);
+                if (inputStream != null) {
+                    java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
+                    byte[] chunk = new byte[4096];
+                    int bytesRead;
+                    while ((bytesRead = inputStream.read(chunk)) != -1) {
+                        buffer.write(chunk, 0, bytesRead);
+                    }
+                    inputStream.close();
+                    byte[] imageBytes = buffer.toByteArray();
+                    builder.addFormDataPart("profilePicture", "avatar.jpg",
+                            okhttp3.RequestBody.create(imageBytes,
+                                    okhttp3.MediaType.get("image/jpeg")));
+                }
+            }
+
+            networkService.patchMultipartRequest(url, builder.build(), new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     callback.onError(e);
