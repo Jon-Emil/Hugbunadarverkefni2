@@ -27,7 +27,7 @@ public class UserService {
 
     // get own profile
     public void getUserOwnProfile(ServiceCallback<SimpleUserEntity> callback){
-        String url = "/user/me";
+        String url = "/user/profile";
 
         networkService.getRequest(url, new Callback() {
             @Override
@@ -52,7 +52,7 @@ public class UserService {
     }
 
     public void modifyProfile(SimpleUserEntity newProfile, ServiceCallback<Boolean> callback) {
-        String url = "/users/me";
+        String url = "/users/profile";
 
         // Convert to JSON string
         String jsonBody = JSONObjectHelper.simpleUserToJson(newProfile).toString();
@@ -74,7 +74,7 @@ public class UserService {
 
     // Delete my account
     public void deleteAccount(ServiceCallback<Boolean> callback) {
-        String url = "/users/me";
+        String url = "/users/profile";
 
         networkService.deleteRequest(url, new Callback() {
             @Override
