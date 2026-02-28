@@ -2,6 +2,7 @@ package is.hbv601g.gamecatalog.services;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -11,6 +12,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.List;
 
+import is.hbv601g.gamecatalog.entities.extras.LogInCredentials;
 import is.hbv601g.gamecatalog.entities.game.SimpleGameEntity;
 import is.hbv601g.gamecatalog.entities.review.SimpleReviewEntity;
 import is.hbv601g.gamecatalog.entities.user.DetailedUserEntity;
@@ -63,6 +65,7 @@ public class UserService {
                     String username = data.optString("username", "");
                     String email = data.optString("email", "");
                     String profilePictureURL = data.optString("profilePictureURL", "");
+                    if ("null".equalsIgnoreCase(profilePictureURL)) { profilePictureURL = ""; }
                     String description = data.optString("description", "");
 
                     // Follower / following counts from follows / followedBy arrays
@@ -136,13 +139,18 @@ public class UserService {
     }
 
     // Modify own profile
-    public void modifyProfile(SimpleUserEntity newProfile, ServiceCallback<Boolean> callback) {
+    public void modifyProfile(SimpleUserEntity newProfile, LogInCredentials credentials, ServiceCallback<Boolean> callback) {
         String url = "/users";
 
         try {
             org.json.JSONObject userInfoJson = new org.json.JSONObject();
             userInfoJson.put("username", newProfile.getUsername());
             userInfoJson.put("description", newProfile.getDescription());
+
+            if (credentials != null && credentials.getPassword() != null && !credentials.getPassword().isEmpty()) {
+                userInfoJson.put("password", credentials.getPassword());
+            }
+
 
             okhttp3.MultipartBody body = new okhttp3.MultipartBody.Builder()
                     .setType(okhttp3.MultipartBody.FORM)
@@ -161,6 +169,9 @@ public class UserService {
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                     callback.onSuccess(response.isSuccessful());
+                    String responseBody = response.body().string();
+                    Log.d("PATCH_RESPONSE", responseBody);
+
                 }
             });
         } catch (Exception e) {

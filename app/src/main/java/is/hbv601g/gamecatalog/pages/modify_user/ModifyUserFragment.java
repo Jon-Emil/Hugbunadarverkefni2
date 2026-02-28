@@ -10,7 +10,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
+
+import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
+
 import is.hbv601g.gamecatalog.R;
 import is.hbv601g.gamecatalog.databinding.FragmentModifyUserBinding;
 import is.hbv601g.gamecatalog.entities.user.SimpleUserEntity;
@@ -57,7 +61,11 @@ public class ModifyUserFragment extends Fragment {
         viewModel.isUserDeleted().observe(getViewLifecycleOwner(), deleted -> {
             if (deleted) {
                 Toast.makeText(requireContext(), "Account Deleted", Toast.LENGTH_LONG).show();
-                requireActivity().finish(); // Or navigate to login
+                NavOptions navOptions = new NavOptions.Builder()
+                        .setPopUpTo(R.id.nav_graph,true)
+                        .build();
+                NavHostFragment.findNavController(this)
+                        .navigate(R.id.navigation_login, null, navOptions);// Or navigate to login doesn't work?
             }
         });
     }
@@ -77,7 +85,8 @@ public class ModifyUserFragment extends Fragment {
         binding.commitButton.setOnClickListener(v -> {
             String name = binding.nameInput.getText().toString();
             String desc = binding.descriptionInput.getText().toString();
-            viewModel.updateProfile(name, desc);
+            String pass = binding.passwordInput.getText().toString();
+            viewModel.updateProfile(name, desc,pass);
         });
 
         binding.deleteUserButton.setOnClickListener(v -> {
