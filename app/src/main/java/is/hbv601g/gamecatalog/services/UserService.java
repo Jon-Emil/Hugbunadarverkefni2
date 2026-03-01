@@ -62,8 +62,8 @@ public class UserService {
                     Long id = data.getLong("id");
                     String username = data.optString("username", "");
                     String email = data.optString("email", "");
-                    String profilePictureURL = data.optString("profilePictureURL", "");
-                    if ("null".equalsIgnoreCase(profilePictureURL)) { profilePictureURL = ""; }
+                    String profilePictureURL = data.isNull("profilePictureURL")
+                            ? "" : data.optString("profilePictureURL", "");
                     String description = data.optString("description", "");
 
                     // Follower / following counts from follows / followedBy arrays
@@ -119,7 +119,7 @@ public class UserService {
         networkService.getRequest(url, new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                callback.onError(e);
+                new Handler(Looper.getMainLooper()).post(() -> callback.onError(e));
             }
 
             @Override
@@ -128,9 +128,9 @@ public class UserService {
                     String body = response.body().string();
                     JSONObject json = new JSONObject(body).getJSONArray("data").getJSONObject(0);
                     SimpleUserEntity user = JSONObjectHelper.getSimpleUser(json);
-                    callback.onSuccess(user);
+                    new Handler(Looper.getMainLooper()).post(() -> callback.onSuccess(user));
                 } catch (Exception e) {
-                    callback.onError(e);
+                    new Handler(Looper.getMainLooper()).post(() -> callback.onError(e));
                 }
             }
         });
@@ -156,16 +156,17 @@ public class UserService {
             networkService.patchMultipartRequest(url, body, new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                    callback.onError(e);
+                    new Handler(Looper.getMainLooper()).post(() -> callback.onError(e));
                 }
 
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                    callback.onSuccess(response.isSuccessful());
+                    boolean success = response.isSuccessful();
+                    new Handler(Looper.getMainLooper()).post(() -> callback.onSuccess(success));
                 }
             });
         } catch (Exception e) {
-            callback.onError(e);
+            new Handler(Looper.getMainLooper()).post(() -> callback.onError(e));
         }
     }
 
@@ -176,12 +177,13 @@ public class UserService {
         networkService.deleteRequest(url, new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                callback.onError(e);
+                new Handler(Looper.getMainLooper()).post(() -> callback.onError(e));
             }
 
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
-                callback.onSuccess(response.isSuccessful());
+                boolean success = response.isSuccessful();
+                new Handler(Looper.getMainLooper()).post(() -> callback.onSuccess(success));
             }
         });
     }

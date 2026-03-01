@@ -1,8 +1,6 @@
 package is.hbv601g.gamecatalog.pages.login;
 
-import static java.security.AccessController.getContext;
-
-import android.widget.Toast;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -32,16 +30,13 @@ public class LogInViewModel extends ViewModel {
         authService.logIn(logInCredentials, new LoginCallback(){
             @Override
             public void onSuccess() {
-                // Handle successful login
-                System.out.println("Login successful, Token saved!");
+                Log.d("LogInViewModel", "Login successful, token saved");
                 loginSuccess.postValue(true);
-
             }
 
             @Override
             public void onError(String errorMessage) {
-                // Handle login error
-                System.out.println("ERROR" + errorMessage);
+                Log.e("LogInViewModel", "Login error: " + errorMessage);
                 loginError.postValue(errorMessage);
             }
         });
@@ -51,15 +46,13 @@ public class LogInViewModel extends ViewModel {
         authService.register(logInCredentials, new LoginCallback(){
             @Override
             public void onSuccess() {
-                // Handle successful login
-                System.out.println("Registration successful, Token saved!");
+                Log.d("LogInViewModel", "Registration successful, token saved");
                 loginSuccess.postValue(true);
             }
 
             @Override
             public void onError(String errorMessage) {
-                // Handle login error
-                System.out.println("ERROR" + errorMessage);
+                Log.e("LogInViewModel", "Registration error: " + errorMessage);
                 loginError.postValue(errorMessage);
             }
         });

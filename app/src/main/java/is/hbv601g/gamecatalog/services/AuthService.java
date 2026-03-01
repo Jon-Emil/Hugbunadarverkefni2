@@ -3,6 +3,7 @@ package is.hbv601g.gamecatalog.services;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -58,7 +59,10 @@ public class AuthService {
                             callback.onSuccess();
                         }
                     }catch (JSONException e){
-                        e.printStackTrace();
+                        Log.e("AuthService", "Failed to parse login response", e);
+                        new Handler(Looper.getMainLooper()).post(() ->
+                                callback.onError("Unexpected server response")
+                        );
                     }
                 }
                 else if(response.code() == 401){
@@ -99,7 +103,10 @@ public class AuthService {
                             callback.onSuccess();
                         }
                     }catch (JSONException e){
-                        e.printStackTrace();
+                        Log.e("AuthService", "Failed to parse register response", e);
+                        new Handler(Looper.getMainLooper()).post(() ->
+                                callback.onError("Unexpected server response")
+                        );
                     }
                 }
                 else if(response.code() == 401){

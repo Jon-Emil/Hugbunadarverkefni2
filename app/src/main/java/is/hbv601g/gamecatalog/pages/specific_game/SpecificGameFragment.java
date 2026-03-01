@@ -16,6 +16,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
+
 import com.bumptech.glide.Glide;
 
 import java.text.ParseException;
@@ -118,13 +120,13 @@ public class SpecificGameFragment extends Fragment {
 
         Glide.with(requireContext()).load(game.getCoverImage()).into(binding.gameImage);
 
-        String formatted = "null";
+        String formatted = game.getReleaseDate();
         try {
             SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
             Date date = parser.parse(game.getReleaseDate());
             formatted = DateFormat.getMediumDateFormat(getContext()).format(date);
         } catch (ParseException e) {
-            e.printStackTrace();
+            Log.w("SpecificGameFragment", "Failed to parse release date: " + game.getReleaseDate(), e);
         }
         binding.gameReleaseDate.setText(formatted);
 
