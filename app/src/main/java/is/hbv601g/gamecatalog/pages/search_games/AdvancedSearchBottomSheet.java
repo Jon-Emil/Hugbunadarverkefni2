@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import is.hbv601g.gamecatalog.adapters.GenreParamAdapter;
@@ -188,10 +189,8 @@ public class AdvancedSearchBottomSheet extends BottomSheetDialogFragment {
                 requireContext(),
                 (pickerView, selectedYear, selectedMonth, selectedDay) -> {
 
-                    String date =
-                            selectedYear + "-" +
-                                    (selectedMonth + 1) + "-" +
-                                    selectedDay;
+                    // proper date format in coordination with backend points, inspired by Claude.
+                    String date = String.format(Locale.US, "%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay);
 
                     view.setText(date);
                 },
