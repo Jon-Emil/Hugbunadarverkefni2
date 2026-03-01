@@ -90,7 +90,7 @@ public class ModifyUserFragment extends Fragment {
         });
 
         binding.deleteUserButton.setOnClickListener(v -> {
-            viewModel.deleteAccount();
+            Navigation.findNavController(v).navigateUp();
         });
 
         binding.btnChangePic.setOnClickListener(v -> {
