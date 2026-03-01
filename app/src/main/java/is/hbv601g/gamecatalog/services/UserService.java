@@ -63,6 +63,7 @@ public class UserService {
                     String username = data.optString("username", "");
                     String email = data.optString("email", "");
                     String profilePictureURL = data.optString("profilePictureURL", "");
+                    if ("null".equalsIgnoreCase(profilePictureURL)) { profilePictureURL = ""; }
                     String description = data.optString("description", "");
 
                     // Follower / following counts from follows / followedBy arrays

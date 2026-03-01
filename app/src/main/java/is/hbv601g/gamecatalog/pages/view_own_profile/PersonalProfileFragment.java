@@ -186,7 +186,10 @@ public class PersonalProfileFragment extends Fragment {
         binding.followingCount.setText(user.getFollowingCount() + " Following");
 
         String pictureUrl = user.getProfilePictureURL();
-        if (pictureUrl != null && !pictureUrl.isEmpty()) {
+
+        boolean valid = pictureUrl != null && !pictureUrl.isEmpty() && !"null".equalsIgnoreCase(pictureUrl);
+
+        if (valid) {
             Glide.with(this).load(pictureUrl).circleCrop()
                     .placeholder(android.R.drawable.ic_menu_myplaces)
                     .error(android.R.drawable.ic_menu_myplaces)
