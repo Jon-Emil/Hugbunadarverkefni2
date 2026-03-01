@@ -49,9 +49,13 @@ public class PersonalProfileViewModel extends AndroidViewModel {
             @Override
             public void onError(Exception e) {
                 isLoading.setValue(false);
-                // if error 404 or unauthorized, remove token and direct to log in
-                tokenManager.removeToken();
-                loggedOut.postValue(true);
+                String msg = e.getMessage() != null ? e.getMessage() : "";
+                if (msg.contains("401") || msg.contains("403")) {
+                    tokenManager.removeToken();
+                    loggedOut.postValue(true);
+                } else {
+                    errorMessage.postValue("Failed to load profile");
+                }
             }
         });
     }

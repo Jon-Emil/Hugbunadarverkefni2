@@ -5,8 +5,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
@@ -21,6 +23,7 @@ public class ModifyUserFragment extends Fragment {
 
     private FragmentModifyUserBinding binding;
     private ModifyUserViewModel viewModel;
+    private OnBackPressedCallback backPressedCallback;
 
     @Nullable
     @Override
@@ -41,6 +44,7 @@ public class ModifyUserFragment extends Fragment {
 
         setupObservers();
         setupListeners();
+        setupBackHandler();
     }
 
     private void setupObservers() {
@@ -54,12 +58,7 @@ public class ModifyUserFragment extends Fragment {
             }
         });
 
-        viewModel.isUserDeleted().observe(getViewLifecycleOwner(), deleted -> {
-            if (deleted) {
-                Toast.makeText(requireContext(), "Account Deleted", Toast.LENGTH_LONG).show();
-                requireActivity().finish(); // Or navigate to login
-            }
-        });
+
     }
 
     private void updateUI(SimpleUserEntity user) {
@@ -84,18 +83,61 @@ public class ModifyUserFragment extends Fragment {
             viewModel.updateProfile(name, desc);
         });
 
-        binding.deleteUserButton.setOnClickListener(v -> {
-            viewModel.deleteAccount();
-        });
-
         binding.btnChangePic.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Gallery Logic Here", Toast.LENGTH_SHORT).show();
         });
     }
 
+    // detects whether there's unsaved information. linear traversal of edit-able profile information.
+    private boolean hasUnsavedChanges() {
+        SimpleUserEntity original = viewModel.getUserProfile().getValue();
+        if (original == null) return false;
+        String currentName = binding.nameInput.getText().toString();
+        String currentDesc = binding.descriptionInput.getText().toString();
+        return !currentName.equals(original.getUsername()) ||
+               !currentDesc.equals(original.getDescription());
+    }
+
+    // Discard warning
+    private void handleBackPress() {
+        if (hasUnsavedChanges()) {
+            new android.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Discard Changes")
+                    .setMessage("Are you sure you want to discard changes to your profile?")
+                    .setPositiveButton("Discard", (dialog, which) ->
+                            Navigation.findNavController(requireView()).navigateUp())
+                    .setNegativeButton("Keep Editing", null)
+                    .show();
+        } else {
+            Navigation.findNavController(requireView()).navigateUp();
+        }
+    }
+
+    private void setupBackHandler() {
+        backPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (binding != null) handleBackPress();
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(backPressedCallback);
+
+        Toolbar toolbar = requireActivity().findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            toolbar.setNavigationOnClickListener(v -> handleBackPress());
+        }
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (backPressedCallback != null) {
+            backPressedCallback.remove();
+        }
+        Toolbar toolbar = requireActivity().findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            toolbar.setNavigationOnClickListener(null);
+        }
         binding = null;
     }
 }

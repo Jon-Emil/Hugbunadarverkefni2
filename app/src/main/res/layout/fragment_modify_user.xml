@@ -47,12 +47,6 @@
                 android:hint="Change Name"
                 android:inputType="textPersonName" />
 
-            <EditText
-                android:id="@+id/passwordInput"
-                android:layout_width="match_parent"
-                android:layout_height="58dp"
-                android:hint="Change Password"
-                android:inputType="textPassword" />
         </LinearLayout>
     </LinearLayout>
 
@@ -71,26 +65,10 @@
         android:layout_height="337dp"
         android:layout_weight="1" />
 
-    <RelativeLayout
+    <Button
+        android:id="@+id/commitButton"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <Button
-            android:id="@+id/commitButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:text="Save" />
-
-        <Button
-            android:id="@+id/deleteUserButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:text="Delete"
-            android:textColor="@android:color/white"
-            android:backgroundTint="@android:color/holo_red_dark" />
-
-    </RelativeLayout>
+        android:layout_height="wrap_content"
+        android:text="Save" />
 
 </LinearLayout>

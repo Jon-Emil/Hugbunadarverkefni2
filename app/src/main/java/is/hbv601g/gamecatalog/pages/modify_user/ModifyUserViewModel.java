@@ -10,12 +10,10 @@ import is.hbv601g.gamecatalog.services.UserService;
 public class ModifyUserViewModel extends ViewModel {
     private final MutableLiveData<SimpleUserEntity> userProfile = new MutableLiveData<>();
     private final MutableLiveData<String> statusMessage = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> userDeleted = new MutableLiveData<>(false);
     private UserService userService;
 
     public LiveData<SimpleUserEntity> getUserProfile() { return userProfile; }
     public LiveData<String> getStatusMessage() { return statusMessage; }
-    public LiveData<Boolean> isUserDeleted() { return userDeleted; }
 
     public void init(UserService userService) {
         this.userService = userService;
@@ -54,19 +52,6 @@ public class ModifyUserViewModel extends ViewModel {
                 statusMessage.postValue("Error");
             }
 
-        });
-    }
-
-    public void deleteAccount() {
-        userService.deleteAccount(new ServiceCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean success) {
-                if (success) userDeleted.postValue(true);
-            }
-            @Override
-            public void onError(Exception e) {
-                statusMessage.postValue("Error deleting account");
-            }
         });
     }
 }
