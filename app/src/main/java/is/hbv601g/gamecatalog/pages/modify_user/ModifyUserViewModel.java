@@ -46,10 +46,7 @@ public class ModifyUserViewModel extends ViewModel {
         current.setUsername(username);
         current.setDescription(description);
 
-        LogInCredentials cred = new LogInCredentials();
-        cred.setPassword(password);
-
-        userService.modifyProfile(current, cred , new ServiceCallback<Boolean>() {
+        userService.modifyProfile(current, new ServiceCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean success) {
                 statusMessage.postValue(success ? "Profile Update Successful" : "Update Failed");
