@@ -116,12 +116,16 @@ public class NetworkService {
     public Call putRequest(String endpoint, String jsonBody, Callback callback) {
         RequestBody body = RequestBody.create(jsonBody, JSON);
 
-        Request request = new Request.Builder()
+        // Secure Put methods inspired by Claude.
+        Request.Builder builder = new Request.Builder()
                 .url(baseUrl + endpoint)
-                .put(body)
-                .build();
+                .put(body);
 
-        Call call = client.newCall(request);
+        String token = tokenManager.getToken();
+        if (token != null) {
+            builder.addHeader("Authorization", "Bearer " + token);
+        }
+        Call call = client.newCall(builder.build());
         call.enqueue(callback);
         return call;
     }

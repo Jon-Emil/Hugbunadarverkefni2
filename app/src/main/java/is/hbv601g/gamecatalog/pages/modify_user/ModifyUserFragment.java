@@ -74,10 +74,14 @@ public class ModifyUserFragment extends Fragment {
         binding.nameInput.setText(user.getUsername());
         binding.descriptionInput.setText(user.getDescription());
 
+        String url = user.getProfilePictureURL();
+
+        boolean valid = url != null && !url.isEmpty() && !"null".equalsIgnoreCase(url);
         // matching  SpecificGameFragment
         Glide.with(this)
-                .load(user.getProfilePictureURL())
+                .load(valid ? url: null)
                 .placeholder(android.R.drawable.ic_menu_gallery)
+                .error(android.R.drawable.ic_menu_gallery)
                 .into(binding.profileImage);
     }
 

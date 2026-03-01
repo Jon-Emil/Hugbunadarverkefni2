@@ -7,7 +7,7 @@ import android.widget.Toast;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-
+import android.util.Log;
 import is.hbv601g.gamecatalog.entities.extras.LogInCredentials;
 import is.hbv601g.gamecatalog.helpers.LoginCallback;
 import is.hbv601g.gamecatalog.services.AuthService;
@@ -33,7 +33,8 @@ public class LogInViewModel extends ViewModel {
             @Override
             public void onSuccess() {
                 // Handle successful login
-                System.out.println("Login successful, Token saved!");
+                // more informative and traceable msg inspired by Claude.
+                Log.d("LogInViewModel", "Login successful, token saved!");
                 loginSuccess.postValue(true);
 
             }
@@ -41,7 +42,8 @@ public class LogInViewModel extends ViewModel {
             @Override
             public void onError(String errorMessage) {
                 // Handle login error
-                System.out.println("ERROR" + errorMessage);
+                // more informative and traceable msg inspired by Claude.
+                Log.e("LogInViewModel", "Login error: " + errorMessage);
                 loginError.postValue(errorMessage);
             }
         });
@@ -52,14 +54,16 @@ public class LogInViewModel extends ViewModel {
             @Override
             public void onSuccess() {
                 // Handle successful login
-                System.out.println("Registration successful, Token saved!");
+                // more informative and traceable msg inspired by Claude.
+                Log.d("LogInViewModel", "Registration successful, token saved");
                 loginSuccess.postValue(true);
             }
 
             @Override
             public void onError(String errorMessage) {
                 // Handle login error
-                System.out.println("ERROR" + errorMessage);
+                // more informative and traceable msg inspired by Claude.
+                Log.e("LogInViewModel", "Registration error: " + errorMessage);
                 loginError.postValue(errorMessage);
             }
         });

@@ -17,7 +17,7 @@ import is.hbv601g.gamecatalog.storage.TokenManager;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
+import android.util.Log;
 
 public class AuthService {
     private final NetworkService networkService;
@@ -58,7 +58,9 @@ public class AuthService {
                             callback.onSuccess();
                         }
                     }catch (JSONException e){
-                        e.printStackTrace();
+                        // more informative and secure error handling with inspiration from Claude.
+                        Log.e("AuthService", "Failed to parse login response", e);
+                        new Handler(Looper.getMainLooper()).post(() -> callback.onError("Unexpected server response"));
                     }
                 }
                 else if(response.code() == 401){
@@ -99,7 +101,9 @@ public class AuthService {
                             callback.onSuccess();
                         }
                     }catch (JSONException e){
-                        e.printStackTrace();
+                        // more informative and secure error handling with inspiration from Claude.
+                        Log.e("AuthService", "Failed to parse register response", e);
+                        new Handler(Looper.getMainLooper()).post(() -> callback.onError("Unexpected server response"));
                     }
                 }
                 else if(response.code() == 401){
