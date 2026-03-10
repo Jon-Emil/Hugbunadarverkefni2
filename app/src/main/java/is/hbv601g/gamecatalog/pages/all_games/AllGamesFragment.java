@@ -24,6 +24,7 @@ import is.hbv601g.gamecatalog.R;
 import is.hbv601g.gamecatalog.adapters.GameAdapter;
 import is.hbv601g.gamecatalog.databinding.FragmentAllGamesBinding;
 import is.hbv601g.gamecatalog.entities.game.ListedGameEntity;
+import is.hbv601g.gamecatalog.helpers.InternetHelper;
 import is.hbv601g.gamecatalog.pages.specific_game.SpecificGameFragment;
 import is.hbv601g.gamecatalog.services.GameService;
 import is.hbv601g.gamecatalog.services.NetworkService;
@@ -55,66 +56,75 @@ public class AllGamesFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        gameAdapter = new GameAdapter(game -> openSpecificGame(game.getId()));
-        binding.gameRecycler.setLayoutManager(
-                new LinearLayoutManager(
-                        requireContext(),
-                        LinearLayoutManager.VERTICAL,
-                        false
-                )
-        );
-        binding.gameRecycler.setAdapter(gameAdapter);
+        //Check network status
+        if(!InternetHelper.networkDetected(requireContext())){
+            //Switch to offline mode if offline
+            NavController navController = Navigation.findNavController(requireView());
+            navController.navigate(R.id.navigation_offline_all_games);
+        }
+        else {
+            //Load online mode if online
+            super.onViewCreated(view, savedInstanceState);
+            gameAdapter = new GameAdapter(game -> openSpecificGame(game.getId()));
+            binding.gameRecycler.setLayoutManager(
+                    new LinearLayoutManager(
+                            requireContext(),
+                            LinearLayoutManager.VERTICAL,
+                            false
+                    )
+            );
+            binding.gameRecycler.setAdapter(gameAdapter);
 
-        //Initialize ViewModel
-        viewModel = new ViewModelProvider(this).get(AllGamesViewModel.class);
+            //Initialize ViewModel
+            viewModel = new ViewModelProvider(this).get(AllGamesViewModel.class);
 
-        NetworkService networkService = new NetworkService(requireContext());
-        GameService gameService = new GameService(networkService);
+            NetworkService networkService = new NetworkService(requireContext());
+            GameService gameService = new GameService(networkService);
 
-        viewModel.init(gameService);
+            viewModel.init(gameService);
 
-        binding.nextPage.setOnClickListener(v -> {
-            viewModel.nextPage();
-        });
+            binding.nextPage.setOnClickListener(v -> {
+                viewModel.nextPage();
+            });
 
-        binding.previousPage.setOnClickListener(v -> {
-            viewModel.previousPage();
-        });
+            binding.previousPage.setOnClickListener(v -> {
+                viewModel.previousPage();
+            });
 
-        viewModel.getGames().observe(getViewLifecycleOwner(), this::updateGamesInfo);
+            viewModel.getGames().observe(getViewLifecycleOwner(), this::updateGamesInfo);
 
-        // this calls updatePageInfo twice if both maxPage and currentPage change
-        // but that only happens if new games are added while browsing which is unlikely
-        viewModel.getCurrentPage().observe(getViewLifecycleOwner(), this::updatePageInfo);
-        viewModel.getPageAmount().observe(getViewLifecycleOwner(), this::updatePageInfo);
+            // this calls updatePageInfo twice if both maxPage and currentPage change
+            // but that only happens if new games are added while browsing which is unlikely
+            viewModel.getCurrentPage().observe(getViewLifecycleOwner(), this::updatePageInfo);
+            viewModel.getPageAmount().observe(getViewLifecycleOwner(), this::updatePageInfo);
 
-        viewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
-            binding.nextPage.setEnabled(!isLoading);
-            binding.previousPage.setEnabled(!isLoading);
-            if (isLoading) {
-                binding.loadingIndicator.setVisibility(View.VISIBLE);
-                binding.gameRecycler.setAlpha(0.3f);
-            } else {
+            viewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
+                binding.nextPage.setEnabled(!isLoading);
+                binding.previousPage.setEnabled(!isLoading);
+                if (isLoading) {
+                    binding.loadingIndicator.setVisibility(View.VISIBLE);
+                    binding.gameRecycler.setAlpha(0.3f);
+                } else {
+                    binding.loadingIndicator.setVisibility(View.GONE);
+                    binding.gameRecycler.setAlpha(1f);
+                }
+            });
+
+            viewModel.getErrorMessage().observe(getViewLifecycleOwner(), errorMessage -> {
+                binding.gameListErrorMessage.setText(errorMessage);
+                binding.gameRecycler.setVisibility(View.GONE);
                 binding.loadingIndicator.setVisibility(View.GONE);
-                binding.gameRecycler.setAlpha(1f);
-            }
-        });
+                binding.gameListErrorContainer.setVisibility(View.VISIBLE);
+                binding.previousPage.setEnabled(false);
+                binding.nextPage.setEnabled(false);
+            });
 
-        viewModel.getErrorMessage().observe(getViewLifecycleOwner(), errorMessage -> {
-            binding.gameListErrorMessage.setText(errorMessage);
-            binding.gameRecycler.setVisibility(View.GONE);
-            binding.loadingIndicator.setVisibility(View.GONE);
-            binding.gameListErrorContainer.setVisibility(View.VISIBLE);
-            binding.previousPage.setEnabled(false);
-            binding.nextPage.setEnabled(false);
-        });
-
-        binding.gameListRetryButton.setOnClickListener(v -> {
-            binding.gameListErrorContainer.setVisibility(View.GONE);
-            binding.gameRecycler.setVisibility(View.VISIBLE);
-            viewModel.refreshPage();
-        });
+            binding.gameListRetryButton.setOnClickListener(v -> {
+                binding.gameListErrorContainer.setVisibility(View.GONE);
+                binding.gameRecycler.setVisibility(View.VISIBLE);
+                viewModel.refreshPage();
+            });
+        }
     }
 
     public void updateGamesInfo(List<ListedGameEntity> games) {
