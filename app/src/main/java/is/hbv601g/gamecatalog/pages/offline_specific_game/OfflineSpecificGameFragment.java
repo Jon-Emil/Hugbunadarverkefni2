@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.bumptech.glide.Glide;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -23,11 +22,7 @@ import java.util.Locale;
 import is.hbv601g.gamecatalog.adapters.GenreAdapter;
 import is.hbv601g.gamecatalog.adapters.ReviewAdapter;
 import is.hbv601g.gamecatalog.databinding.FragmentOfflineSpecificGameBinding;
-import is.hbv601g.gamecatalog.databinding.FragmentSpecificGameBinding;
 import is.hbv601g.gamecatalog.entities.game.DetailedGameEntity;
-import is.hbv601g.gamecatalog.pages.specific_game.SpecificGameViewModel;
-import is.hbv601g.gamecatalog.services.GameService;
-import is.hbv601g.gamecatalog.services.NetworkService;
 import is.hbv601g.gamecatalog.storage.CacheManager;
 
 public class OfflineSpecificGameFragment extends Fragment {

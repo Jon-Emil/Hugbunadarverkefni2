@@ -18,9 +18,8 @@ public class InternetHelper {
 
         //Checks if the network exists and is connected
         if(networkCapabilities != null){
-            //Only returns true if device is connected to Wi-Fi or mobile data
-            return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR);
+            //Only returns true if device is connected to a network that has working internet
+            return networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
         }
         //Returns false if no network is detected
         return false;

@@ -28,7 +28,7 @@ public class OfflineSpecificGameViewModel extends ViewModel {
 
     private void fetchCachedGame(long gameId) {
         //IMPLEMENT CACHE FETCH LOGIC HERE FROM CACHE MANAGER
-        String game = cacheManager.getCachedGame("1");
+        String gameCache = cacheManager.getCachedGame("1");
 
         //Code from ChatGPT to create dummy data to test offline functionality and fragments
         DetailedGameEntity dummyGame = new DetailedGameEntity(
@@ -47,5 +47,6 @@ public class OfflineSpecificGameViewModel extends ViewModel {
                 new ArrayList<>(),
                 new ArrayList<>()
         );
+        game.postValue(dummyGame);
     }
 }
