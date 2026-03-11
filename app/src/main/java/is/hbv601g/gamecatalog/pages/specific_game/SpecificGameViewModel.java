@@ -3,6 +3,7 @@ package is.hbv601g.gamecatalog.pages.specific_game;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
@@ -53,13 +54,12 @@ public class SpecificGameViewModel extends ViewModel {
     public LiveData<Boolean> getIsInHasPlayed() { return isInHasPlayed; }
     public MutableLiveData<Boolean> getIsProcessingHasPlayed() { return isProcessingHasPlayed; }
 
-    // need to store lambdas so that we can remove them later
-    // probably a better way to do this but for now this works
-    // mediatorLiveData is probably the better solution
-    // but need to look into it
-    private final Observer<DetailedGameEntity> gameObserver = g -> tryInitializingCollections();
-    private final Observer<DetailedUserEntity> userObserver = u -> tryInitializingCollections();
-
+    // the reason we need this instead of just attempting to call the methods when either the user
+    // or game is fetched is because postValue is async so we need to actually observe
+    // the mutable live datas instead and this also works for the fragment in order to hide
+    // the add / remove collections buttons when there was no user found
+    private final MediatorLiveData<Boolean> userAndGameExist = new MediatorLiveData<>(false);
+    public MediatorLiveData<Boolean> getUserAndGameExist() { return userAndGameExist; }
 
     public void init(GameService gameService, UserService userService, long gameID) {
         if (game.getValue() != null) {
@@ -70,10 +70,8 @@ public class SpecificGameViewModel extends ViewModel {
         this.gameService = gameService;
         this.userService = userService;
 
-        // we use observeForever here instead of observe since we cant use
-        // normal observe in view models
-        game.observeForever(gameObserver);
-        user.observeForever(userObserver);
+        userAndGameExist.addSource(game, g -> tryInitializingCollections());
+        userAndGameExist.addSource(user, u -> tryInitializingCollections());
 
         fetchGame(gameID);
         fetchUser();
@@ -97,7 +95,7 @@ public class SpecificGameViewModel extends ViewModel {
         userService.getMyProfile(new ServiceCallback<DetailedUserEntity>() {
             @Override
             public void onError(Exception e) {
-                e.printStackTrace();
+                Log.w("DetailedGameViewModel", "Could not fetch user");
             }
 
             @Override
@@ -274,13 +272,7 @@ public class SpecificGameViewModel extends ViewModel {
                 doesUserHaveGameInCollection(GameCollections.HAS_PLAYED)
         );
         isProcessingHasPlayed.postValue(false);
-    }
 
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        // we need to clear observeForever listeners
-        game.removeObserver(gameObserver);
-        user.removeObserver(userObserver);
+        userAndGameExist.postValue(true);
     }
 }

@@ -45,16 +45,6 @@ public class SpecificGameFragment extends Fragment {
 
     private ReviewAdapter reviewAdapter;
 
-    /**
-    public static SpecificGameFragment newInstance(long gameId) {
-        SpecificGameFragment fragment = new SpecificGameFragment();
-        Bundle args = new Bundle();
-        args.putLong(ARG_GAME_ID, gameId);
-        fragment.setArguments(args);
-        return fragment;
-    }
-     */
-
     //Code boilerplate from developer.android.com
     //Inflates the layout for this fragment
     @Nullable
@@ -109,6 +99,18 @@ public class SpecificGameFragment extends Fragment {
 
         viewModel.init(gameService, userService, gameId);
         viewModel.getGame().observe(getViewLifecycleOwner(), this::updateGameInfo);
+
+        binding.favoriteButton.setVisibility(View.GONE);
+        binding.wantToPlayButton.setVisibility(View.GONE);
+        binding.havePlayedButton.setVisibility(View.GONE);
+
+        viewModel.getUserAndGameExist().observe(getViewLifecycleOwner(), doExist -> {
+            if (doExist) {
+                binding.favoriteButton.setVisibility(View.VISIBLE);
+                binding.wantToPlayButton.setVisibility(View.VISIBLE);
+                binding.havePlayedButton.setVisibility(View.VISIBLE);
+            }
+        });
 
         viewModel.getIsProcessingFavorites().observe(getViewLifecycleOwner(), isLoading -> {
             binding.favoriteButton.setEnabled(!isLoading);
