@@ -46,6 +46,9 @@ public class OfflineAllGamesViewModel extends ViewModel {
     private void fetchCachedGames() {
         //IMPLEMENT CACHE FETCH LOGIC HERE FROM CACHE MANAGER
         String game = cacheManager.getCachedGame("1");
+        //Need to fetch all cached games and parse the Json, or however we will store them in cache,
+        //into Game objects and add that list to games.postValue(...)
+
 
         //Code from ChatGPT to create dummy data to test offline functionality and fragments
 

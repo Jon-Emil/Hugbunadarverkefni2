@@ -8,6 +8,9 @@ import java.util.List;
 public class CacheManager {
     private final Context context;
 
+    //NEEDS IMPLEMENTATION
+    //Use File.getCacheDir() and something like that to get the cache directory and work with that
+    //Save game details in cache as separate JSON files?? That is a good idea.
     public CacheManager(Context context) {
         this.context = context;
     }
