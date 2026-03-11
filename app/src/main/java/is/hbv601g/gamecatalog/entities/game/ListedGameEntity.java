@@ -48,11 +48,11 @@ public class ListedGameEntity {
         this.developer = developer;
         this.publisher = publisher;
         this.genres = genres;
-        this.reviewAmount = favoriteAmount;
+        this.reviewAmount = reviewAmount;
         this.averageRating = averageRating;
-        this.favoriteAmount = wantToPlayAmount;
-        this.wantToPlayAmount = havePlayedAmount;
-        this.havePlayedAmount = reviewAmount;
+        this.favoriteAmount = favoriteAmount;
+        this.wantToPlayAmount = wantToPlayAmount;
+        this.havePlayedAmount = havePlayedAmount;
     }
 
     public long getId() {

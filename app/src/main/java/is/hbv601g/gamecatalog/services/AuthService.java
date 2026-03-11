@@ -73,6 +73,7 @@ public class AuthService {
         });
     }
 
+    //SHOULD CHECK IF EMAIL IS VALID!!!
     public void register(LogInCredentials credentials, LoginCallback callback){
         String url = "/register";
 
