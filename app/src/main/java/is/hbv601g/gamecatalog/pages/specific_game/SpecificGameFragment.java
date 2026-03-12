@@ -311,14 +311,27 @@ public class SpecificGameFragment extends Fragment {
             @Override
             public void onSuccess(String username) {
                 List<SimpleReviewEntity> reviews = new ArrayList<>(game.getReviews());
-                reviews = reorderReviewsForUser(reviews, username);
 
+                boolean hasReview = userHasReview(reviews, username);
+
+                if (hasReview) {
+                    //hide review section if user has already submited a review
+                    binding.reviewSubmitSection.setVisibility(View.GONE);
+                } else {
+                    //show if havent
+                    binding.reviewSubmitSection.setVisibility(View.VISIBLE);
+                }
+
+                // the reorder
+                reviews = reorderReviewsForUser(reviews, username);
                 reviewAdapter.setLoggedInUsername(username);
                 reviewAdapter.setData(reviews);
             }
 
             @Override
             public void onError(Exception e) {
+                //not log in cant see review section
+                binding.reviewSubmitSection.setVisibility(View.GONE);
                 reviewAdapter.setData(game.getReviews());
             }
         });
@@ -382,6 +395,19 @@ public class SpecificGameFragment extends Fragment {
 
         return reviews;
     }
+
+    //needed for know if user has review or not
+    private boolean userHasReview(List<SimpleReviewEntity> reviews, String username) {
+        if (username == null) return false;
+
+        for (SimpleReviewEntity r : reviews) {
+            if (username.equals(r.getAuthor())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
 
 }
