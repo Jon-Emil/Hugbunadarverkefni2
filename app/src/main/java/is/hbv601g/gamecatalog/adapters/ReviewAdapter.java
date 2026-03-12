@@ -37,7 +37,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         SimpleReviewEntity review = reviews.get(position);
 
         holder.title.setText(review.getTitle());
-        holder.rating.setText(review.getRating() + "/10");
+        holder.rating.setText(review.getRating() + "/100");
         holder.text.setText(review.getText());
         holder.gameTitle.setText(review.getGameTitle());
     }

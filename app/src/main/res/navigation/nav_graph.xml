@@ -74,6 +74,21 @@
         tools:layout="@layout/fragment_other_user_profile">
         <argument
             android:name="user_id"
+    <!--OFFLINE FRAGMENTS-->
+    <fragment
+        android:id="@+id/navigation_offline_all_games"
+        android:name="is.hbv601g.gamecatalog.pages.offline_all_games.OfflineAllGamesFragment"
+        android:label="All Games Offline"
+        tools:layout="@layout/fragment_offline_all_games"
+        />
+
+    <fragment
+        android:id="@+id/navigation_offline_specific_game"
+        android:name="is.hbv601g.gamecatalog.pages.offline_specific_game.OfflineSpecificGameFragment"
+        android:label="Game Details Offline">
+
+        <argument
+            android:name="game_id"
             app:argType="long" />
     </fragment>
 

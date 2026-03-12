@@ -28,8 +28,11 @@ import is.hbv601g.gamecatalog.adapters.ReviewAdapter;
 import is.hbv601g.gamecatalog.databinding.FragmentAllGamesBinding;
 import is.hbv601g.gamecatalog.databinding.FragmentSpecificGameBinding;
 import is.hbv601g.gamecatalog.entities.game.DetailedGameEntity;
+import is.hbv601g.gamecatalog.helpers.EmptyCallBack;
+import is.hbv601g.gamecatalog.helpers.GameCollections;
 import is.hbv601g.gamecatalog.services.GameService;
 import is.hbv601g.gamecatalog.services.NetworkService;
+import is.hbv601g.gamecatalog.services.UserService;
 
 public class SpecificGameFragment extends Fragment {
 
@@ -42,16 +45,6 @@ public class SpecificGameFragment extends Fragment {
     private GenreAdapter genreAdapter;
 
     private ReviewAdapter reviewAdapter;
-
-    /**
-    public static SpecificGameFragment newInstance(long gameId) {
-        SpecificGameFragment fragment = new SpecificGameFragment();
-        Bundle args = new Bundle();
-        args.putLong(ARG_GAME_ID, gameId);
-        fragment.setArguments(args);
-        return fragment;
-    }
-     */
 
     //Code boilerplate from developer.android.com
     //Inflates the layout for this fragment
@@ -99,19 +92,140 @@ public class SpecificGameFragment extends Fragment {
         }
         long gameId = args.getLong(ARG_GAME_ID);
 
-
-
         NetworkService networkService = new NetworkService(requireContext());
         GameService gameService = new GameService(networkService);
+        UserService userService = new UserService(networkService);
 
         viewModel = new ViewModelProvider(this).get(SpecificGameViewModel.class);
 
-        viewModel.init(gameService, gameId);
-        // IDE warning auto fix no idea how this::<methodName> works
+        viewModel.init(gameService, userService, gameId);
         viewModel.getGame().observe(getViewLifecycleOwner(), this::updateGameInfo);
+
+        binding.favoriteButton.setVisibility(View.GONE);
+        binding.wantToPlayButton.setVisibility(View.GONE);
+        binding.havePlayedButton.setVisibility(View.GONE);
+
+        viewModel.getUserAndGameExist().observe(getViewLifecycleOwner(), doExist -> {
+            if (doExist) {
+                binding.favoriteButton.setVisibility(View.VISIBLE);
+                binding.wantToPlayButton.setVisibility(View.VISIBLE);
+                binding.havePlayedButton.setVisibility(View.VISIBLE);
+            }
+        });
+
+        viewModel.getIsProcessingFavorites().observe(getViewLifecycleOwner(), isLoading -> {
+            binding.favoriteButton.setEnabled(!isLoading);
+            if (isLoading) {
+                binding.favoriteButton.setText("Loading...");
+            }
+        });
+        viewModel.getIsInFavorites().observe(getViewLifecycleOwner(), isFavorite -> {
+            binding.favoriteButton.setText(getNewCollectionText(GameCollections.FAVORITE, isFavorite));
+            // couple of unnecessary calls but it's a lightweight function so not a big deal.
+            updateCollectionsAmount();
+        });
+        binding.favoriteButton.setOnClickListener(v -> {
+            Boolean isFavorite = viewModel.getIsInFavorites().getValue();
+            if (isFavorite != null ? isFavorite : false) {
+                viewModel.removeFromCollection(GameCollections.FAVORITE);
+            } else {
+                viewModel.addToCollection(GameCollections.FAVORITE);
+            }
+        });
+
+        viewModel.getIsProcessingWantToPlay().observe(getViewLifecycleOwner(), isLoading -> {
+            binding.wantToPlayButton.setEnabled(!isLoading);
+            if (isLoading) {
+                binding.wantToPlayButton.setText("Loading...");
+            }
+        });
+        viewModel.getIsInWantToPlay().observe(getViewLifecycleOwner(), isInWantToPlay -> {
+            binding.wantToPlayButton.setText(getNewCollectionText(GameCollections.WANT_TO_PLAY, isInWantToPlay));
+            // couple of unnecessary calls but it's a lightweight function so not a big deal.
+            updateCollectionsAmount();
+        });
+        binding.wantToPlayButton.setOnClickListener(v -> {
+            Boolean isInWantToPlay = viewModel.getIsInWantToPlay().getValue();
+            if (isInWantToPlay != null ? isInWantToPlay : false) {
+                viewModel.removeFromCollection(GameCollections.WANT_TO_PLAY);
+            } else {
+                viewModel.addToCollection(GameCollections.WANT_TO_PLAY);
+            }
+        });
+
+        viewModel.getIsProcessingHasPlayed().observe(getViewLifecycleOwner(), isLoading -> {
+            binding.havePlayedButton.setEnabled(!isLoading);
+            if (isLoading) {
+                binding.havePlayedButton.setText("Loading...");
+            }
+        });
+        viewModel.getIsInHasPlayed().observe(getViewLifecycleOwner(), isInHasPlayed -> {
+            binding.havePlayedButton.setText(getNewCollectionText(GameCollections.HAS_PLAYED, isInHasPlayed));
+            // couple of unnecessary calls but it's a lightweight function so not a big deal.
+            updateCollectionsAmount();
+        });
+        binding.havePlayedButton.setOnClickListener(v -> {
+            Boolean isInHasPlayed = viewModel.getIsInHasPlayed().getValue();
+            if (isInHasPlayed != null ? isInHasPlayed : false) {
+                viewModel.removeFromCollection(GameCollections.HAS_PLAYED);
+            } else {
+                viewModel.addToCollection(GameCollections.HAS_PLAYED);
+            }
+        });
+
+        //listeners for the review section
+        binding.submitReviewButton.setOnClickListener(v -> {
+            int rating = binding.reviewRatingPicker.getValue();
+            String title = binding.reviewTitleInput.getText().toString().trim();
+            String text = binding.reviewTextInput.getText().toString().trim();
+
+            //so users can submit empty reviews
+            if (title.isEmpty()) {
+                binding.reviewTitleInput.setError("title empty");
+                return;
+            }
+
+            if (text.isEmpty()) {
+                binding.reviewTextInput.setError("review text empty");
+                return;
+            }
+
+            submitReview(rating, text, title);
+        });
+
+        binding.reviewRatingPicker.setMinValue(0);
+        binding.reviewRatingPicker.setMaxValue(100);
+
+
     }
 
-    public void updateGameInfo(DetailedGameEntity game) {
+    //submit method for revies
+    private void submitReview(int rating, String text, String title) {
+        long gameId = getArguments().getLong("game_id");
+
+        GameService gameService = new GameService(new NetworkService(requireContext()));
+
+        gameService.addReview(gameId, rating, text, title, new EmptyCallBack() {
+            @Override
+            public void onError(Exception e) {
+                Log.e("SpecificGameFragment", "Failed to submit review", e);
+            }
+
+            @Override
+            public void onSuccess() {
+                binding.reviewTextInput.setText("");
+                binding.reviewTitleInput.setText("");
+                binding.reviewRatingPicker.setValue(0);
+
+                //refresh the page to show something happened and reset the inputs
+                viewModel.refreshGame();
+            }
+        });
+    }
+
+
+
+    private void updateGameInfo(DetailedGameEntity game) {
         String title = game.getTitle();
         binding.gameTitle.setText(title);
         binding.gameDescription.setText(game.getDescription());
@@ -145,6 +259,31 @@ public class SpecificGameFragment extends Fragment {
 
         genreAdapter.setData(game.getGenres());
         reviewAdapter.setData(game.getReviews());
+    }
+
+    private String getNewCollectionText(GameCollections selectedCollection, boolean isInCollection) {
+        String newCollectionText = "";
+        switch (selectedCollection) {
+            case FAVORITE:
+                newCollectionText = isInCollection ? "Unfavorite" : "Favorite";
+                break;
+            case WANT_TO_PLAY:
+                newCollectionText = isInCollection ? "Remove From WantToPlay" : "Add to WantToPlay";
+                break;
+            case HAS_PLAYED:
+                newCollectionText = isInCollection ? "Remove From HavePlayed" : "Add to HavePlayed";
+                break;
+        }
+        return newCollectionText;
+    }
+
+    private void updateCollectionsAmount() {
+        DetailedGameEntity game = viewModel.getGame().getValue();
+        if (game == null) { return; }
+
+        binding.gameFavoriteAmount.setText(String.valueOf(game.getFavoriteOf().size()));
+        binding.gameWantToPlayAmount.setText(String.valueOf(game.getWantToPlay().size()));
+        binding.gameHavePlayedAmount.setText(String.valueOf(game.getHavePlayed().size()));
     }
 
     //Code from developer.android.com

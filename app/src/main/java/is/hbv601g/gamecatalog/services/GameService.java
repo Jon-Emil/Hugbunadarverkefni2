@@ -10,13 +10,14 @@ import java.util.List;
 import is.hbv601g.gamecatalog.entities.extras.AdvancedSearchParameters;
 import is.hbv601g.gamecatalog.entities.game.DetailedGameEntity;
 import is.hbv601g.gamecatalog.entities.game.ListedGameEntity;
+import is.hbv601g.gamecatalog.helpers.EmptyCallBack;
 import is.hbv601g.gamecatalog.helpers.JSONArrayHelper;
 import is.hbv601g.gamecatalog.helpers.JSONObjectHelper;
 import is.hbv601g.gamecatalog.helpers.PaginatedCallback;
 import is.hbv601g.gamecatalog.helpers.ServiceCallback;
+import is.hbv601g.gamecatalog.helpers.GameCollections;
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.HttpUrl;
 import okhttp3.Response;
 
 public class GameService {
@@ -163,4 +164,103 @@ public class GameService {
             }
         });
     }
+
+    public void addGameToCollection(long gameID, GameCollections selectedCollection, EmptyCallBack callback) {
+
+        String collectionString = "";
+        switch(selectedCollection) {
+            case FAVORITE:
+                collectionString = "favorite";
+                break;
+            case WANT_TO_PLAY:
+                collectionString = "wants";
+                break;
+            case HAS_PLAYED:
+                collectionString = "played";
+                break;
+        }
+
+        String url = "/games/" + gameID + "/" + collectionString;
+
+        networkService.postRequest(url, "", new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onError(e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    callback.onSuccess();
+                } catch (Exception e) {
+                    callback.onError(e);
+                }
+            }
+        });
+    }
+
+    public void removeGameFromCollection(long gameID, GameCollections selectedCollection, EmptyCallBack callback) {
+
+        String collectionString = "";
+        switch(selectedCollection) {
+            case FAVORITE:
+                collectionString = "favorite";
+                break;
+            case WANT_TO_PLAY:
+                collectionString = "wants";
+                break;
+            case HAS_PLAYED:
+                collectionString = "played";
+                break;
+        }
+
+        String url = "/games/" + gameID + "/" + collectionString;
+
+        networkService.deleteRequest(url, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onError(e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    callback.onSuccess();
+                } catch (Exception e) {
+                    callback.onError(e);
+                }
+            }
+        });
+    }
+
+    public void addReview(long gameID, int rating, String text, String title, EmptyCallBack callback) {
+        String url = "/games/" + gameID + "/reviews";
+
+        try {
+            JSONObject json = new JSONObject();
+            json.put("rating", rating);
+            json.put("text", text);
+            json.put("title", title);
+
+            networkService.postRequest(url, json.toString(), new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callback.onError(e);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (!response.isSuccessful()) {
+                        callback.onError(new Exception("Failed to submit review"));
+                        return;
+                    }
+                    callback.onSuccess();
+                }
+            });
+
+        } catch (Exception e) {
+            callback.onError(e);
+        }
+    }
+
 }
