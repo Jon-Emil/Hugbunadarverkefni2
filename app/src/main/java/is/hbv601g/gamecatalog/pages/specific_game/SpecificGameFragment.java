@@ -28,6 +28,7 @@ import is.hbv601g.gamecatalog.adapters.ReviewAdapter;
 import is.hbv601g.gamecatalog.databinding.FragmentAllGamesBinding;
 import is.hbv601g.gamecatalog.databinding.FragmentSpecificGameBinding;
 import is.hbv601g.gamecatalog.entities.game.DetailedGameEntity;
+import is.hbv601g.gamecatalog.helpers.EmptyCallBack;
 import is.hbv601g.gamecatalog.helpers.GameCollections;
 import is.hbv601g.gamecatalog.services.GameService;
 import is.hbv601g.gamecatalog.services.NetworkService;
@@ -171,7 +172,58 @@ public class SpecificGameFragment extends Fragment {
                 viewModel.addToCollection(GameCollections.HAS_PLAYED);
             }
         });
+
+        //listeners for the review section
+        binding.submitReviewButton.setOnClickListener(v -> {
+            int rating = binding.reviewRatingPicker.getValue();
+            String title = binding.reviewTitleInput.getText().toString().trim();
+            String text = binding.reviewTextInput.getText().toString().trim();
+
+            //so users can submit empty reviews
+            if (title.isEmpty()) {
+                binding.reviewTitleInput.setError("title empty");
+                return;
+            }
+
+            if (text.isEmpty()) {
+                binding.reviewTextInput.setError("review text empty");
+                return;
+            }
+
+            submitReview(rating, text, title);
+        });
+
+        binding.reviewRatingPicker.setMinValue(0);
+        binding.reviewRatingPicker.setMaxValue(100);
+
+
     }
+
+    //submit method for revies
+    private void submitReview(int rating, String text, String title) {
+        long gameId = getArguments().getLong("game_id");
+
+        GameService gameService = new GameService(new NetworkService(requireContext()));
+
+        gameService.addReview(gameId, rating, text, title, new EmptyCallBack() {
+            @Override
+            public void onError(Exception e) {
+                Log.e("SpecificGameFragment", "Failed to submit review", e);
+            }
+
+            @Override
+            public void onSuccess() {
+                binding.reviewTextInput.setText("");
+                binding.reviewTitleInput.setText("");
+                binding.reviewRatingPicker.setValue(0);
+
+                //refresh the page to show something happened and reset the inputs
+                viewModel.refreshGame();
+            }
+        });
+    }
+
+
 
     private void updateGameInfo(DetailedGameEntity game) {
         String title = game.getTitle();

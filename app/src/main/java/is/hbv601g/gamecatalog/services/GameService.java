@@ -232,4 +232,35 @@ public class GameService {
             }
         });
     }
+
+    public void addReview(long gameID, int rating, String text, String title, EmptyCallBack callback) {
+        String url = "/games/" + gameID + "/reviews";
+
+        try {
+            JSONObject json = new JSONObject();
+            json.put("rating", rating);
+            json.put("text", text);
+            json.put("title", title);
+
+            networkService.postRequest(url, json.toString(), new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callback.onError(e);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (!response.isSuccessful()) {
+                        callback.onError(new Exception("Failed to submit review"));
+                        return;
+                    }
+                    callback.onSuccess();
+                }
+            });
+
+        } catch (Exception e) {
+            callback.onError(e);
+        }
+    }
+
 }
