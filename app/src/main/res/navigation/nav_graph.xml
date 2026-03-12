@@ -74,6 +74,9 @@
         tools:layout="@layout/fragment_other_user_profile">
         <argument
             android:name="user_id"
+            app:argType="long" />
+    </fragment>
+
     <!--OFFLINE FRAGMENTS-->
     <fragment
         android:id="@+id/navigation_offline_all_games"
