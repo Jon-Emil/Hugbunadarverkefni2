@@ -6,17 +6,23 @@ import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+
 import android.util.Log;
 import android.widget.Toast;
 
@@ -204,8 +210,118 @@ public class SpecificGameFragment extends Fragment {
         binding.reviewRatingPicker.setMinValue(0);
         binding.reviewRatingPicker.setMaxValue(100);
 
+        reviewAdapter.setOnReviewClickListener(review -> {
+            showEditReviewDialog(review);
+        });
+
+
+
 
     }
+
+    //for the popup for editing reviews
+    private void showEditReviewDialog(SimpleReviewEntity review) {
+        BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
+        View view = getLayoutInflater().inflate(R.layout.dialog_edit_review, null);
+        dialog.setContentView(view);
+
+        NumberPicker ratingPicker = view.findViewById(R.id.editReviewRatingPicker);
+        EditText titleInput = view.findViewById(R.id.editReviewTitleInput);
+        EditText textInput = view.findViewById(R.id.editReviewTextInput);
+        Button saveButton = view.findViewById(R.id.saveReviewButton);
+
+        ratingPicker.setMinValue(0);
+        ratingPicker.setMaxValue(100);
+        ratingPicker.setValue(review.getRating());
+
+        titleInput.setText(review.getTitle());
+        textInput.setText(review.getText());
+
+        saveButton.setOnClickListener(v -> {
+            int newRating = ratingPicker.getValue();
+            String newTitle = titleInput.getText().toString().trim();
+            String newText = textInput.getText().toString().trim();
+
+            updateReview(review.getId(), newRating, newText, newTitle);
+            dialog.dismiss();
+        });
+
+        Button deleteButton = view.findViewById(R.id.deleteReviewButton);
+
+        deleteButton.setOnClickListener(v -> {
+            dialog.dismiss();
+            showDeleteConfirmation(review);
+        });
+
+
+        dialog.show();
+    }
+
+    //Standart same as for deleting account and all delete operations
+    private void showDeleteConfirmation(SimpleReviewEntity review) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Deleting Review!")
+                .setMessage("Are you sure you want to delete your review?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    deleteReview(review.getId());
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+
+    private void deleteReview(Long reviewId) {
+        long gameId = getArguments().getLong("game_id");
+
+        GameService gameService = new GameService(new NetworkService(requireContext()));
+
+        gameService.deleteReview(gameId, reviewId, new EmptyCallBack() {
+
+            //confirmint its deleted helped for debuging and ok leaving it here still
+            @Override
+            public void onSuccess() {
+                requireActivity().runOnUiThread(() -> {
+                    Toast.makeText(requireContext(), "Review deleted", Toast.LENGTH_SHORT).show();
+                    viewModel.refreshGame();
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(requireContext(), "Failed to delete review", Toast.LENGTH_SHORT).show()
+                );
+            }
+        });
+    }
+
+
+    private void updateReview(Long reviewId, int rating, String text, String title) {
+        long gameId = getArguments().getLong("game_id");
+
+        GameService gameService = new GameService(new NetworkService(requireContext()));
+
+        gameService.updateReview(gameId, reviewId, rating, text, title, new EmptyCallBack() {
+            //confirmint its changed helped for debuging and ok leaving it here still
+            @Override
+            public void onSuccess() {
+                requireActivity().runOnUiThread(() -> {
+                    Toast.makeText(requireContext(), "Review updated", Toast.LENGTH_SHORT).show();
+                    viewModel.refreshGame();
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(requireContext(), "Failed to update review", Toast.LENGTH_SHORT).show()
+                );
+            }
+        });
+    }
+
+
+
 
     //submit method for revies
     private void submitReview(int rating, String text, String title) {
