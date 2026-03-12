@@ -16,3 +16,4 @@ Yi Hu (yih2@hi.is)
 
 ## Polish Backlog
 * Allow changing password (snýst líka um að bæta dót við UserToUpdate klasa í endapunktunum.)
+* vantar `gameId` í `ReferencedReviewDTO.java` í bakendanum.
