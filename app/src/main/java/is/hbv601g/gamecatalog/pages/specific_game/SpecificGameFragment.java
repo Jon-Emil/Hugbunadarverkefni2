@@ -18,6 +18,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import android.util.Log;
+import android.widget.Toast;
+
+import org.json.JSONObject;
+
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Locale;
@@ -206,10 +210,50 @@ public class SpecificGameFragment extends Fragment {
         GameService gameService = new GameService(new NetworkService(requireContext()));
 
         gameService.addReview(gameId, rating, text, title, new EmptyCallBack() {
+            //detailed error handling along with handling network errors for the offline part
             @Override
             public void onError(Exception e) {
-                Log.e("SpecificGameFragment", "Failed to submit review", e);
+                requireActivity().runOnUiThread(() -> {
+
+                    String raw = e.getMessage();
+                    String message = raw; // fallback
+
+                    // need to get the message because both errores return a 400.
+                    try {
+                        JSONObject json = new JSONObject(raw);
+                        if (json.has("message")) {
+                            message = json.getString("message");
+                        }
+                    } catch (Exception ignored) {
+
+                    }
+
+                    String lower = message.toLowerCase();
+
+                    if (lower.contains("already")) {
+                        Toast.makeText(requireContext(), "You already have a review for this game", Toast.LENGTH_LONG).show();
+                    }
+                    else if (lower.contains("required header 'authorization'") ||
+                            lower.contains("authorization is not present") ||
+                            lower.contains("unauthorized") ||
+                            lower.contains("you must be logged in")) {
+                        Toast.makeText(requireContext(), "You are not logged in", Toast.LENGTH_LONG).show();
+                    }
+                    else if (lower.contains("unable to resolve host") ||
+                            lower.contains("failed to connect") ||
+                            lower.contains("timeout")) {
+                        Toast.makeText(requireContext(), "Offline", Toast.LENGTH_LONG).show();
+                    }
+                    else {
+                        Toast.makeText(requireContext(), "Failed", Toast.LENGTH_LONG).show();
+                    }
+
+
+                    //for debugging
+                    Log.e("ReviewError", "RAW ERROR: " + raw);
+                });
             }
+
 
             @Override
             public void onSuccess() {

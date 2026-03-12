@@ -250,8 +250,10 @@ public class GameService {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
+                    String body = response.body() != null ? response.body().string() : "";
+
                     if (!response.isSuccessful()) {
-                        callback.onError(new Exception("Failed to submit review"));
+                        callback.onError(new Exception(body));
                         return;
                     }
                     callback.onSuccess();
