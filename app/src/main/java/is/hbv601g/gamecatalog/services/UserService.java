@@ -197,4 +197,20 @@ public class UserService {
             }
         });
     }
+
+    //using for stacking own review on top but reviews have a author wich is used
+    public void getLoggedInUsername(ServiceCallback<String> callback) {
+        getUserOwnProfile(new ServiceCallback<SimpleUserEntity>() {
+            @Override
+            public void onSuccess(SimpleUserEntity user) {
+                callback.onSuccess(user.getUsername());
+            }
+
+            @Override
+            public void onError(Exception e) {
+                callback.onError(e);
+            }
+        });
+    }
+
 }

@@ -23,14 +23,12 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         reviews.addAll(newReviews);
         notifyDataSetChanged();
     }
+    private String loggedInUsername = null;
 
-    @NonNull
-    @Override
-    public ReviewViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_review, parent, false);
-        return new ReviewViewHolder(view);
+    public void setLoggedInUsername(String username) {
+        this.loggedInUsername = username;
     }
+
 
     @Override
     public void onBindViewHolder(@NonNull ReviewViewHolder holder, int position) {
@@ -40,7 +38,23 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         holder.rating.setText(review.getRating() + "/100");
         holder.text.setText(review.getText());
         holder.gameTitle.setText(review.getGameTitle());
+
+        boolean isUserReview = loggedInUsername != null &&
+                loggedInUsername.equals(review.getAuthor());
+
+        holder.itemView.setBackgroundColor(
+                isUserReview ? 0x66F3E5F5 : 0x00000000 //the color of own review
+        );
     }
+
+    @NonNull
+    @Override
+    public ReviewViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_review, parent, false);
+        return new ReviewViewHolder(view);
+    }
+
 
     @Override
     public int getItemCount() {

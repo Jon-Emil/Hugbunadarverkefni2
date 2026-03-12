@@ -33,6 +33,9 @@ public class SpecificGameViewModel extends ViewModel {
 
     public LiveData<DetailedGameEntity> getGame() { return game; }
 
+    private long gameId;
+
+
     // favorite
     private final MutableLiveData<Boolean> isInFavorites = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isProcessingFavorites = new MutableLiveData<>(true);
@@ -281,4 +284,9 @@ public class SpecificGameViewModel extends ViewModel {
 
         userAndGameExist.postValue(true);
     }
+
+    public UserService getUserService() {
+        return userService;
+    }
+
 }

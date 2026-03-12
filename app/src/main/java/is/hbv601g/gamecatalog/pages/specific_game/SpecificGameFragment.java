@@ -23,7 +23,9 @@ import android.widget.Toast;
 import org.json.JSONObject;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import is.hbv601g.gamecatalog.R;
@@ -32,8 +34,10 @@ import is.hbv601g.gamecatalog.adapters.ReviewAdapter;
 import is.hbv601g.gamecatalog.databinding.FragmentAllGamesBinding;
 import is.hbv601g.gamecatalog.databinding.FragmentSpecificGameBinding;
 import is.hbv601g.gamecatalog.entities.game.DetailedGameEntity;
+import is.hbv601g.gamecatalog.entities.review.SimpleReviewEntity;
 import is.hbv601g.gamecatalog.helpers.EmptyCallBack;
 import is.hbv601g.gamecatalog.helpers.GameCollections;
+import is.hbv601g.gamecatalog.helpers.ServiceCallback;
 import is.hbv601g.gamecatalog.services.GameService;
 import is.hbv601g.gamecatalog.services.NetworkService;
 import is.hbv601g.gamecatalog.services.UserService;
@@ -302,7 +306,23 @@ public class SpecificGameFragment extends Fragment {
         binding.gameHavePlayedAmount.setText(String.valueOf(game.getHavePlayed().size()));
 
         genreAdapter.setData(game.getGenres());
-        reviewAdapter.setData(game.getReviews());
+        //get the reviews and stack own on top
+        viewModel.getUserService().getLoggedInUsername(new ServiceCallback<String>() {
+            @Override
+            public void onSuccess(String username) {
+                List<SimpleReviewEntity> reviews = new ArrayList<>(game.getReviews());
+                reviews = reorderReviewsForUser(reviews, username);
+
+                reviewAdapter.setLoggedInUsername(username);
+                reviewAdapter.setData(reviews);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                reviewAdapter.setData(game.getReviews());
+            }
+        });
+
     }
 
     private String getNewCollectionText(GameCollections selectedCollection, boolean isInCollection) {
@@ -337,5 +357,32 @@ public class SpecificGameFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
+
+    //the method for stacking won view on top
+    private List<SimpleReviewEntity> reorderReviewsForUser(
+            List<SimpleReviewEntity> reviews,
+            String username
+    ) {
+        if (username == null) return reviews;
+
+        SimpleReviewEntity userReview = null;
+
+        for (SimpleReviewEntity r : reviews) {
+            if (username.equals(r.getAuthor())) {
+                userReview = r;
+                break;
+            }
+        }
+
+        if (userReview != null) {
+            reviews.remove(userReview);
+            reviews.add(0, userReview);
+        }
+
+        return reviews;
+    }
+
+
 }
 
