@@ -174,6 +174,7 @@ public class SpecificGameViewModel extends ViewModel {
                 break;
         }
 
+
         gameService.removeGameFromCollection(gameID, selectedCollection, new EmptyCallBack() {
             @Override
             public void onError(Exception e) {
@@ -250,6 +251,11 @@ public class SpecificGameViewModel extends ViewModel {
         }
         return userFound;
     }
+
+    public void refreshGame() {
+        fetchGame(gameID);
+    }
+
 
     private void tryInitializingCollections() {
         if (collectionsInitialized) { return; }
