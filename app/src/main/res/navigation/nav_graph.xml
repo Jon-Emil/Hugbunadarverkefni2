@@ -48,6 +48,32 @@
         android:label="Edit Profile"
         tools:layout="@layout/fragment_modify_user" />
 
+    <fragment
+        android:id="@+id/navigation_user_list"
+        android:name="is.hbv601g.gamecatalog.pages.user_list.UserListFragment"
+        android:label="User List"
+        tools:layout="@layout/fragment_user_list">
+        <argument
+            android:name="user_id"
+            app:argType="long" />
+        <argument
+            android:name="list_type"
+            app:argType="string" />
+        <!-- Pop any existing OtherUserProfileFragment off the stack before pushing the new one.  The stack is always capped at 4 entries: personal → userlist → profile → userlist -->
+        <action
+            android:id="@+id/action_user_list_to_other_profile"
+            app:destination="@id/navigation_other_user_profile"
+            app:popUpTo="@id/navigation_other_user_profile"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_other_user_profile"
+        android:name="is.hbv601g.gamecatalog.pages.other_user_profile.OtherUserProfileFragment"
+        android:label="User Profile"
+        tools:layout="@layout/fragment_other_user_profile">
+        <argument
+            android:name="user_id"
     <!--OFFLINE FRAGMENTS-->
     <fragment
         android:id="@+id/navigation_offline_all_games"

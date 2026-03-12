@@ -42,17 +42,15 @@ public class MainActivity extends AppCompatActivity {
         navigationView = findViewById(R.id.nav_view);
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
 
+        // Apply the correct menu visibility immediately on starting the app.
+        updateMenuVisibility();
+
         drawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
             @Override
-            public void onDrawerOpened(android.view.View drawerView) {
-                boolean isLoggedIn = tokenManager.getToken() != null;
-                MenuItem loginItem = navigationView.getMenu().findItem(R.id.navigation_login);
-                if (loginItem != null) {
-                    loginItem.setVisible(!isLoggedIn);
-                }
-                MenuItem profileItem = navigationView.getMenu().findItem(R.id.navigation_profile);
-                if (profileItem != null) {
-                    profileItem.setVisible(isLoggedIn);
+            public void onDrawerStateChanged(int newState) {
+                // instantly shows the correct menu when burger menu is drawn.
+                if (newState == DrawerLayout.STATE_SETTLING) {
+                    updateMenuVisibility();
                 }
             }
         });
@@ -101,6 +99,17 @@ public class MainActivity extends AppCompatActivity {
         }
          */
 
+    }
+
+    /**
+     * 菜單中 Log In / My Profile 只顯示一個的控制邏輯。
+     */
+    private void updateMenuVisibility() {
+        boolean isLoggedIn = tokenManager.getToken() != null;
+        MenuItem loginItem = navigationView.getMenu().findItem(R.id.navigation_login);
+        MenuItem profileItem = navigationView.getMenu().findItem(R.id.navigation_profile);
+        if (loginItem != null) loginItem.setVisible(!isLoggedIn);
+        if (profileItem != null) profileItem.setVisible(isLoggedIn);
     }
 
     //Code gotten from https://developer.android.com/guide/navigation/integrations/ui#action_bar
