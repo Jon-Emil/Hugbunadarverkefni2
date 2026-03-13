@@ -38,6 +38,8 @@ public class PersonalProfileFragment extends Fragment {
     private boolean favouritesExpanded = false;
     private boolean wantsToPlayExpanded = false;
     private boolean hasPlayedExpanded = false;
+    private ReviewAdapter reviewAdapter;
+
 
     @Nullable
     @Override
@@ -59,7 +61,11 @@ public class PersonalProfileFragment extends Fragment {
         binding.wantsToPlayExpanded.setLayoutManager(makeFlexLayout());
         binding.hasPlayedExpanded.setLayoutManager(makeFlexLayout());
 
+        reviewAdapter = new ReviewAdapter();
         binding.reviews.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.reviews.setAdapter(reviewAdapter);
+
+
 
         // expand and collapse
         binding.expandFavourites.setOnClickListener(v -> {
@@ -206,7 +212,15 @@ public class PersonalProfileFragment extends Fragment {
         binding.wantsToPlayExpanded.setAdapter(makeGameAdapter(user.getWantToPlayGames()));
         binding.hasPlayedExpanded.setAdapter(makeGameAdapter(user.getHavePlayedGames()));
 
-        ReviewAdapter reviewAdapter = new ReviewAdapter();
+        reviewAdapter.setLoggedInUsername(user.getUsername());
+        reviewAdapter.setOnReviewClickListener(review -> {
+            if (review.getGameId() != null) {
+                navigateToGame(review.getGameId());
+            } else {
+                Toast.makeText(requireContext(), "This review is not linked to a game", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         reviewAdapter.setData(user.getReviews());
         binding.reviews.setAdapter(reviewAdapter);
     }
@@ -234,6 +248,8 @@ public class PersonalProfileFragment extends Fragment {
                 .setNegativeButton("Cancel", null)
                 .show();
     }
+
+
 
     @Override
     public void onDestroyView() {
