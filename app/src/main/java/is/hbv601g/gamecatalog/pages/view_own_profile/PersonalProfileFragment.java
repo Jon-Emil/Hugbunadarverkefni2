@@ -235,11 +235,7 @@ public class PersonalProfileFragment extends BaseProfileFragment {
         binding.reviews.setAdapter(reviewAdapter);
     }
 
-    private void navigateToGame(long gameId) {
-        Bundle args = new Bundle();
-        args.putLong("game_id", gameId);
-        Navigation.findNavController(requireView()).navigate(R.id.navigation_specific_game, args);
-    }
+
 
     public void modifyButtonClicked() {
         Navigation.findNavController(requireView()).navigate(R.id.navigation_modify_user);
