@@ -7,6 +7,8 @@ public class SimpleReviewEntity {
     private String title;
     private String author;
     private String gameTitle;
+    private Long gameId;
+
 
     public SimpleReviewEntity(
             Long id,
@@ -14,7 +16,8 @@ public class SimpleReviewEntity {
             String text,
             String title,
             String author,
-            String gameTitle
+            String gameTitle,
+            Long gameId
     ) {
         this.id = id;
         this.rating = rating;
@@ -22,7 +25,11 @@ public class SimpleReviewEntity {
         this.title = title;
         this.author = author;
         this.gameTitle = gameTitle;
+        this.gameId = gameId;
     }
+
+    public Long getGameId() { return gameId; }
+    public void setGameId(Long gameId) { this.gameId = gameId; }
 
     public Long getId() {
         return id;
