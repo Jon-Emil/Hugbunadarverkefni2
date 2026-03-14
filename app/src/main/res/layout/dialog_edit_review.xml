@@ -9,19 +9,38 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Rating:"
-        android:textSize="16sp"
-        android:layout_marginEnd="8dp" />
+        android:textSize="16sp" />
 
-    <NumberPicker
+    <com.google.android.material.slider.Slider
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/editReviewRatingPicker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:valueFrom="0"
+        android:valueTo="100"
+        android:stepSize="1"
+        app:labelBehavior="floating" />
+
+    <TextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="Title:"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp" />
 
     <EditText
         android:id="@+id/editReviewTitleInput"
-        android:hint="Title"
+        android:hint="Review title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Review:"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp" />
 
     <EditText
         android:id="@+id/editReviewTextInput"
@@ -33,23 +52,22 @@
         android:background="@android:drawable/edit_text"
         android:inputType="textMultiLine"
         android:maxLines="5"
-        android:layout_marginTop="12dp" />
+        android:layout_marginTop="4dp" />
 
 
     <Button
         android:id="@+id/saveReviewButton"
         android:text="Save"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp" />
+
     <Button
         android:id="@+id/deleteReviewButton"
+        style="@style/Widget.Material3.Button.TextButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Delete"
-        android:textColor="@android:color/white"
-        android:background="@drawable/delete_button_background"
-        android:layout_marginTop="12dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:foreground="?attr/selectableItemBackground"/>
+        android:text="Delete Review"
+        android:textColor="?attr/colorError"
+        android:layout_marginTop="4dp" />
 </LinearLayout>

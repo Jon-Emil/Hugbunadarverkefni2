@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.NumberPicker;
+import com.google.android.material.slider.Slider;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -197,7 +197,7 @@ public class SpecificGameFragment extends Fragment {
 
         //listeners for the review section
         binding.submitReviewButton.setOnClickListener(v -> {
-            int rating = binding.reviewRatingPicker.getValue();
+            int rating = (int) binding.reviewRatingPicker.getValue();
             String title = binding.reviewTitleInput.getText().toString().trim();
             String text = binding.reviewTextInput.getText().toString().trim();
 
@@ -215,8 +215,7 @@ public class SpecificGameFragment extends Fragment {
             submitReview(rating, text, title);
         });
 
-        binding.reviewRatingPicker.setMinValue(0);
-        binding.reviewRatingPicker.setMaxValue(100);
+        // Slider min/max are declared in XML; no setup needed here.
 
         reviewAdapter.setOnReviewClickListener(review -> {
             showEditReviewDialog(review);
@@ -233,20 +232,19 @@ public class SpecificGameFragment extends Fragment {
         View view = getLayoutInflater().inflate(R.layout.dialog_edit_review, null);
         dialog.setContentView(view);
 
-        NumberPicker ratingPicker = view.findViewById(R.id.editReviewRatingPicker);
+        Slider ratingPicker = view.findViewById(R.id.editReviewRatingPicker);
         EditText titleInput = view.findViewById(R.id.editReviewTitleInput);
         EditText textInput = view.findViewById(R.id.editReviewTextInput);
         Button saveButton = view.findViewById(R.id.saveReviewButton);
 
-        ratingPicker.setMinValue(0);
-        ratingPicker.setMaxValue(100);
+        // Slider min/max are declared in XML; only set the current review's value.
         ratingPicker.setValue(review.getRating());
 
         titleInput.setText(review.getTitle());
         textInput.setText(review.getText());
 
         saveButton.setOnClickListener(v -> {
-            int newRating = ratingPicker.getValue();
+            int newRating = (int) ratingPicker.getValue();
             String newTitle = titleInput.getText().toString().trim();
             String newText = textInput.getText().toString().trim();
 
@@ -381,7 +379,7 @@ public class SpecificGameFragment extends Fragment {
             public void onSuccess() {
                 binding.reviewTextInput.setText("");
                 binding.reviewTitleInput.setText("");
-                binding.reviewRatingPicker.setValue(0);
+                binding.reviewRatingPicker.setValue(0f);
 
                 //refresh the page to show something happened and reset the inputs
                 viewModel.refreshGame();

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -254,39 +255,47 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Review:"
+                    android:text="Write a review"
                     android:textSize="18sp"
                     android:layout_marginTop="16dp"
                     android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Title:"
+                    android:textSize="16sp"
+                    android:layout_marginTop="8dp" />
 
                 <EditText
                     android:id="@+id/reviewTitleInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Review title"
+                    android:layout_marginTop="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rating:"
+                    android:textSize="16sp"
                     android:layout_marginTop="8dp" />
 
-
-                <LinearLayout
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/reviewRatingPicker"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginTop="8dp">
+                    android:valueFrom="0"
+                    android:valueTo="100"
+                    android:stepSize="1"
+                    app:labelBehavior="floating" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Rating:"
-                        android:textSize="16sp"
-                        android:layout_marginEnd="8dp" />
-
-                    <android.widget.NumberPicker
-                        android:id="@+id/reviewRatingPicker"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp" />
-                </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Review:"
+                    android:textSize="16sp"
+                    android:layout_marginTop="8dp" />
 
                 <EditText
                     android:id="@+id/reviewTextInput"
@@ -298,11 +307,11 @@
                     android:background="@android:drawable/edit_text"
                     android:inputType="textMultiLine"
                     android:maxLines="5"
-                    android:layout_marginTop="12dp" />
+                    android:layout_marginTop="4dp" />
 
                 <Button
                     android:id="@+id/submitReviewButton"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Submit"
                     android:layout_marginTop="12dp" />
