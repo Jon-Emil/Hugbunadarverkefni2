@@ -224,7 +224,8 @@ public class ModifyUserFragment extends Fragment {
         String currentName = binding.nameInput.getText().toString();
         String currentDesc = binding.descriptionInput.getText().toString();
         return !currentName.equals(original.getUsername()) ||
-               !currentDesc.equals(original.getDescription());
+               !currentDesc.equals(original.getDescription()) ||
+                croppedImageUri != null; // added this so that changes on profile picture will also be detected for the discard logic.
     }
 
     // Discard warning
