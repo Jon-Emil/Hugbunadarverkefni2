@@ -260,8 +260,6 @@ public class SpecificGameFragment extends Fragment {
             dialog.dismiss();
             showDeleteConfirmation(review);
         });
-
-
         dialog.show();
     }
 
@@ -328,9 +326,6 @@ public class SpecificGameFragment extends Fragment {
         });
     }
 
-
-
-
     //submit method for revies
     private void submitReview(int rating, String text, String title) {
         long gameId = getArguments().getLong("game_id");
@@ -381,7 +376,6 @@ public class SpecificGameFragment extends Fragment {
                     Log.e("ReviewError", "RAW ERROR: " + raw);
                 });
             }
-
 
             @Override
             public void onSuccess() {
@@ -450,6 +444,10 @@ public class SpecificGameFragment extends Fragment {
                 reviews = reorderReviewsForUser(reviews, username);
                 reviewAdapter.setLoggedInUsername(username);
                 reviewAdapter.setData(reviews);
+
+                boolean empty = reviews.isEmpty();
+                binding.noReviewsText.setVisibility(empty?View.VISIBLE:View.GONE);
+                binding.reviewRecycler.setVisibility(empty?View.GONE:View.VISIBLE); // shows that there's no reviews yet
             }
 
             @Override
@@ -457,6 +455,9 @@ public class SpecificGameFragment extends Fragment {
                 //not log in cant see review section
                 binding.reviewSubmitSection.setVisibility(View.GONE);
                 reviewAdapter.setData(game.getReviews());
+                boolean empty = game.getReviews().isEmpty();
+                binding.noReviewsText.setVisibility(empty?View.VISIBLE:View.GONE);
+                binding.reviewRecycler.setVisibility(empty?View.GONE:View.VISIBLE);
             }
         });
 
@@ -531,8 +532,5 @@ public class SpecificGameFragment extends Fragment {
         }
         return false;
     }
-
-
-
 }
 
