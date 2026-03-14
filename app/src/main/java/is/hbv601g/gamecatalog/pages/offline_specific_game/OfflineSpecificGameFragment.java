@@ -144,9 +144,9 @@ public class OfflineSpecificGameFragment extends Fragment {
         String averageRatingText = averageRating == null ? "No Reviews" : String.valueOf(averageRating);
         binding.gameRating.setText(averageRatingText);
 
-        binding.gameFavoriteAmount.setText(String.valueOf(game.getFavoriteOf().size()));
-        binding.gameWantToPlayAmount.setText(String.valueOf(game.getWantToPlay().size()));
-        binding.gameHavePlayedAmount.setText(String.valueOf(game.getHavePlayed().size()));
+        binding.gameFavoriteAmount.setText(String.valueOf(gameInfo.favoriteAmount));
+        binding.gameWantToPlayAmount.setText(String.valueOf(gameInfo.wantToPlayAmount));
+        binding.gameHavePlayedAmount.setText(String.valueOf(gameInfo.havePlayedAmount));
 
         genreAdapter.setData(game.getGenres());
         reviewAdapter.setData(game.getReviews());
