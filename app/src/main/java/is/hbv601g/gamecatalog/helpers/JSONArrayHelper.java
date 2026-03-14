@@ -161,19 +161,22 @@ public class JSONArrayHelper {
      * Fields confirmed from backend ReferencedReviewDTO:
      *   id, rating, text, title, author (String), gameTitle (String)
      */
+
     public static List<SimpleReviewEntity> makeReviewList(JSONArray array) {
         try {
             List<SimpleReviewEntity> reviews = new ArrayList<>();
 
             for (int i = 0; i < array.length(); i++) {
                 JSONObject r = array.getJSONObject(i);
+                Long gameId = r.has("gameId") ? r.getLong("gameId") : null;
                 reviews.add(new SimpleReviewEntity(
                         r.getLong("id"),
                         r.getInt("rating"),
                         r.optString("text", ""),
                         r.optString("title", ""),
                         r.optString("author", ""),
-                        r.optString("gameTitle", "")
+                        r.optString("gameTitle", ""),
+                        gameId
                 ));
             }
             return reviews;

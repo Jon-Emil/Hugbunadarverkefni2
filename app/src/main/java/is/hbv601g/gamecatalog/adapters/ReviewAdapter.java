@@ -1,5 +1,6 @@
 package is.hbv601g.gamecatalog.adapters;
 
+import android.location.GnssAntennaInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,11 +18,64 @@ import is.hbv601g.gamecatalog.entities.review.SimpleReviewEntity;
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder> {
 
     private final List<SimpleReviewEntity> reviews = new ArrayList<>();
+    private String loggedInUsername = null;
+
+    public interface onReviewClickListener{
+        void onReviewClick(SimpleReviewEntity review);
+    }
+
+    private onReviewClickListener clickListener;
+
+    public void setOnReviewClickListener(onReviewClickListener listener) {
+        this.clickListener = listener;
+    }
 
     public void setData(List<SimpleReviewEntity> newReviews) {
         reviews.clear();
         reviews.addAll(newReviews);
         notifyDataSetChanged();
+    }
+
+    public void setLoggedInUsername(String username) {
+        this.loggedInUsername = username;
+    }
+
+
+    @Override
+    public void onBindViewHolder(@NonNull ReviewViewHolder holder, int position) {
+        SimpleReviewEntity review = reviews.get(position);
+
+        holder.title.setText(review.getTitle());
+        holder.rating.setText(review.getRating() + "/100");
+        holder.text.setText(review.getText());
+        holder.gameTitle.setText(review.getGameTitle());
+
+        boolean isUserReview = loggedInUsername != null &&
+                loggedInUsername.equals(review.getAuthor());
+
+        holder.itemView.setBackgroundColor(
+                isUserReview ? 0x66F3E5F5 : 0x00000000 //the color of own review
+        );
+
+
+
+        // makes only own review is clickable
+        if (isUserReview) {
+            holder.itemView.setOnClickListener(v -> {
+                if (clickListener != null) {
+                    clickListener.onReviewClick(review);
+                }
+            });
+
+        } else {
+            // disables click for other reviews
+            holder.itemView.setOnClickListener(null);
+            holder.itemView.setForeground(null);
+        }
+
+
+
+
     }
 
     @NonNull
@@ -32,15 +86,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         return new ReviewViewHolder(view);
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull ReviewViewHolder holder, int position) {
-        SimpleReviewEntity review = reviews.get(position);
-
-        holder.title.setText(review.getTitle());
-        holder.rating.setText(review.getRating() + "/100");
-        holder.text.setText(review.getText());
-        holder.gameTitle.setText(review.getGameTitle());
-    }
 
     @Override
     public int getItemCount() {
