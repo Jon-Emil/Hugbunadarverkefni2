@@ -41,6 +41,9 @@ public class SpecificGameViewModel extends ViewModel {
 
     public LiveData<DetailedGameEntity> getGame() { return game; }
 
+    private long gameId;
+
+
     // favorite
     private final MutableLiveData<Boolean> isInFavorites = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isProcessingFavorites = new MutableLiveData<>(true);
@@ -295,6 +298,7 @@ public class SpecificGameViewModel extends ViewModel {
         userAndGameExist.postValue(true);
     }
 
+
     private void cacheGame(DetailedGameEntity fetchedGame){
         //Delete cached game if it exists
         deleteOldCache(fetchedGame.getId());
@@ -348,6 +352,12 @@ public class SpecificGameViewModel extends ViewModel {
         if(cachedGame != null){
             cachedGameDao.delete(cachedGame);
         }
+    }
+
+
+
+    public UserService getUserService() {
+        return userService;
     }
 
 

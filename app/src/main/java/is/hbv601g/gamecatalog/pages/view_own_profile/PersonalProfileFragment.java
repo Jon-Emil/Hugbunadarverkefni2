@@ -29,8 +29,9 @@ import is.hbv601g.gamecatalog.adapters.SimpleGameAdapter;
 import is.hbv601g.gamecatalog.databinding.FragmentPersonalProfileBinding;
 import is.hbv601g.gamecatalog.entities.game.SimpleGameEntity;
 import is.hbv601g.gamecatalog.entities.user.DetailedUserEntity;
+import is.hbv601g.gamecatalog.pages.BaseProfileFragment;
 
-public class PersonalProfileFragment extends Fragment {
+public class PersonalProfileFragment extends BaseProfileFragment {
 
     private PersonalProfileViewModel personalProfileViewModel;
     private FragmentPersonalProfileBinding binding;
@@ -38,6 +39,8 @@ public class PersonalProfileFragment extends Fragment {
     private boolean favouritesExpanded = false;
     private boolean wantsToPlayExpanded = false;
     private boolean hasPlayedExpanded = false;
+    private ReviewAdapter reviewAdapter;
+
 
     @Nullable
     @Override
@@ -54,12 +57,19 @@ public class PersonalProfileFragment extends Fragment {
 
         personalProfileViewModel = new ViewModelProvider(this).get(PersonalProfileViewModel.class);
 
+        // Initialise all shared profile views, avatar, game lists, expand buttons, blabla
+        initSharedViews(view);
+
         // make new lines for expanded game capsules
         binding.favouriteGamesExpanded.setLayoutManager(makeFlexLayout());
         binding.wantsToPlayExpanded.setLayoutManager(makeFlexLayout());
         binding.hasPlayedExpanded.setLayoutManager(makeFlexLayout());
 
+        reviewAdapter = new ReviewAdapter();
         binding.reviews.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.reviews.setAdapter(reviewAdapter);
+
+
 
         // expand and collapse
         binding.expandFavourites.setOnClickListener(v -> {
@@ -78,11 +88,13 @@ public class PersonalProfileFragment extends Fragment {
                     binding.hasPlayedExpanded, binding.expandHasPlayed, hasPlayedExpanded);
         });
 
-        personalProfileViewModel.getIsLoading().observe(getViewLifecycleOwner(), loading ->
-                binding.profileProgressBar.setVisibility(loading ? View.VISIBLE : View.GONE));
+        personalProfileViewModel.getIsLoading().observe(getViewLifecycleOwner(), this::setLoading);
 
         personalProfileViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
-            if (error != null) Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
+            if (error != null) {
+                Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
+                personalProfileViewModel.clearErrorMessage();
+            }
         });
 
         personalProfileViewModel.getUser().observe(getViewLifecycleOwner(), this::bindUser);
@@ -178,7 +190,11 @@ public class PersonalProfileFragment extends Fragment {
         return adapter;
     }
 
-    private void bindUser(DetailedUserEntity user) {
+    @Override
+    protected void bindUser(DetailedUserEntity user) {
+        super.bindUser(user);
+        // Email is only available on the own-profile screen; bind it on top of the shared fields.
+        binding.emailText.setText(user.getEmail() != null ? user.getEmail() : "");
         binding.usernameText.setText(user.getUsername());
         binding.emailText.setText(user.getEmail() != null ? user.getEmail() : "");
         binding.describtion.setText(user.getDescription() != null ? user.getDescription() : "");
@@ -206,16 +222,20 @@ public class PersonalProfileFragment extends Fragment {
         binding.wantsToPlayExpanded.setAdapter(makeGameAdapter(user.getWantToPlayGames()));
         binding.hasPlayedExpanded.setAdapter(makeGameAdapter(user.getHavePlayedGames()));
 
-        ReviewAdapter reviewAdapter = new ReviewAdapter();
+        reviewAdapter.setLoggedInUsername(user.getUsername());
+        reviewAdapter.setOnReviewClickListener(review -> {
+            if (review.getGameId() != null) {
+                navigateToGame(review.getGameId());
+            } else {
+                Toast.makeText(requireContext(), "This review is not linked to a game", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         reviewAdapter.setData(user.getReviews());
         binding.reviews.setAdapter(reviewAdapter);
     }
 
-    private void navigateToGame(long gameId) {
-        Bundle args = new Bundle();
-        args.putLong("game_id", gameId);
-        Navigation.findNavController(requireView()).navigate(R.id.navigation_specific_game, args);
-    }
+
 
     public void modifyButtonClicked() {
         Navigation.findNavController(requireView()).navigate(R.id.navigation_modify_user);
@@ -234,6 +254,8 @@ public class PersonalProfileFragment extends Fragment {
                 .setNegativeButton("Cancel", null)
                 .show();
     }
+
+
 
     @Override
     public void onDestroyView() {

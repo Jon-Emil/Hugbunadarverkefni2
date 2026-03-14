@@ -126,17 +126,27 @@ public class JSONArrayHelper {
         }
     }
 
+    /**
+     * Parses a JSONArray of ReferencedUserDTO objects into SimpleUserEntity instances. Fields from backend ReferencedUserDTO: id, username, profilePictureURL, description.
+     *
+     * Used to deserialize the "follows" and "followedBy" arrays inside MyselfUserDTO and NormalUserDTO, which are returned by GET /users/profile and GET /users/{id}.
+     *
+     * profilePictureURL is nullable in the backend (users may not have set one). isNull() + optString() is used instead of getString() to avoid storing the
+     * literal string "null" when the JSON value is a JSON null. This could cause Glide to attempt loading a URL named "null" and log a spurious error.
+     */
     public static List<SimpleUserEntity> makeUserList(JSONArray array) {
         try {
             List<SimpleUserEntity> users = new ArrayList<>();
 
             for (int i = 0; i < array.length(); i++) {
                 JSONObject u = array.getJSONObject(i);
+                // passa á JSON null áður en að lesa gildi á strenginum.
+                String pictureUrl = u.isNull("profilePictureURL") ? "" : u.optString("profilePictureURL", "");
                 users.add(new SimpleUserEntity(
                         u.getLong("id"),
-                        u.getString("username"),
-                        u.getString("profilePictureURL"),
-                        u.getString("description")
+                        u.optString("username", ""),
+                        pictureUrl,
+                        u.optString("description", "")
                 ));
             }
             return users;
@@ -151,19 +161,22 @@ public class JSONArrayHelper {
      * Fields confirmed from backend ReferencedReviewDTO:
      *   id, rating, text, title, author (String), gameTitle (String)
      */
+
     public static List<SimpleReviewEntity> makeReviewList(JSONArray array) {
         try {
             List<SimpleReviewEntity> reviews = new ArrayList<>();
 
             for (int i = 0; i < array.length(); i++) {
                 JSONObject r = array.getJSONObject(i);
+                Long gameId = r.has("gameId") ? r.getLong("gameId") : null;
                 reviews.add(new SimpleReviewEntity(
                         r.getLong("id"),
                         r.getInt("rating"),
                         r.optString("text", ""),
                         r.optString("title", ""),
                         r.optString("author", ""),
-                        r.optString("gameTitle", "")
+                        r.optString("gameTitle", ""),
+                        gameId
                 ));
             }
             return reviews;

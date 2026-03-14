@@ -6,6 +6,16 @@ import java.util.List;
 import is.hbv601g.gamecatalog.entities.game.SimpleGameEntity;
 import is.hbv601g.gamecatalog.entities.review.SimpleReviewEntity;
 
+/*
+ * Represents the full profile of a user as returned by the backend.
+ *
+ * Used by PersonalProfileFragment (own profile via GET /users/profile) and OtherUserProfileFragment (other users via GET /users/{id}).
+ *
+ * The backend returns two similar DTOs:
+ *   - MyselfUserDTO  : includes email, used for own profile
+ *   - NormalUserDTO  : no email, used for other users' public profiles
+ * Both are mapped into this single entity class. When email is not available (other users), it is stored as null.
+ */
 public class DetailedUserEntity {
     private Long id;
     private String username;
@@ -21,6 +31,11 @@ public class DetailedUserEntity {
     private List<SimpleGameEntity> wantToPlayGames = new ArrayList<>();
     private List<SimpleGameEntity> havePlayedGames = new ArrayList<>();
 
+    // verið er að búa til lista af followers og following, i staðinn fyrir að syna bara tölurnar.
+    // bara mjög basic getters og setters og constructor.
+    private List<SimpleUserEntity> followersList = new ArrayList<>();
+    private List<SimpleUserEntity> followingList = new ArrayList<>();
+
     public DetailedUserEntity(
             Long id,
             String username,
@@ -32,7 +47,9 @@ public class DetailedUserEntity {
             List<SimpleReviewEntity> reviews,
             List<SimpleGameEntity> favoriteGames,
             List<SimpleGameEntity> wantToPlayGames,
-            List<SimpleGameEntity> havePlayedGames
+            List<SimpleGameEntity> havePlayedGames,
+            List<SimpleUserEntity> followersList,
+            List<SimpleUserEntity> followingList
     ) {
         this.id = id;
         this.username = username;
@@ -45,6 +62,8 @@ public class DetailedUserEntity {
         this.favoriteGames = favoriteGames;
         this.wantToPlayGames = wantToPlayGames;
         this.havePlayedGames = havePlayedGames;
+        this.followersList = followersList;
+        this.followingList = followingList;
     }
 
     public Long getId() { return id; }
@@ -79,4 +98,10 @@ public class DetailedUserEntity {
 
     public List<SimpleGameEntity> getHavePlayedGames() { return havePlayedGames; }
     public void setHavePlayedGames(List<SimpleGameEntity> havePlayedGames) { this.havePlayedGames = havePlayedGames; }
+
+    public List<SimpleUserEntity> getFollowersList() { return followersList; }
+    public void setFollowersList(List<SimpleUserEntity> followersList) { this.followersList = followersList; }
+
+    public List<SimpleUserEntity> getFollowingList() { return followingList; }
+    public void setFollowingList(List<SimpleUserEntity> followingList) { this.followingList = followingList; }
 }

@@ -2,10 +2,14 @@ package is.hbv601g.gamecatalog.services;
 
 import android.net.Uri;
 
+import androidx.annotation.NonNull;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.IOException;
 import java.util.List;
+import android.os.Handler;
+import android.os.Looper;
 
 import is.hbv601g.gamecatalog.entities.extras.AdvancedSearchParameters;
 import is.hbv601g.gamecatalog.entities.game.DetailedGameEntity;
@@ -250,8 +254,10 @@ public class GameService {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
+                    String body = response.body() != null ? response.body().string() : "";
+
                     if (!response.isSuccessful()) {
-                        callback.onError(new Exception("Failed to submit review"));
+                        callback.onError(new Exception(body));
                         return;
                     }
                     callback.onSuccess();
@@ -262,5 +268,65 @@ public class GameService {
             callback.onError(e);
         }
     }
+
+    public void updateReview(long gameId, long reviewId, int rating, String text, String title, EmptyCallBack callback) {
+        String url = "/games/" + gameId + "/reviews/" + reviewId;
+
+        try {
+            JSONObject json = new JSONObject();
+            json.put("rating", rating);
+            json.put("text", text);
+            json.put("title", title);
+
+            networkService.patchRequest(url, json.toString(), new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    new Handler(Looper.getMainLooper()).post(() -> callback.onError(e));
+                }
+
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        new Handler(Looper.getMainLooper()).post(callback::onSuccess);
+                    } else {
+                        String body = response.body() != null ? response.body().string() : "";
+                        new Handler(Looper.getMainLooper()).post(() ->
+                                callback.onError(new Exception(body))
+                        );
+                    }
+                }
+            });
+
+        } catch (Exception e) {
+            new Handler(Looper.getMainLooper()).post(() -> callback.onError(e));
+        }
+    }
+
+    public void deleteReview(long gameId, long reviewId, EmptyCallBack callback) {
+        String url = "/games/" + gameId + "/reviews/" + reviewId;
+
+        networkService.deleteRequest(url, new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                new Handler(Looper.getMainLooper()).post(() -> callback.onError(e));
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
+                if (response.isSuccessful()) {
+                    new Handler(Looper.getMainLooper()).post(callback::onSuccess);
+                } else {
+                    String body = "";
+                    try { body = response.body().string(); } catch (Exception ignored) {}
+                    String finalBody = body;
+                    new Handler(Looper.getMainLooper()).post(() ->
+                            callback.onError(new Exception(finalBody))
+                    );
+                }
+            }
+        });
+    }
+
+
 
 }
