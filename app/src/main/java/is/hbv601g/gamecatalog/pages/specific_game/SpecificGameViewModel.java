@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import is.hbv601g.gamecatalog.dao.CachedGameDao;
 import is.hbv601g.gamecatalog.database.CacheDatabase;
@@ -94,7 +95,10 @@ public class SpecificGameViewModel extends ViewModel {
 
             @Override
             public void onSuccess(DetailedGameEntity fetchedGame) {
-                cacheGame(fetchedGame);
+                //Run caching on background thread
+                Executors.newSingleThreadExecutor().execute(() -> {
+                    cacheGame(fetchedGame);
+                });
                 game.postValue(fetchedGame);
             }
         });

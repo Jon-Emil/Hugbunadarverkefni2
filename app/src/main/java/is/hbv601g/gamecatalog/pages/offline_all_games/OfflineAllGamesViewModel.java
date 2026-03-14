@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import is.hbv601g.gamecatalog.database.CacheDatabase;
 import is.hbv601g.gamecatalog.entities.game.CachedGame;
@@ -43,11 +44,13 @@ public class OfflineAllGamesViewModel extends ViewModel {
     }
 
     private void fetchCachedGames() {
-        isLoading.postValue(false);
+        isLoading.postValue(true);
         //IMPLEMENT CACHE FETCH LOGIC HERE FROM ROOM
-        List<CachedGame> fetchedGames = cachedGameDao.getAll();
-
-        games.postValue(fetchedGames);
+        //Run caching on background thread
+        Executors.newSingleThreadExecutor().execute(() -> {
+            List<CachedGame> fetchedGames = cachedGameDao.getAll();
+            games.postValue(fetchedGames);
+        });
         isLoading.postValue(false);
     }
 

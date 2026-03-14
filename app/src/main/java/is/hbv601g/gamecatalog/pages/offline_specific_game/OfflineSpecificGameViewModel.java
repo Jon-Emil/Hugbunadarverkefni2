@@ -5,6 +5,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executors;
 
 import is.hbv601g.gamecatalog.database.CacheDatabase;
 import is.hbv601g.gamecatalog.entities.game.CachedGame;
@@ -25,13 +27,18 @@ public class OfflineSpecificGameViewModel extends ViewModel {
         }
 
         this.cachedGameDao = database.cachedGameDao();
-        fetchCachedGame(gameId);
+        //Run caching on background thread
+        Executors.newSingleThreadExecutor().execute(() -> {
+            fetchCachedGame(gameId);
+        });
     }
 
     private void fetchCachedGame(long gameId) {
         //IMPLEMENT CACHE FETCH LOGIC HERE FROM ROOM
-        CachedGame cachedGame = cachedGameDao.getCachedGame(gameId);
-
-        game.postValue(cachedGame);
+        //Run caching on background thread
+        Executors.newSingleThreadExecutor().execute(() -> {
+            CachedGame cachedGame = cachedGameDao.getCachedGame(gameId);
+            game.postValue(cachedGame);
+        });
     }
 }
