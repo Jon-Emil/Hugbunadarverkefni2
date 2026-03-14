@@ -39,8 +39,6 @@ public class PersonalProfileFragment extends BaseProfileFragment {
     private boolean favouritesExpanded = false;
     private boolean wantsToPlayExpanded = false;
     private boolean hasPlayedExpanded = false;
-    private ReviewAdapter reviewAdapter;
-
 
     @Nullable
     @Override
@@ -64,12 +62,6 @@ public class PersonalProfileFragment extends BaseProfileFragment {
         binding.favouriteGamesExpanded.setLayoutManager(makeFlexLayout());
         binding.wantsToPlayExpanded.setLayoutManager(makeFlexLayout());
         binding.hasPlayedExpanded.setLayoutManager(makeFlexLayout());
-
-        reviewAdapter = new ReviewAdapter();
-        binding.reviews.setLayoutManager(new LinearLayoutManager(requireContext()));
-        binding.reviews.setAdapter(reviewAdapter);
-
-
 
         // expand and collapse
         binding.expandFavourites.setOnClickListener(v -> {
@@ -225,17 +217,14 @@ public class PersonalProfileFragment extends BaseProfileFragment {
         reviewAdapter.setLoggedInUsername(user.getUsername());
         reviewAdapter.setOnReviewClickListener(review -> {
             if (review.getGameId() != null) {
-                navigateToGame(review.getGameId());
+                navigateToGame(review.getGameId()); // okay, so we just need to change things on the backend to support this.
             } else {
                 Toast.makeText(requireContext(), "This review is not linked to a game", Toast.LENGTH_SHORT).show();
             }
         });
-
-        reviewAdapter.setData(user.getReviews());
-        binding.reviews.setAdapter(reviewAdapter);
+        // Configure the shared reviewAdapter (created by super.bindUser()) with own-profile
+        // specific behaviour: highlight the user's own reviews and make them tappable.
     }
-
-
 
     public void modifyButtonClicked() {
         Navigation.findNavController(requireView()).navigate(R.id.navigation_modify_user);
@@ -254,8 +243,6 @@ public class PersonalProfileFragment extends BaseProfileFragment {
                 .setNegativeButton("Cancel", null)
                 .show();
     }
-
-
 
     @Override
     public void onDestroyView() {

@@ -46,6 +46,12 @@ public abstract class BaseProfileFragment extends Fragment {
     private boolean wantsToPlayExpanded = false;
     private boolean hasPlayedExpanded = false;
 
+    // Collapse state for the reviews section; starts collapsed (shows first 3 only).
+    private boolean reviewsExpanded = false;
+
+    // Shared ReviewAdapter instance; protected so subclasses can configure it (e.g. set click listeners).
+    protected ReviewAdapter reviewAdapter;
+
     // View references cached after initSharedViews(): all IDs exist in both layouts.
     private View profileProgressBar;
     private ImageView profilePicture;
@@ -57,6 +63,7 @@ public abstract class BaseProfileFragment extends Fragment {
     private RecyclerView wantsToPlayExpandedRV;
     private RecyclerView hasPlayedExpandedRV;
     private RecyclerView reviewsRV;
+    private TextView expandReviewsBtn;
     private View favouriteGamesScroll;
     private View wantsToPlayScroll;
     private View hasPlayedScroll;
@@ -115,6 +122,14 @@ public abstract class BaseProfileFragment extends Fragment {
             applyExpandState(hasPlayedScroll, hasPlayedExpandedRV,
                     expandHasPlayed, hasPlayedExpanded);
         });
+
+        // Wire the "See all / Show less" toggle for the reviews section.
+        expandReviewsBtn = root.findViewById(R.id.expandReviews);
+        expandReviewsBtn.setOnClickListener(v -> {
+            reviewsExpanded = !reviewsExpanded;
+            reviewAdapter.setCollapsed(!reviewsExpanded);
+            expandReviewsBtn.setText(reviewsExpanded ? "Show less" : "See all");
+        });
     }
 
     /* Shows or hides the progress bar. Subclasses forward their ViewModel's isLoading LiveData here. */
@@ -157,9 +172,14 @@ public abstract class BaseProfileFragment extends Fragment {
         wantsToPlayExpandedRV.setAdapter(makeGameAdapter(user.getWantToPlayGames()));
         hasPlayedExpandedRV.setAdapter(makeGameAdapter(user.getHavePlayedGames()));
 
-        ReviewAdapter reviewAdapter = new ReviewAdapter();
+        // Build the review adapter in collapsed state (shows first 3 reviews only).
+        // The "See all" button is only shown when there are more than 3 reviews.
+        reviewAdapter = new ReviewAdapter();
+        reviewAdapter.setCollapsed(true);
         reviewAdapter.setData(user.getReviews());
         reviewsRV.setAdapter(reviewAdapter);
+        boolean hasMoreReviews = user.getReviews().size() > 3;
+        expandReviewsBtn.setVisibility(hasMoreReviews ? View.VISIBLE : View.GONE);
     }
 
     private FlexboxLayoutManager makeFlexLayout() {
@@ -259,6 +279,7 @@ public abstract class BaseProfileFragment extends Fragment {
         wantsToPlayExpandedRV = null;
         hasPlayedExpandedRV = null;
         reviewsRV = null;
+        expandReviewsBtn = null;
         favouriteGamesScroll = null;
         wantsToPlayScroll = null;
         hasPlayedScroll = null;

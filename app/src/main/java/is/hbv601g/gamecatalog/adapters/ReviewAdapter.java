@@ -1,10 +1,11 @@
 package is.hbv601g.gamecatalog.adapters;
 
-import android.location.GnssAntennaInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.color.MaterialColors;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,6 +20,8 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
     private final List<SimpleReviewEntity> reviews = new ArrayList<>();
     private String loggedInUsername = null;
+    private boolean collapsed = true;
+    private static final int PREVIEW_COUNT = 3;
 
     public interface onReviewClickListener{
         void onReviewClick(SimpleReviewEntity review);
@@ -40,7 +43,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         this.loggedInUsername = username;
     }
 
-
     @Override
     public void onBindViewHolder(@NonNull ReviewViewHolder holder, int position) {
         SimpleReviewEntity review = reviews.get(position);
@@ -52,13 +54,9 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
         boolean isUserReview = loggedInUsername != null &&
                 loggedInUsername.equals(review.getAuthor());
-
-        holder.itemView.setBackgroundColor(
-                isUserReview ? 0x66F3E5F5 : 0x00000000 //the color of own review
-        );
-
-
-
+        MaterialCardView card = (MaterialCardView) holder.itemView;
+        // own review er þegar kominn með eigin looks format, breytum aðeins litinum á other people´s reviewum. sjaum hvernig þetta lookar.
+        if (!isUserReview) {card.setCardBackgroundColor(MaterialColors.getColor(card, com.google.android.material.R.attr.colorSurface));}
         // makes only own review is clickable
         if (isUserReview) {
             holder.itemView.setOnClickListener(v -> {
@@ -72,10 +70,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
             holder.itemView.setOnClickListener(null);
             holder.itemView.setForeground(null);
         }
-
-
-
-
     }
 
     @NonNull
@@ -89,8 +83,14 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
     @Override
     public int getItemCount() {
-        return reviews.size();
+        if (collapsed) {
+            return Math.min(PREVIEW_COUNT, reviews.size());
+        } else { return reviews.size(); }
     }
+    public void setCollapsed (boolean collapsed) {
+        this.collapsed = collapsed;
+        notifyDataSetChanged();
+    } // notify app the current status of the collapse status of review block.
 
     static class ReviewViewHolder extends RecyclerView.ViewHolder {
         TextView title;
