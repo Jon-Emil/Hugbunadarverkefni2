@@ -12,14 +12,18 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.room.Room;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import is.hbv601g.gamecatalog.R;
 import is.hbv601g.gamecatalog.adapters.GameAdapter;
+import is.hbv601g.gamecatalog.database.CacheDatabase;
 import is.hbv601g.gamecatalog.databinding.FragmentOfflineAllGamesBinding;
+import is.hbv601g.gamecatalog.entities.game.CachedGame;
 import is.hbv601g.gamecatalog.entities.game.ListedGameEntity;
-import is.hbv601g.gamecatalog.storage.CacheManager;
+import is.hbv601g.gamecatalog.dao.CachedGameDao;
 
 public class OfflineAllGamesFragment extends Fragment {
     private OfflineAllGamesViewModel viewModel;
@@ -60,9 +64,15 @@ public class OfflineAllGamesFragment extends Fragment {
         //Initialize ViewModel
         viewModel = new ViewModelProvider(this).get(OfflineAllGamesViewModel.class);
 
-        CacheManager cacheManager = new CacheManager(requireContext());
+        //INITIATE DATABASE
 
-        viewModel.init(cacheManager);
+        CacheDatabase db = Room.databaseBuilder(
+                requireContext(),
+                CacheDatabase.class,
+                "cache_database"
+        ).build();
+
+        viewModel.init(db);
 
         viewModel.getGames().observe(getViewLifecycleOwner(), this::updateGamesInfo);
 
@@ -90,8 +100,29 @@ public class OfflineAllGamesFragment extends Fragment {
         });
     }
 
-    public void updateGamesInfo(List<ListedGameEntity> games) {
-        gameAdapter.setData(games);
+    public void updateGamesInfo(List<CachedGame> games) {
+        List<ListedGameEntity> gamesInfo = new ArrayList<>();
+        for (CachedGame game : games) {
+            ListedGameEntity listedGame = new ListedGameEntity(
+                game.gameId,
+                game.title,
+                game.description,
+                game.releaseDate,
+                game.price,
+                "",
+                game.developer,
+                game.publisher,
+                game.reviewAmount,
+                game.averageRating,
+                game.favoriteAmount,
+                game.wantToPlayAmount,
+                game.havePlayedAmount,
+                new ArrayList<>()
+            );
+            gamesInfo.add(listedGame);
+
+        }
+        gameAdapter.setData(gamesInfo);
     }
 
     private void openSpecificGame(long gameId) {

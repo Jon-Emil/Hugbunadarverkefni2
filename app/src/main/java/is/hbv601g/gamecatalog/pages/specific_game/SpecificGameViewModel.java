@@ -9,8 +9,13 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import is.hbv601g.gamecatalog.dao.CachedGameDao;
+import is.hbv601g.gamecatalog.database.CacheDatabase;
+import is.hbv601g.gamecatalog.entities.game.CachedGame;
+import is.hbv601g.gamecatalog.entities.genre.SimpleGenreEntity;
 import is.hbv601g.gamecatalog.entities.user.DetailedUserEntity;
 import is.hbv601g.gamecatalog.entities.user.SimpleUserEntity;
 import is.hbv601g.gamecatalog.helpers.GameCollections;
@@ -30,6 +35,8 @@ public class SpecificGameViewModel extends ViewModel {
     private boolean collectionsInitialized = false;
     private final MutableLiveData<DetailedGameEntity> game = new MutableLiveData<>();
     private final MutableLiveData<DetailedUserEntity> user = new MutableLiveData<>();
+
+    private CachedGameDao cachedGameDao;
 
     public LiveData<DetailedGameEntity> getGame() { return game; }
 
@@ -61,7 +68,7 @@ public class SpecificGameViewModel extends ViewModel {
     private final MediatorLiveData<Boolean> userAndGameExist = new MediatorLiveData<>(false);
     public MediatorLiveData<Boolean> getUserAndGameExist() { return userAndGameExist; }
 
-    public void init(GameService gameService, UserService userService, long gameID) {
+    public void init(GameService gameService, UserService userService, long gameID, CacheDatabase database) {
         if (game.getValue() != null) {
             return;
         }
@@ -69,6 +76,7 @@ public class SpecificGameViewModel extends ViewModel {
         this.gameID = gameID;
         this.gameService = gameService;
         this.userService = userService;
+        this.cachedGameDao = database.cachedGameDao();
 
         userAndGameExist.addSource(game, g -> tryInitializingCollections());
         userAndGameExist.addSource(user, u -> tryInitializingCollections());
@@ -86,6 +94,7 @@ public class SpecificGameViewModel extends ViewModel {
 
             @Override
             public void onSuccess(DetailedGameEntity fetchedGame) {
+                cacheGame(fetchedGame);
                 game.postValue(fetchedGame);
             }
         });
@@ -281,4 +290,61 @@ public class SpecificGameViewModel extends ViewModel {
 
         userAndGameExist.postValue(true);
     }
+
+    private void cacheGame(DetailedGameEntity fetchedGame){
+        //Delete cached game if it exists
+        deleteOldCache(fetchedGame.getId());
+
+        //clean up the cache database to get rid of old data
+        cleanUpCache();
+
+        //Cache the game
+        CachedGame cachedGame = new CachedGame();
+        cachedGame.gameId = fetchedGame.getId();
+        cachedGame.title = fetchedGame.getTitle();
+        cachedGame.description = fetchedGame.getDescription();
+        cachedGame.price = fetchedGame.getPrice();
+        cachedGame.developer = fetchedGame.getDeveloper();
+        cachedGame.publisher = fetchedGame.getPublisher();
+        cachedGame.releaseDate = fetchedGame.getReleaseDate();
+        cachedGame.reviewAmount = fetchedGame.getReviews().size();
+        cachedGame.averageRating = fetchedGame.getAverageRating();
+        cachedGame.favoriteAmount = fetchedGame.getFavoriteOf().size();
+        cachedGame.wantToPlayAmount = fetchedGame.getWantToPlay().size();
+        cachedGame.havePlayedAmount = fetchedGame.getHavePlayed().size();
+
+        StringBuilder genresAsString = new StringBuilder();
+        for(SimpleGenreEntity genre : fetchedGame.getGenres()) {
+            String genreName = genre.getTitle();
+            genresAsString.append(genreName).append(", ");
+        }
+
+        cachedGame.genres = genresAsString.toString();
+        cachedGame.dateCached = new Date().getTime();
+
+        cachedGameDao.insert(cachedGame);
+    }
+
+    private void cleanUpCache(){
+        List<CachedGame> cachedGames = cachedGameDao.getAll();
+
+        for(CachedGame cachedGame : cachedGames){
+            long dateCached = cachedGame.dateCached;
+            long age = new Date().getTime() - dateCached;
+            long ageInDays = age / (1000 * 60 * 60 * 24);
+
+            if(ageInDays > 14){
+                deleteOldCache(cachedGame.gameId);
+            }
+        }
+    }
+
+    private void deleteOldCache(long gameID){
+        CachedGame cachedGame = cachedGameDao.getCachedGame(gameID);
+        if(cachedGame != null){
+            cachedGameDao.delete(cachedGame);
+        }
+    }
+
+
 }
