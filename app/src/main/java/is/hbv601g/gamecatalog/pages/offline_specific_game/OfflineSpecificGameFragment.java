@@ -13,17 +13,21 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.room.Room;
 
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
 import is.hbv601g.gamecatalog.adapters.GenreAdapter;
 import is.hbv601g.gamecatalog.adapters.ReviewAdapter;
+import is.hbv601g.gamecatalog.database.CacheDatabase;
 import is.hbv601g.gamecatalog.databinding.FragmentOfflineSpecificGameBinding;
+import is.hbv601g.gamecatalog.entities.game.CachedGame;
 import is.hbv601g.gamecatalog.entities.game.DetailedGameEntity;
-import is.hbv601g.gamecatalog.storage.CacheManager;
+import is.hbv601g.gamecatalog.dao.CachedGameDao;
 
 public class OfflineSpecificGameFragment extends Fragment {
     private static final String ARG_GAME_ID = "game_id";
@@ -83,17 +87,38 @@ public class OfflineSpecificGameFragment extends Fragment {
         }
         long gameId = args.getLong(ARG_GAME_ID);
 
-        CacheManager cacheManager = new CacheManager(requireContext());
+        //Get the cache database
+        CacheDatabase db = Room.databaseBuilder(
+                requireContext(),
+                CacheDatabase.class,
+                "cache_database"
+        ).build();
 
 
         viewModel = new ViewModelProvider(this).get(OfflineSpecificGameViewModel.class);
 
-        viewModel.init(cacheManager, gameId);
+        viewModel.init(db, gameId);
         // IDE warning auto fix no idea how this::<methodName> works
         viewModel.getGame().observe(getViewLifecycleOwner(), this::updateGameInfo);
     }
 
-    public void updateGameInfo(DetailedGameEntity game) {
+    public void updateGameInfo(CachedGame gameInfo) {
+        DetailedGameEntity game = new DetailedGameEntity(
+                gameInfo.gameId,
+                gameInfo.title,
+                gameInfo.description,
+                gameInfo.releaseDate,
+                gameInfo.price,
+                "",
+                gameInfo.developer,
+                gameInfo.publisher,
+                gameInfo.averageRating,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>()
+        );
         String title = game.getTitle();
         binding.gameTitle.setText(title);
         binding.gameDescription.setText(game.getDescription());
@@ -119,9 +144,9 @@ public class OfflineSpecificGameFragment extends Fragment {
         String averageRatingText = averageRating == null ? "No Reviews" : String.valueOf(averageRating);
         binding.gameRating.setText(averageRatingText);
 
-        binding.gameFavoriteAmount.setText(String.valueOf(game.getFavoriteOf().size()));
-        binding.gameWantToPlayAmount.setText(String.valueOf(game.getWantToPlay().size()));
-        binding.gameHavePlayedAmount.setText(String.valueOf(game.getHavePlayed().size()));
+        binding.gameFavoriteAmount.setText(String.valueOf(gameInfo.favoriteAmount));
+        binding.gameWantToPlayAmount.setText(String.valueOf(gameInfo.wantToPlayAmount));
+        binding.gameHavePlayedAmount.setText(String.valueOf(gameInfo.havePlayedAmount));
 
         genreAdapter.setData(game.getGenres());
         reviewAdapter.setData(game.getReviews());

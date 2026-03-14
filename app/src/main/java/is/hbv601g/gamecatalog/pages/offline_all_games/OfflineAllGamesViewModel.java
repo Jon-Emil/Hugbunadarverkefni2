@@ -6,21 +6,21 @@ import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
+import is.hbv601g.gamecatalog.database.CacheDatabase;
+import is.hbv601g.gamecatalog.entities.game.CachedGame;
 import is.hbv601g.gamecatalog.entities.game.ListedGameEntity;
-import is.hbv601g.gamecatalog.helpers.PaginatedCallback;
-import is.hbv601g.gamecatalog.services.GameService;
-import is.hbv601g.gamecatalog.storage.CacheManager;
+import is.hbv601g.gamecatalog.dao.CachedGameDao;
 
 public class OfflineAllGamesViewModel extends ViewModel {
-    private final MutableLiveData<List<ListedGameEntity>> games = new MutableLiveData<>();
+    private final MutableLiveData<List<CachedGame>> games = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
 
-    //CACHE SERVICE HERE INSTEAD OF GAME SERVICE
-    private CacheManager cacheManager;
+    private CachedGameDao cachedGameDao;
 
-    public LiveData<List<ListedGameEntity>> getGames() {
+    public LiveData<List<CachedGame>> getGames() {
         return games;
     }
 
@@ -32,8 +32,8 @@ public class OfflineAllGamesViewModel extends ViewModel {
         return errorMessage;
     }
 
-    public void init(CacheManager cacheManager) {
-        this.cacheManager = cacheManager;
+    public void init(CacheDatabase database) {
+        this.cachedGameDao = database.cachedGameDao();
         if (games.getValue() == null) {
             fetchCachedGames();
         }
@@ -44,38 +44,13 @@ public class OfflineAllGamesViewModel extends ViewModel {
     }
 
     private void fetchCachedGames() {
-        //IMPLEMENT CACHE FETCH LOGIC HERE FROM CACHE MANAGER
-        String game = cacheManager.getCachedGame("1");
-        //Need to fetch all cached games and parse the Json, or however we will store them in cache,
-        //into Game objects and add that list to games.postValue(...)
-
-
-        //Code from ChatGPT to create dummy data to test offline functionality and fragments
-
         isLoading.postValue(true);
-
-        List<ListedGameEntity> dummyGames = new ArrayList<>();
-
-        for (int i = 1; i <= 6; i++) {
-            dummyGames.add(new ListedGameEntity(
-                    i,
-                    "Offline Game " + i,
-                    "Cached game description",
-                    "2020-01-01",
-                    19.99f,
-                    "",
-                    "Offline Dev",
-                    "Offline Publisher",
-                    100,
-                    4.5f,
-                    50,
-                    30,
-                    20,
-                    new ArrayList<>()
-            ));
-        }
-
-        games.postValue(dummyGames);
+        //IMPLEMENT CACHE FETCH LOGIC HERE FROM ROOM
+        //Run caching on background thread
+        Executors.newSingleThreadExecutor().execute(() -> {
+            List<CachedGame> fetchedGames = cachedGameDao.getAll();
+            games.postValue(fetchedGames);
+        });
         isLoading.postValue(false);
     }
 

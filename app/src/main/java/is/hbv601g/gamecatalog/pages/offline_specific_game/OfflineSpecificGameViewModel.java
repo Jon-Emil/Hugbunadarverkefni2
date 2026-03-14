@@ -5,52 +5,40 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executors;
 
+import is.hbv601g.gamecatalog.database.CacheDatabase;
+import is.hbv601g.gamecatalog.entities.game.CachedGame;
 import is.hbv601g.gamecatalog.entities.game.DetailedGameEntity;
-import is.hbv601g.gamecatalog.storage.CacheManager;
+import is.hbv601g.gamecatalog.dao.CachedGameDao;
 
 public class OfflineSpecificGameViewModel extends ViewModel {
-    private final MutableLiveData<DetailedGameEntity> game = new MutableLiveData<>();
-    private CacheManager cacheManager;
+    private final MutableLiveData<CachedGame> game = new MutableLiveData<>();
+    private CachedGameDao cachedGameDao;
 
-    public LiveData<DetailedGameEntity> getGame() {
+    public LiveData<CachedGame> getGame() {
         return game;
     }
 
-    public void init(CacheManager cacheManager, long gameId) {
+    public void init(CacheDatabase database, long gameId) {
         if (game.getValue() != null) {
             return;
         }
 
-        this.cacheManager = cacheManager;
-        fetchCachedGame(gameId);
+        this.cachedGameDao = database.cachedGameDao();
+        //Run caching on background thread
+        Executors.newSingleThreadExecutor().execute(() -> {
+            fetchCachedGame(gameId);
+        });
     }
 
     private void fetchCachedGame(long gameId) {
-        //IMPLEMENT CACHE FETCH LOGIC HERE FROM CACHE MANAGER
-        String gameCache = cacheManager.getCachedGame("1");
-        //Need to fetch game from cache and parse the Json into a Game object
-        // and add that to game.postValue(...)
-
-
-
-        //Code from ChatGPT to create dummy data to test offline functionality and fragments
-        DetailedGameEntity dummyGame = new DetailedGameEntity(
-                gameId,
-                "Offline Game #" + gameId,
-                "Cached game description",
-                "2020-01-01",
-                19.99f,
-                "",
-                "Offline Dev",
-                "Offline Publisher",
-                4.5f,
-                new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>()
-        );
-        game.postValue(dummyGame);
+        //IMPLEMENT CACHE FETCH LOGIC HERE FROM ROOM
+        //Run caching on background thread
+        Executors.newSingleThreadExecutor().execute(() -> {
+            CachedGame cachedGame = cachedGameDao.getCachedGame(gameId);
+            game.postValue(cachedGame);
+        });
     }
 }

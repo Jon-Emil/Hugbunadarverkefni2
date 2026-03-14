@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -37,6 +38,7 @@ import java.util.Locale;
 import is.hbv601g.gamecatalog.R;
 import is.hbv601g.gamecatalog.adapters.GenreAdapter;
 import is.hbv601g.gamecatalog.adapters.ReviewAdapter;
+import is.hbv601g.gamecatalog.database.CacheDatabase;
 import is.hbv601g.gamecatalog.databinding.FragmentAllGamesBinding;
 import is.hbv601g.gamecatalog.databinding.FragmentSpecificGameBinding;
 import is.hbv601g.gamecatalog.entities.game.DetailedGameEntity;
@@ -112,7 +114,13 @@ public class SpecificGameFragment extends Fragment {
 
         viewModel = new ViewModelProvider(this).get(SpecificGameViewModel.class);
 
-        viewModel.init(gameService, userService, gameId);
+        CacheDatabase db = Room.databaseBuilder(
+                requireContext(),
+                CacheDatabase.class,
+                "cache_database"
+        ).build();
+
+        viewModel.init(gameService, userService, gameId, db);
         viewModel.getGame().observe(getViewLifecycleOwner(), this::updateGameInfo);
 
         binding.favoriteButton.setVisibility(View.GONE);

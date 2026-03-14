@@ -38,6 +38,14 @@ android {
 }
 
 dependencies {
+    //Room dependencies
+    val room_version = "2.8.4"
+    implementation("androidx.room:room-runtime:${room_version}")
+    annotationProcessor("androidx.room:room-compiler:${room_version}")
+    testImplementation("androidx.room:room-testing:${room_version}")
+
+
+
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
