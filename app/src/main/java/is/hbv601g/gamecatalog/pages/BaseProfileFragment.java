@@ -1,10 +1,8 @@
 package is.hbv601g.gamecatalog.pages;
 
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,17 +12,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.flexbox.FlexDirection;
-import com.google.android.flexbox.FlexWrap;
-import com.google.android.flexbox.FlexboxLayoutManager;
-import com.google.android.flexbox.JustifyContent;
 
-import java.util.List;
+import androidx.recyclerview.widget.GridLayoutManager;
 
 import is.hbv601g.gamecatalog.R;
 import is.hbv601g.gamecatalog.adapters.ReviewAdapter;
 import is.hbv601g.gamecatalog.adapters.SimpleGameAdapter;
-import is.hbv601g.gamecatalog.entities.game.SimpleGameEntity;
 import is.hbv601g.gamecatalog.entities.user.DetailedUserEntity;
 
 /*
@@ -49,8 +42,13 @@ public abstract class BaseProfileFragment extends Fragment {
     // Collapse state for the reviews section; starts collapsed (shows first 3 only).
     private boolean reviewsExpanded = false;
 
-    // Shared ReviewAdapter instance; protected so subclasses can configure it (e.g. set click listeners).
+    // Shared ReviewAdapter; protected so subclasses can configure it (set click listeners).
     protected ReviewAdapter reviewAdapter;
+
+    // Game list adapters; created once in initSharedViews, data set in bindUser.
+    private SimpleGameAdapter favouritesAdapter;
+    private SimpleGameAdapter wantsToPlayAdapter;
+    private SimpleGameAdapter hasPlayedAdapter;
 
     // View references cached after initSharedViews(): all IDs exist in both layouts.
     private View profileProgressBar;
@@ -59,22 +57,25 @@ public abstract class BaseProfileFragment extends Fragment {
     private TextView describtion;
     private TextView followerCount;
     private TextView followingCount;
-    private RecyclerView favouriteGamesExpandedRV;
-    private RecyclerView wantsToPlayExpandedRV;
-    private RecyclerView hasPlayedExpandedRV;
+    private View followersColumn;
+    private View followingColumn;
     private RecyclerView reviewsRV;
     private TextView expandReviewsBtn;
-    private View favouriteGamesScroll;
-    private View wantsToPlayScroll;
-    private View hasPlayedScroll;
-    private LinearLayout favouriteGamesRow;
-    private LinearLayout wantsToPlayRow;
-    private LinearLayout hasPlayedRow;
+
+    // Expand toggle buttons cached so bindUser can reset their visual state on reload.
+    private TextView expandFavouritesBtn;
+    private TextView expandWantsToPlayBtn;
+    private TextView expandHasPlayedBtn;
+
+    // Empty-state labels shown when a game list has no entries.
+    private TextView emptyFavourites;
+    private TextView emptyWantsToPlay;
+    private TextView emptyHasPlayed;
 
     /*
      * Called by subclasses from onViewCreated() once their binding is inflated.
-     * Finds all shared views by ID, configures layout managers for the three
-     * RecyclerViews, and wires the expand/collapse button click listeners.
+     * Finds all shared views by ID, creates and attaches game adapters, and wires
+     * all expand/collapse click listeners.
      */
     protected void initSharedViews(@NonNull View root) {
         profileProgressBar = root.findViewById(R.id.profileProgressBar);
@@ -83,45 +84,66 @@ public abstract class BaseProfileFragment extends Fragment {
         describtion = root.findViewById(R.id.describtion);
         followerCount = root.findViewById(R.id.followerCount);
         followingCount = root.findViewById(R.id.followingCount);
+        followersColumn = root.findViewById(R.id.followersColumn);
+        followingColumn = root.findViewById(R.id.followingColumn);
 
-        favouriteGamesExpandedRV = root.findViewById(R.id.favouriteGamesExpanded);
-        wantsToPlayExpandedRV = root.findViewById(R.id.wantsToPlayExpanded);
-        hasPlayedExpandedRV = root.findViewById(R.id.hasPlayedExpanded);
-        reviewsRV = root.findViewById(R.id.reviews);
+        expandFavouritesBtn = root.findViewById(R.id.expandFavourites);
+        expandWantsToPlayBtn = root.findViewById(R.id.expandWantsToPlay);
+        expandHasPlayedBtn = root.findViewById(R.id.expandHasPlayed);
 
-        TextView expandFavourites = root.findViewById(R.id.expandFavourites);
-        TextView expandWantsToPlay = root.findViewById(R.id.expandWantsToPlay);
-        TextView expandHasPlayed = root.findViewById(R.id.expandHasPlayed);
+        emptyFavourites = root.findViewById(R.id.emptyFavourites);
+        emptyWantsToPlay = root.findViewById(R.id.emptyWantsToPlay);
+        emptyHasPlayed = root.findViewById(R.id.emptyHasPlayed);
 
-        favouriteGamesScroll = root.findViewById(R.id.favouriteGamesScroll);
-        wantsToPlayScroll = root.findViewById(R.id.wantsToPlayScroll);
-        hasPlayedScroll = root.findViewById(R.id.hasPlayedScroll);
+        // Create and attach game list adapters with FlexboxLayout for chip wrapping.
+        RecyclerView favouriteGamesRV = root.findViewById(R.id.favouriteGamesExpanded);
+        RecyclerView wantsToPlayRV = root.findViewById(R.id.wantsToPlayExpanded);
+        RecyclerView hasPlayedRV = root.findViewById(R.id.hasPlayedExpanded);
 
-        favouriteGamesRow = root.findViewById(R.id.favouriteGamesRow);
-        wantsToPlayRow = root.findViewById(R.id.wantsToPlayRow);
-        hasPlayedRow = root.findViewById(R.id.hasPlayedRow);
+        favouriteGamesRV.setLayoutManager(new GridLayoutManager(requireContext(), 3));
+        wantsToPlayRV.setLayoutManager(new GridLayoutManager(requireContext(), 3));
+        hasPlayedRV.setLayoutManager(new GridLayoutManager(requireContext(), 3));
 
-        // FlexboxLayout wraps chips to multiple rows when the list is long.
-        favouriteGamesExpandedRV.setLayoutManager(makeFlexLayout());
-        wantsToPlayExpandedRV.setLayoutManager(makeFlexLayout());
-        hasPlayedExpandedRV.setLayoutManager(makeFlexLayout());
-        reviewsRV.setLayoutManager(new LinearLayoutManager(requireContext()));
+        favouritesAdapter = makeGameAdapter();
+        wantsToPlayAdapter = makeGameAdapter();
+        hasPlayedAdapter = makeGameAdapter();
 
-        expandFavourites.setOnClickListener(v -> {
+        // When the "+x more" cover is tapped, sync the expand button to the expanded state.
+        favouritesAdapter.setOnExpandClickListener(() -> {
+            favouritesExpanded = true;
+            rotateExpandButton(expandFavouritesBtn, true);
+        });
+        wantsToPlayAdapter.setOnExpandClickListener(() -> {
+            wantsToPlayExpanded = true;
+            rotateExpandButton(expandWantsToPlayBtn, true);
+        });
+        hasPlayedAdapter.setOnExpandClickListener(() -> {
+            hasPlayedExpanded = true;
+            rotateExpandButton(expandHasPlayedBtn, true);
+        });
+
+        favouriteGamesRV.setAdapter(favouritesAdapter);
+        wantsToPlayRV.setAdapter(wantsToPlayAdapter);
+        hasPlayedRV.setAdapter(hasPlayedAdapter);
+
+        expandFavouritesBtn.setOnClickListener(v -> {
             favouritesExpanded = !favouritesExpanded;
-            applyExpandState(favouriteGamesScroll, favouriteGamesExpandedRV,
-                    expandFavourites, favouritesExpanded);
+            favouritesAdapter.setCollapsed(!favouritesExpanded);
+            rotateExpandButton(expandFavouritesBtn, favouritesExpanded);
         });
-        expandWantsToPlay.setOnClickListener(v -> {
+        expandWantsToPlayBtn.setOnClickListener(v -> {
             wantsToPlayExpanded = !wantsToPlayExpanded;
-            applyExpandState(wantsToPlayScroll, wantsToPlayExpandedRV,
-                    expandWantsToPlay, wantsToPlayExpanded);
+            wantsToPlayAdapter.setCollapsed(!wantsToPlayExpanded);
+            rotateExpandButton(expandWantsToPlayBtn, wantsToPlayExpanded);
         });
-        expandHasPlayed.setOnClickListener(v -> {
+        expandHasPlayedBtn.setOnClickListener(v -> {
             hasPlayedExpanded = !hasPlayedExpanded;
-            applyExpandState(hasPlayedScroll, hasPlayedExpandedRV,
-                    expandHasPlayed, hasPlayedExpanded);
+            hasPlayedAdapter.setCollapsed(!hasPlayedExpanded);
+            rotateExpandButton(expandHasPlayedBtn, hasPlayedExpanded);
         });
+
+        reviewsRV = root.findViewById(R.id.reviews);
+        reviewsRV.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         // Wire the "See all / Show less" toggle for the reviews section.
         expandReviewsBtn = root.findViewById(R.id.expandReviews);
@@ -139,18 +161,21 @@ public abstract class BaseProfileFragment extends Fragment {
     }
 
     /*
-     * Binds all shared profile fields to the UI. Subclasses that have extra fields like email override this and call super first.
+     * Binds all shared profile fields to the UI. Subclasses that have extra fields
+     * like email override this and call super first.
      */
     protected void bindUser(DetailedUserEntity user) {
         usernameText.setText(user.getUsername());
         describtion.setText(user.getDescription() != null ? user.getDescription() : "");
-        followerCount.setText(user.getFollowerCount() + " Followers");
-        followingCount.setText(user.getFollowingCount() + " Following");
+
+        // Only the number is shown; the labels ("Followers" / "Following") are static in the layout.
+        followerCount.setText(String.valueOf(user.getFollowerCount()));
+        followingCount.setText(String.valueOf(user.getFollowingCount()));
 
         // Wire here (not in onViewCreated) because userId is only known after the network call.
         long userId = user.getId();
-        followerCount.setOnClickListener(v -> navigateToUserList(userId, "followers"));
-        followingCount.setOnClickListener(v -> navigateToUserList(userId, "following"));
+        followersColumn.setOnClickListener(v -> navigateToUserList(userId, "followers"));
+        followingColumn.setOnClickListener(v -> navigateToUserList(userId, "following"));
 
         String pictureUrl = user.getProfilePictureURL();
         boolean valid = pictureUrl != null && !pictureUrl.isEmpty() && !"null".equalsIgnoreCase(pictureUrl);
@@ -164,13 +189,25 @@ public abstract class BaseProfileFragment extends Fragment {
             profilePicture.setImageResource(android.R.drawable.ic_menu_myplaces);
         }
 
-        populateChipRow(favouriteGamesRow, user.getFavoriteGames());
-        populateChipRow(wantsToPlayRow, user.getWantToPlayGames());
-        populateChipRow(hasPlayedRow, user.getHavePlayedGames());
+        // Reset collapse state and load fresh data into each game adapter.
+        favouritesExpanded = false;
+        wantsToPlayExpanded = false;
+        hasPlayedExpanded = false;
+        resetExpandButton(expandFavouritesBtn);
+        resetExpandButton(expandWantsToPlayBtn);
+        resetExpandButton(expandHasPlayedBtn);
 
-        favouriteGamesExpandedRV.setAdapter(makeGameAdapter(user.getFavoriteGames()));
-        wantsToPlayExpandedRV.setAdapter(makeGameAdapter(user.getWantToPlayGames()));
-        hasPlayedExpandedRV.setAdapter(makeGameAdapter(user.getHavePlayedGames()));
+        favouritesAdapter.setCollapsed(true);
+        favouritesAdapter.setData(user.getFavoriteGames());
+        bindEmptyState(emptyFavourites, expandFavouritesBtn, user.getFavoriteGames().isEmpty());
+
+        wantsToPlayAdapter.setCollapsed(true);
+        wantsToPlayAdapter.setData(user.getWantToPlayGames());
+        bindEmptyState(emptyWantsToPlay, expandWantsToPlayBtn, user.getWantToPlayGames().isEmpty());
+
+        hasPlayedAdapter.setCollapsed(true);
+        hasPlayedAdapter.setData(user.getHavePlayedGames());
+        bindEmptyState(emptyHasPlayed, expandHasPlayedBtn, user.getHavePlayedGames().isEmpty());
 
         // Build the review adapter in collapsed state (shows first 3 reviews only).
         // The "See all" button is only shown when there are more than 3 reviews.
@@ -182,74 +219,34 @@ public abstract class BaseProfileFragment extends Fragment {
         expandReviewsBtn.setVisibility(hasMoreReviews ? View.VISIBLE : View.GONE);
     }
 
-    private FlexboxLayoutManager makeFlexLayout() {
-        FlexboxLayoutManager flex = new FlexboxLayoutManager(requireContext());
-        flex.setFlexDirection(FlexDirection.ROW);
-        flex.setFlexWrap(FlexWrap.WRAP);
-        flex.setJustifyContent(JustifyContent.FLEX_START);
-        return flex;
+    // Shows the empty label and hides the expand arrow when a list has no items, and vice versa.
+    private void bindEmptyState(TextView emptyLabel, TextView expandBtn, boolean isEmpty) {
+        emptyLabel.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+        expandBtn.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
     }
 
-    private void applyExpandState(View scrollView, View expandedView,
-                                  TextView expandBtn, boolean expanded) {
-        if (expanded) {
-            animateOut(expandedView, () -> {
-                expandedView.setVisibility(View.GONE);
-                scrollView.setVisibility(View.VISIBLE);
-                animateIn(scrollView);
-            });
-        } else {
-            animateOut(scrollView, () -> {
-                scrollView.setVisibility(View.GONE);
-                expandedView.setVisibility(View.VISIBLE);
-                animateIn(expandedView);
-            });
-        }
+    private SimpleGameAdapter makeGameAdapter() {
+        SimpleGameAdapter adapter = new SimpleGameAdapter();
+        adapter.setOnGameClickListener(this::navigateToGame);
+        return adapter;
+    }
 
+    // Rotates the ▼ button to indicate expanded (rotated) or collapsed (upright) state.
+    private void rotateExpandButton(TextView btn, boolean expanded) {
         android.view.animation.RotateAnimation rotate = new android.view.animation.RotateAnimation(
-                expanded ? 180f : 0f, expanded ? 0f : 180f,
+                expanded ? 0f : 180f, expanded ? 180f : 0f,
                 android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f,
                 android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f);
         rotate.setDuration(300);
         rotate.setFillAfter(true);
         rotate.setInterpolator(new android.view.animation.DecelerateInterpolator(1.5f));
-        expandBtn.startAnimation(rotate);
-        expandBtn.setText(expanded ? "▼" : "—");
+        btn.startAnimation(rotate);
     }
 
-    private void animateIn(View view) {
-        view.setAlpha(0f);
-        view.setTranslationY(-12f);
-        view.animate().alpha(1f).translationY(0f).setDuration(280)
-                .setInterpolator(new android.view.animation.DecelerateInterpolator(1.5f)).start();
-    }
-
-    private void animateOut(View view, Runnable onEnd) {
-        view.animate().alpha(0f).translationY(-8f).setDuration(200)
-                .setInterpolator(new android.view.animation.AccelerateInterpolator(1.5f))
-                .withEndAction(() -> {
-                    view.setAlpha(1f);
-                    view.setTranslationY(0f);
-                    onEnd.run();
-                }).start();
-    }
-
-    private void populateChipRow(LinearLayout row, List<SimpleGameEntity> games) {
-        row.removeAllViews();
-        LayoutInflater inflater = LayoutInflater.from(requireContext());
-        for (SimpleGameEntity game : games) {
-            TextView chip = (TextView) inflater.inflate(R.layout.item_chip_game, row, false);
-            chip.setText(game.getTitle());
-            chip.setOnClickListener(v -> navigateToGame(game.getId()));
-            row.addView(chip);
-        }
-    }
-
-    private SimpleGameAdapter makeGameAdapter(List<SimpleGameEntity> games) {
-        SimpleGameAdapter adapter = new SimpleGameAdapter();
-        adapter.setOnGameClickListener(this::navigateToGame);
-        adapter.setData(games);
-        return adapter;
+    // Resets a button to the upright (collapsed) visual state without animation.
+    private void resetExpandButton(TextView btn) {
+        btn.clearAnimation();
+        btn.setRotation(0f);
     }
 
     protected void navigateToGame(long gameId) {
@@ -265,7 +262,7 @@ public abstract class BaseProfileFragment extends Fragment {
         Navigation.findNavController(requireView()).navigate(R.id.navigation_user_list, args);
     }
 
-    // clear view properties, subclasses null their own binding afterwards
+    // Clear view references; subclasses null their own binding afterwards.
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -275,16 +272,18 @@ public abstract class BaseProfileFragment extends Fragment {
         describtion = null;
         followerCount = null;
         followingCount = null;
-        favouriteGamesExpandedRV = null;
-        wantsToPlayExpandedRV = null;
-        hasPlayedExpandedRV = null;
+        followersColumn = null;
+        followingColumn = null;
         reviewsRV = null;
         expandReviewsBtn = null;
-        favouriteGamesScroll = null;
-        wantsToPlayScroll = null;
-        hasPlayedScroll = null;
-        favouriteGamesRow = null;
-        wantsToPlayRow = null;
-        hasPlayedRow = null;
+        expandFavouritesBtn = null;
+        expandWantsToPlayBtn = null;
+        expandHasPlayedBtn = null;
+        favouritesAdapter = null;
+        wantsToPlayAdapter = null;
+        hasPlayedAdapter = null;
+        emptyFavourites = null;
+        emptyWantsToPlay = null;
+        emptyHasPlayed = null;
     }
 }

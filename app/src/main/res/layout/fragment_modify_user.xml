@@ -1,68 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="24dp">
 
+    <!-- Profile picture centred at top, no overlaid button -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginBottom="20dp">
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginBottom="36dp">
 
-        <FrameLayout
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginEnd="16dp">
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/profile_image"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:scaleType="centerCrop"
+            android:src="@android:drawable/ic_menu_gallery"
+            app:shapeAppearanceOverlay="@style/CircleImageView"
+            android:layout_marginBottom="12dp"
+            android:contentDescription="Profile picture" />
 
-            <ImageView
-                android:id="@+id/profile_image"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@android:drawable/ic_menu_gallery"
-                android:background="@android:color/darker_gray" />
-
-            <Button
-                android:id="@+id/btn_change_pic"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:text="Change"
-                android:textSize="10sp"
-                android:alpha="0.8" />
-        </FrameLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- "Change Photo" tap target -->
+        <TextView
+            android:id="@+id/btn_change_pic"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:text="Change Photo"
+            android:textSize="14sp"
+            android:textColor="?attr/colorPrimary"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackgroundBorderless" />
 
-            <EditText
-                android:id="@+id/nameInput"
-                android:layout_width="match_parent"
-                android:layout_height="61dp"
-                android:hint="Change Name"
-                android:inputType="textPersonName" />
-
-        </LinearLayout>
     </LinearLayout>
+
+    <!-- Username field — iOS-style: label above, bottom-line only -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="USERNAME"
+        android:textSize="11sp"
+        android:letterSpacing="0.08"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:layout_marginBottom="4dp" />
+
+    <EditText
+        android:id="@+id/nameInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Your username"
+        android:inputType="textPersonName"
+        android:background="@null"
+        android:paddingTop="8dp"
+        android:paddingBottom="10dp"
+        android:textSize="16sp" />
+
+    <!-- Bottom separator line -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="?attr/colorOutline"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Bio field -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="BIO"
+        android:textSize="11sp"
+        android:letterSpacing="0.08"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:layout_marginBottom="4dp" />
 
     <EditText
         android:id="@+id/descriptionInput"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:hint="Profile Description"
+        android:layout_height="wrap_content"
+        android:minHeight="100dp"
+        android:hint="Tell others about yourself"
         android:gravity="top"
         android:inputType="textMultiLine"
-        android:background="@android:drawable/editbox_background"
-        android:padding="8dp" />
+        android:background="@null"
+        android:paddingTop="8dp"
+        android:paddingBottom="10dp"
+        android:textSize="16sp" />
 
+    <!-- Bottom separator line -->
     <View
         android:layout_width="match_parent"
-        android:layout_height="337dp"
+        android:layout_height="0.5dp"
+        android:background="?attr/colorOutline" />
+
+    <!-- Flexible spacer pushes Save to the bottom -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1" />
 
     <Button

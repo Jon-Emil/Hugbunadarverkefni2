@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
@@ -8,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp">
 
         <ProgressBar
             android:id="@+id/profileProgressBar"
@@ -17,14 +18,15 @@
             android:layout_gravity="center_horizontal"
             android:visibility="gone" />
 
-        <!-- Profile Picture -->
-        <ImageView
+        <!-- Profile picture — circular, centred -->
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/profilePicture"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="16dp"
             android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/CircleImageView"
             android:contentDescription="Profile picture" />
 
         <!-- Username -->
@@ -33,43 +35,79 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:textSize="24sp"
+            android:textSize="22sp"
             android:textStyle="bold"
             android:text="" />
 
-        <!-- Follower / Following counts (clickable) -->
+        <!-- Follower / Following stat row — number above, label below -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp">
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp">
 
-            <TextView
-                android:id="@+id/followerCount"
+            <LinearLayout
+                android:id="@+id/followersColumn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:layout_marginEnd="16dp"
-                android:textColor="?attr/colorPrimary"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:padding="12dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:padding="4dp"
-                android:text="0 Followers" />
+                android:foreground="?attr/selectableItemBackground">
 
-            <TextView
-                android:id="@+id/followingCount"
+                <TextView
+                    android:id="@+id/followerCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface"
+                    android:text="0" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:text="Followers" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="32dp"
+                android:background="?attr/colorOutline" />
+
+            <LinearLayout
+                android:id="@+id/followingColumn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:textColor="?attr/colorPrimary"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:padding="12dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:padding="4dp"
-                android:text="0 Following" />
+                android:foreground="?attr/selectableItemBackground">
+
+                <TextView
+                    android:id="@+id/followingCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnSurface"
+                    android:text="0" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:text="Following" />
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -78,25 +116,33 @@
             android:id="@+id/describtion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="15sp"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="12dp"
+            android:textSize="14sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="20dp"
             android:text="" />
 
-        <!-- Favourite Games -->
+        <!-- ── Favourite Games ─────────────────────────── -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="?attr/colorOutline"
+            android:layout_marginBottom="12dp" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="6dp">
+            android:layout_marginBottom="8dp">
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Favourite Games"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:text="FAVORITE GAMES"
+                android:textSize="12sp"
+                android:letterSpacing="0.08"
+                android:textColor="?attr/colorOnSurfaceVariant" />
             <TextView
                 android:id="@+id/expandFavourites"
                 android:layout_width="wrap_content"
@@ -109,42 +155,45 @@
                 android:focusable="true" />
         </LinearLayout>
 
-        <HorizontalScrollView
-            android:id="@+id/favouriteGamesScroll"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scrollbars="none"
-            android:layout_marginBottom="16dp">
-            <LinearLayout
-                android:id="@+id/favouriteGamesRow"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingEnd="8dp" />
-        </HorizontalScrollView>
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/favouriteGamesExpanded"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="false"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/emptyFavourites"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No favourite games yet"
+            android:textSize="13sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:paddingTop="4dp"
+            android:paddingBottom="16dp"
             android:visibility="gone" />
 
-        <!-- Wants to Play -->
+        <!-- ── Want to Play ────────────────────────────── -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="?attr/colorOutline"
+            android:layout_marginBottom="12dp" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="6dp">
+            android:layout_marginBottom="8dp">
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Want to Play"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:text="WANT TO PLAY"
+                android:textSize="12sp"
+                android:letterSpacing="0.08"
+                android:textColor="?attr/colorOnSurfaceVariant" />
             <TextView
                 android:id="@+id/expandWantsToPlay"
                 android:layout_width="wrap_content"
@@ -157,42 +206,45 @@
                 android:focusable="true" />
         </LinearLayout>
 
-        <HorizontalScrollView
-            android:id="@+id/wantsToPlayScroll"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scrollbars="none"
-            android:layout_marginBottom="16dp">
-            <LinearLayout
-                android:id="@+id/wantsToPlayRow"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingEnd="8dp" />
-        </HorizontalScrollView>
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/wantsToPlayExpanded"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="false"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/emptyWantsToPlay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No want-to-play games yet"
+            android:textSize="13sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:paddingTop="4dp"
+            android:paddingBottom="16dp"
             android:visibility="gone" />
 
-        <!-- Has Played -->
+        <!-- ── HaS Played ─────────────────────────────── -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="?attr/colorOutline"
+            android:layout_marginBottom="12dp" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="6dp">
+            android:layout_marginBottom="8dp">
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Have Played"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:text="HAS PLAYED"
+                android:textSize="12sp"
+                android:letterSpacing="0.08"
+                android:textColor="?attr/colorOnSurfaceVariant" />
             <TextView
                 android:id="@+id/expandHasPlayed"
                 android:layout_width="wrap_content"
@@ -205,42 +257,45 @@
                 android:focusable="true" />
         </LinearLayout>
 
-        <HorizontalScrollView
-            android:id="@+id/hasPlayedScroll"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scrollbars="none"
-            android:layout_marginBottom="16dp">
-            <LinearLayout
-                android:id="@+id/hasPlayedRow"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingEnd="8dp" />
-        </HorizontalScrollView>
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/hasPlayedExpanded"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="false"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/emptyHasPlayed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No have-played games yet"
+            android:textSize="13sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:paddingTop="4dp"
+            android:paddingBottom="16dp"
             android:visibility="gone" />
 
-        <!-- Reviews -->
+        <!-- ── Reviews ─────────────────────────────────── -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="?attr/colorOutline"
+            android:layout_marginBottom="12dp" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="6dp">
+            android:layout_marginBottom="8dp">
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Reviews"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:text="REVIEWS"
+                android:textSize="12sp"
+                android:letterSpacing="0.08"
+                android:textColor="?attr/colorOnSurfaceVariant" />
             <TextView
                 android:id="@+id/expandReviews"
                 android:layout_width="wrap_content"

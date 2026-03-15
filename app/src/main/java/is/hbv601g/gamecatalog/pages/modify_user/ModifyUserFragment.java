@@ -29,8 +29,6 @@ public class ModifyUserFragment extends Fragment {
 
     private FragmentModifyUserBinding binding;
     private ModifyUserViewModel viewModel;
-    private OnBackPressedCallback backPressedCallback;
-
     // URI of the cropped image ready to upload; null if user has not picked one
     private Uri croppedImageUri = null;
 
@@ -244,26 +242,29 @@ public class ModifyUserFragment extends Fragment {
     }
 
     private void setupBackHandler() {
-        backPressedCallback = new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (binding != null) handleBackPress();
-            }
-        };
-        requireActivity().getOnBackPressedDispatcher().addCallback(backPressedCallback);
+        // Bind to the view lifecycle owner so the callback is properly forwarded to
+        // OnBackInvokedDispatcher on API 34+ (required for swipe-back gesture to work).
+        requireActivity().getOnBackPressedDispatcher().addCallback(
+                getViewLifecycleOwner(),
+                new OnBackPressedCallback(true) {
+                    @Override
+                    public void handleOnBackPressed() {
+                        if (binding != null) handleBackPress();
+                    }
+                });
 
+        // Route toolbar up-arrow through the same dispatcher so the dialog shows there too.
         Toolbar toolbar = requireActivity().findViewById(R.id.toolbar);
         if (toolbar != null) {
-            toolbar.setNavigationOnClickListener(v -> handleBackPress());
+            toolbar.setNavigationOnClickListener(v ->
+                    requireActivity().getOnBackPressedDispatcher().onBackPressed());
         }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (backPressedCallback != null) {
-            backPressedCallback.remove();
-        }
+        // Restore default toolbar navigation so other fragments are not affected.
         Toolbar toolbar = requireActivity().findViewById(R.id.toolbar);
         if (toolbar != null) {
             toolbar.setNavigationOnClickListener(null);
