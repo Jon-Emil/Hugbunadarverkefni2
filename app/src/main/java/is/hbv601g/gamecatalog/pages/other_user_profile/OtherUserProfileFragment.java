@@ -41,6 +41,32 @@ public class OtherUserProfileFragment extends BaseProfileFragment {
 
         initSharedViews(view);
 
+
+        //Button logic, similar to how collection buttons work in specific game
+        viewModel.getIsProcessingFollow().observe(getViewLifecycleOwner(), isProcessing -> {
+            binding.followButton.setEnabled(!isProcessing);
+
+            if(isProcessing){
+                binding.followButton.setText("Loading...");
+            }
+        });
+
+        viewModel.getIsFollowing().observe(getViewLifecycleOwner(), isFollowing -> {
+            binding.followButton.setText(isFollowing ? "Unfollow" : "Follow");
+        });
+
+        binding.followButton.setOnClickListener(v ->{
+            Boolean isFollowing = viewModel.getIsFollowing().getValue();
+            if(isFollowing != null ? isFollowing : false){
+                viewModel.unfollowUser(userId);
+            }
+            else{
+                viewModel.followUser(userId);
+            }
+        });
+
+
+
         viewModel.getIsLoading().observe(getViewLifecycleOwner(), this::setLoading);
 
         viewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {

@@ -16,6 +16,7 @@ import is.hbv601g.gamecatalog.entities.game.SimpleGameEntity;
 import is.hbv601g.gamecatalog.entities.review.SimpleReviewEntity;
 import is.hbv601g.gamecatalog.entities.user.DetailedUserEntity;
 import is.hbv601g.gamecatalog.entities.user.SimpleUserEntity;
+import is.hbv601g.gamecatalog.helpers.EmptyCallBack;
 import is.hbv601g.gamecatalog.helpers.JSONArrayHelper;
 import is.hbv601g.gamecatalog.helpers.JSONObjectHelper;
 import is.hbv601g.gamecatalog.helpers.ServiceCallback;
@@ -309,6 +310,44 @@ public class UserService {
             @Override
             public void onError(Exception e) {
                 callback.onError(e);
+            }
+        });
+    }
+
+    //Follow user
+    public void followUser(long userId, EmptyCallBack callback) {
+        String url = "/users/" + userId + "/follow";
+        networkService.postRequest(url,"", new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onError(e);
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    callback.onSuccess();
+                } catch (Exception e) {
+                    callback.onError(e);
+                }
+            }
+        });
+    }
+
+    //Unfollow user
+    public void unfollowUser(long userId, EmptyCallBack callback) {
+        String url = "/users/" + userId + "/follow";
+        networkService.deleteRequest(url, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onError(e);
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    callback.onSuccess();
+                } catch (Exception e) {
+                    callback.onError(e);
+                }
             }
         });
     }
