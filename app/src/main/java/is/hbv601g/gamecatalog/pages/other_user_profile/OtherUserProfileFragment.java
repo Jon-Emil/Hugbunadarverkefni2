@@ -37,12 +37,28 @@ public class OtherUserProfileFragment extends BaseProfileFragment {
 
         viewModel = new ViewModelProvider(this).get(OtherUserProfileViewModel.class);
 
-        long userId = getArguments() != null ? getArguments().getLong("user_id") : -1;
+        //catch args missing error to prevent crash
+        Bundle args = getArguments();
+        if(args == null || !args.containsKey("user_id")) {
+            throw new IllegalArgumentException("Missing userId argument");
+        }
+        long userId = args.getLong("user_id");
+
+        //long userId = getArguments() != null ? getArguments().getLong("user_id") : -1;
 
         initSharedViews(view);
 
+        viewModel.init(userId);
+
 
         //Button logic, similar to how collection buttons work in specific game
+        binding.followButton.setVisibility(View.GONE);
+        viewModel.getUserAndProfilexist().observe(getViewLifecycleOwner(), doExist -> {
+            if (doExist) {
+                binding.followButton.setVisibility(View.VISIBLE);
+            }
+        });
+
         viewModel.getIsProcessingFollow().observe(getViewLifecycleOwner(), isProcessing -> {
             binding.followButton.setEnabled(!isProcessing);
 
@@ -77,8 +93,6 @@ public class OtherUserProfileFragment extends BaseProfileFragment {
         });
 
         viewModel.getUser().observe(getViewLifecycleOwner(), this::bindUser);
-
-        if (userId != -1) viewModel.loadProfile(userId);
     }
 
     @Override

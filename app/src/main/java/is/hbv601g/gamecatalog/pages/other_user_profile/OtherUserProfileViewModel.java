@@ -6,9 +6,14 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import java.util.List;
+import java.util.Objects;
+
 import is.hbv601g.gamecatalog.entities.user.DetailedUserEntity;
+import is.hbv601g.gamecatalog.entities.user.SimpleUserEntity;
 import is.hbv601g.gamecatalog.helpers.EmptyCallBack;
 import is.hbv601g.gamecatalog.helpers.ServiceCallback;
 import is.hbv601g.gamecatalog.services.NetworkService;
@@ -32,17 +37,31 @@ public class OtherUserProfileViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> isFollowing = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isProcessingFollow = new MutableLiveData<>(true);
 
-    public LiveData<Boolean> getIsFollowing() { return isFollowing; }
+    public MutableLiveData<Boolean> getIsFollowing() { return isFollowing; }
     public MutableLiveData<Boolean> getIsProcessingFollow() { return isProcessingFollow; }
+
+    private final MediatorLiveData<Boolean> userAndProfileExist = new MediatorLiveData<>(false);
+    public MediatorLiveData<Boolean> getUserAndProfilexist() { return userAndProfileExist; }
+
+    private boolean followingStateInitialized = false;
+
 
     public OtherUserProfileViewModel(@NonNull Application application) {
         super(application);
         userService = new UserService(new NetworkService(application));
-
-        //Initialize following status
-        isFollowing.postValue(checkFollowStatus());
-        isProcessingFollow.postValue(false);
     }
+
+    //An init function like other viewmodels have to initialize following status.
+    public void init(long viewedUserID){
+        //Initialize following status
+        userAndProfileExist.addSource(user, u -> tryInitializingFollowState());
+        userAndProfileExist.addSource(loggedInUser, lu -> tryInitializingFollowState());
+
+        loadProfile(viewedUserID);
+        fetchLoggedInUser();
+    }
+
+
 
     public LiveData<DetailedUserEntity> getUser() { return user; }
     public LiveData<String> getErrorMessage() { return errorMessage; }
@@ -91,6 +110,7 @@ public class OtherUserProfileViewModel extends AndroidViewModel {
                 isProcessingFollow.postValue(false);
             }
         });
+        //Could be buggy
         loadProfile(userId); //Updates following amount
     }
 
@@ -110,14 +130,38 @@ public class OtherUserProfileViewModel extends AndroidViewModel {
                 isProcessingFollow.postValue(false);
             }
         });
+        //Could be buggy
         loadProfile(userId); //Updates following amount
     }
 
-    public boolean checkFollowStatus() {
-        fetchLoggedInUser();
-        if(loggedInUser.getValue() == null) {
+    private boolean isUserFollowing() {
+        if (user.getValue() == null) {
             return false;
         }
-        return loggedInUser.getValue().getFollowingList().contains(user.getValue().getId());
+        if (loggedInUser.getValue() == null) {
+            return false;
+        }
+        List<SimpleUserEntity> followingList = loggedInUser.getValue().getFollowingList();
+        for (SimpleUserEntity user : followingList) {
+            if (Objects.equals(user.getId(), this.user.getValue().getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void tryInitializingFollowState() {
+        if(followingStateInitialized) {
+            return;
+        }
+        if(loggedInUser.getValue() == null || user.getValue() == null) {
+            return;
+        }
+        followingStateInitialized = true;
+
+        isFollowing.postValue(isUserFollowing());
+        isProcessingFollow.postValue(false);
+        userAndProfileExist.postValue(true);
+
     }
 }
