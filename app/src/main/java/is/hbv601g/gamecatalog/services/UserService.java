@@ -1,5 +1,6 @@
 package is.hbv601g.gamecatalog.services;
 
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -12,12 +13,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import is.hbv601g.gamecatalog.entities.extras.AdvancedSearchParameters;
+import is.hbv601g.gamecatalog.entities.game.ListedGameEntity;
 import is.hbv601g.gamecatalog.entities.game.SimpleGameEntity;
 import is.hbv601g.gamecatalog.entities.review.SimpleReviewEntity;
 import is.hbv601g.gamecatalog.entities.user.DetailedUserEntity;
 import is.hbv601g.gamecatalog.entities.user.SimpleUserEntity;
 import is.hbv601g.gamecatalog.helpers.JSONArrayHelper;
 import is.hbv601g.gamecatalog.helpers.JSONObjectHelper;
+import is.hbv601g.gamecatalog.helpers.PaginatedCallback;
 import is.hbv601g.gamecatalog.helpers.ServiceCallback;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -313,4 +317,44 @@ public class UserService {
         });
     }
 
+    public void getSearchedUsers(
+            String usernameParam,
+            int page,
+            String sortBy,
+            boolean sortReverse,
+            PaginatedCallback<SimpleUserEntity> callback
+    ) {
+        // safe way to make urls with user parameters
+        Uri.Builder builder = new Uri.Builder()
+                .path("users/search")
+                .appendQueryParameter("username", usernameParam)
+                .appendQueryParameter("pageNr", String.valueOf(page))
+                .appendQueryParameter("sortBy", sortBy)
+                .appendQueryParameter("sortReverse", String.valueOf(sortReverse));
+
+        String finalUrl = "/" + builder.build().toString();
+
+        networkService.getRequest(finalUrl, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onError(e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    String body = response.body().string();
+                    JSONObject json = new JSONObject(body);
+                    JSONArray jsonArray = json.getJSONArray("data");
+                    List<SimpleUserEntity> fetchedUsers = JSONArrayHelper.makeUserList(jsonArray);
+                    int perPage = json.getInt("perPage");
+                    int total = json.getInt("total");
+                    int pageAmount = (total / perPage) + 1;
+                    callback.onSuccess(fetchedUsers, pageAmount);
+                } catch (Exception e) {
+                    callback.onError(e);
+                }
+            }
+        });
+    }
 }
