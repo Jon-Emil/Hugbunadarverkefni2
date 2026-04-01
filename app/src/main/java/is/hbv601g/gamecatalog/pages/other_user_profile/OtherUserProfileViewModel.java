@@ -49,14 +49,17 @@ public class OtherUserProfileViewModel extends AndroidViewModel {
     public OtherUserProfileViewModel(@NonNull Application application) {
         super(application);
         userService = new UserService(new NetworkService(application));
+
+        //Add sources to MediatorLiveData to check if user and profile exist to enable follow button
+        userAndProfileExist.addSource(user, u -> tryInitializingFollowState());
+        userAndProfileExist.addSource(loggedInUser, lu -> tryInitializingFollowState());
     }
 
     //An init function like other viewmodels have to initialize following status.
     public void init(long viewedUserID){
-        //Initialize following status
-        userAndProfileExist.addSource(user, u -> tryInitializingFollowState());
-        userAndProfileExist.addSource(loggedInUser, lu -> tryInitializingFollowState());
+        followingStateInitialized = false;
 
+        //Fetch logged-in user to check if user is following
         loadProfile(viewedUserID);
         fetchLoggedInUser();
     }
@@ -100,6 +103,21 @@ public class OtherUserProfileViewModel extends AndroidViewModel {
             @Override
             public void onSuccess() {
                 isFollowing.postValue(true);
+                //Update viewed user follower count dynamically instead of just fetching profile again
+                //Code inspired by ChatGPT
+                DetailedUserEntity viewed = user.getValue();
+                if (viewed != null) {
+                    viewed.setFollowerCount(viewed.getFollowerCount() + 1);
+                    user.postValue(viewed);
+                }
+                //Update logged-in user following list dynamically instead of just fetching profile again
+                //Code inspired by ChatGPT
+                DetailedUserEntity current = loggedInUser.getValue();
+                if (current != null) {
+                    current.getFollowingList().add(new SimpleUserEntity(userId, viewed.getUsername(), viewed.getProfilePictureURL(), viewed.getDescription()));
+                    loggedInUser.postValue(current);
+                }
+
                 isProcessingFollow.postValue(false);
             }
 
@@ -110,8 +128,6 @@ public class OtherUserProfileViewModel extends AndroidViewModel {
                 isProcessingFollow.postValue(false);
             }
         });
-        //Could be buggy
-        loadProfile(userId); //Updates following amount
     }
 
     public void unfollowUser(long userId) {
@@ -120,6 +136,23 @@ public class OtherUserProfileViewModel extends AndroidViewModel {
             @Override
             public void onSuccess() {
                 isFollowing.postValue(false);
+
+                //Update viewed user follower count dynamically instead of just fetching profile again
+                //Code inspired by ChatGPT
+                DetailedUserEntity viewed = user.getValue();
+                if (viewed != null) {
+                    viewed.setFollowerCount(viewed.getFollowerCount() - 1);
+                    user.postValue(viewed);
+                }
+
+                //Update logged-in user following list dynamically instead of just fetching profile again
+                //Code inspired by ChatGPT
+                DetailedUserEntity current = loggedInUser.getValue();
+                if (current != null) {
+                    current.getFollowingList().removeIf(u -> Objects.equals(u.getId(), userId));
+                    loggedInUser.postValue(current);
+                }
+
                 isProcessingFollow.postValue(false);
             }
 
@@ -130,8 +163,6 @@ public class OtherUserProfileViewModel extends AndroidViewModel {
                 isProcessingFollow.postValue(false);
             }
         });
-        //Could be buggy
-        loadProfile(userId); //Updates following amount
     }
 
     private boolean isUserFollowing() {

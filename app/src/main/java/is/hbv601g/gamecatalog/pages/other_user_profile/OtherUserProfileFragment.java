@@ -44,10 +44,9 @@ public class OtherUserProfileFragment extends BaseProfileFragment {
         }
         long userId = args.getLong("user_id");
 
-        //long userId = getArguments() != null ? getArguments().getLong("user_id") : -1;
-
         initSharedViews(view);
 
+        //This loads the profile data for the user by calling viemodel method
         viewModel.init(userId);
 
 
@@ -68,6 +67,7 @@ public class OtherUserProfileFragment extends BaseProfileFragment {
         });
 
         viewModel.getIsFollowing().observe(getViewLifecycleOwner(), isFollowing -> {
+            if (isFollowing == null) return;
             binding.followButton.setText(isFollowing ? "Unfollow" : "Follow");
         });
 
