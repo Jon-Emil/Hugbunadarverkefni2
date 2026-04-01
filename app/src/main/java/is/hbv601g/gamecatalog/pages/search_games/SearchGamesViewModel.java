@@ -135,8 +135,13 @@ public class SearchGamesViewModel extends ViewModel {
             @Override
             public void onSuccess(List<ListedGameEntity> fetchedGames, int newPageAmount) {
                 games.postValue(fetchedGames);
+                Integer currPage = currentPage.getValue();
                 pageAmount.postValue(newPageAmount);
                 isLoading.postValue(false);
+                if (currPage != null && currPage > newPageAmount) {
+                    currentPage.postValue(newPageAmount);
+                    fetchGames(newPageAmount);
+                }
             }
         });
     }

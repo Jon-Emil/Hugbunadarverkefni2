@@ -117,8 +117,13 @@ public class SearchUsersViewModel extends ViewModel {
             @Override
             public void onSuccess(List<SimpleUserEntity> fetchedUsers, int newPageAmount) {
                 users.postValue(fetchedUsers);
+                Integer currPage = currentPage.getValue();
                 pageAmount.postValue(newPageAmount);
                 isLoading.postValue(false);
+                if (currPage != null && currPage > newPageAmount) {
+                    currentPage.postValue(newPageAmount);
+                    fetchUsers(newPageAmount);
+                }
             }
         });
     }
