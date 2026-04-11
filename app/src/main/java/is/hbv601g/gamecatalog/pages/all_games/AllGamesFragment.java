@@ -56,6 +56,11 @@ public class AllGamesFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
+        binding.swipeRefreshLayout.setOnRefreshListener( () -> {
+            viewModel.refreshPage();
+        } );
+
         //Check network status
         if(!InternetHelper.networkDetected(requireContext())){
             //Switch to offline mode if offline
@@ -99,6 +104,8 @@ public class AllGamesFragment extends Fragment {
             viewModel.getPageAmount().observe(getViewLifecycleOwner(), this::updatePageInfo);
 
             viewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
+
+                binding.swipeRefreshLayout.setRefreshing(isLoading);
                 binding.nextPage.setEnabled(!isLoading);
                 binding.previousPage.setEnabled(!isLoading);
                 if (isLoading) {
@@ -120,9 +127,14 @@ public class AllGamesFragment extends Fragment {
             });
 
             binding.gameListRetryButton.setOnClickListener(v -> {
-                binding.gameListErrorContainer.setVisibility(View.GONE);
-                binding.gameRecycler.setVisibility(View.VISIBLE);
-                viewModel.refreshPage();
+                if (!InternetHelper.networkDetected(requireContext())) {
+                    NavController navController = Navigation.findNavController(requireView());
+                    navController.navigate(R.id.navigation_offline_all_games);
+                } else {
+                    binding.gameListErrorContainer.setVisibility(View.GONE);
+                    binding.gameRecycler.setVisibility(View.VISIBLE);
+                    viewModel.refreshPage();
+                }
             });
         }
     }

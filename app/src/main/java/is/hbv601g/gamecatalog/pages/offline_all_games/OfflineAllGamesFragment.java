@@ -24,6 +24,7 @@ import is.hbv601g.gamecatalog.databinding.FragmentOfflineAllGamesBinding;
 import is.hbv601g.gamecatalog.entities.game.CachedGame;
 import is.hbv601g.gamecatalog.entities.game.ListedGameEntity;
 import is.hbv601g.gamecatalog.dao.CachedGameDao;
+import is.hbv601g.gamecatalog.helpers.InternetHelper;
 
 public class OfflineAllGamesFragment extends Fragment {
     private OfflineAllGamesViewModel viewModel;
@@ -76,12 +77,23 @@ public class OfflineAllGamesFragment extends Fragment {
 
         viewModel.getGames().observe(getViewLifecycleOwner(), this::updateGamesInfo);
 
+        binding.swipeRefreshLayout.setOnRefreshListener(() -> {
+            if (InternetHelper.networkDetected(requireContext())) {
+                NavController navController = Navigation.findNavController(requireView());
+                navController.navigate(R.id.navigation_home);
+            } else {
+                viewModel.refreshPage();
+            }
+        });
+
+
         viewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            binding.swipeRefreshLayout.setRefreshing(isLoading);
+
             if (isLoading) {
-                binding.loadingIndicator.setVisibility(View.VISIBLE);
+                binding.loadingIndicator.setVisibility(View.GONE);
                 binding.gameRecycler.setAlpha(0.3f);
             } else {
-                binding.loadingIndicator.setVisibility(View.GONE);
                 binding.gameRecycler.setAlpha(1f);
             }
         });
