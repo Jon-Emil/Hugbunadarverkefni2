@@ -72,7 +72,8 @@ public class MainActivity extends AppCompatActivity {
                 R.id.navigation_home,
                 R.id.navigation_login,
                 R.id.navigation_search_games,
-                R.id.navigation_profile
+                R.id.navigation_profile,
+                R.id.navigation_search_users
         ).setOpenableLayout(drawerLayout)
                 .build();
 

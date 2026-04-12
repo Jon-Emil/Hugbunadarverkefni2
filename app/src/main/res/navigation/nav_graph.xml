@@ -33,6 +33,13 @@
         tools:layout="@layout/fragment_personal_profile" />
 
     <fragment
+        android:id="@+id/navigation_search_users"
+        android:name="is.hbv601g.gamecatalog.pages.search_users.SearchUsersFragment"
+        android:label="Search Users"
+        tools:layout="@layout/fragment_search_users"
+        />
+
+    <fragment
         android:id="@+id/navigation_specific_game"
         android:name="is.hbv601g.gamecatalog.pages.specific_game.SpecificGameFragment"
         android:label="Game Details">

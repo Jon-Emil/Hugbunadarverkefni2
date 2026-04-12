@@ -1,4 +1,4 @@
-package is.hbv601g.gamecatalog.pages.search_games;
+package is.hbv601g.gamecatalog.pages.search_users;
 
 import android.util.Log;
 
@@ -17,46 +17,40 @@ import is.hbv601g.gamecatalog.entities.extras.AdvancedSearchParameters;
 import is.hbv601g.gamecatalog.entities.game.ListedGameEntity;
 import is.hbv601g.gamecatalog.entities.genre.ListedGenreEntity;
 import is.hbv601g.gamecatalog.entities.genre.SimpleGenreEntity;
+import is.hbv601g.gamecatalog.entities.user.SimpleUserEntity;
 import is.hbv601g.gamecatalog.helpers.JSONArrayHelper;
 import is.hbv601g.gamecatalog.helpers.PaginatedCallback;
 import is.hbv601g.gamecatalog.helpers.ServiceCallback;
-import is.hbv601g.gamecatalog.services.GameService;
+import is.hbv601g.gamecatalog.services.UserService;
 import is.hbv601g.gamecatalog.services.GenreService;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class SearchGamesViewModel extends ViewModel {
+public class SearchUsersViewModel extends ViewModel {
 
-    private final MutableLiveData<List<ListedGameEntity>> games = new MutableLiveData<>();
-    private final MutableLiveData<List<ListedGenreEntity>> genres = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<List<SimpleUserEntity>> users = new MutableLiveData<>();
     private final MutableLiveData<Integer> pageAmount = new MutableLiveData<>();
     private final MutableLiveData<Integer> currentPage = new MutableLiveData<>(1);
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
 
-    private GameService gameService;
-    private GenreService genreService;
+    private UserService userService;
 
     private boolean sortReverse = false;
-    private String sortBy = "title";
-    private String gameTitleParam = "";
-    private AdvancedSearchParameters advancedSearchParameters = new AdvancedSearchParameters();
+    private String sortBy = "username";
+    private String usernameParam = "";
 
-    public void init(GameService gameService, GenreService genreService) {
-        this.gameService = gameService;
-        this.genreService = genreService;
-        if (games.getValue() == null) {
+    public void init(UserService userService) {
+        this.userService = userService;
+        if (users.getValue() == null) {
             Integer page = currentPage.getValue();
-            fetchGames(page == null ? 1 : page);
-        }
-        if (genres.getValue() == null || genres.getValue().isEmpty()) {
-            fetchGenres();
+            fetchUsers(page == null ? 1 : page);
         }
     }
 
-    public LiveData<List<ListedGameEntity>> getGames() {
-        return games;
+    public LiveData<List<SimpleUserEntity>> getUsers() {
+        return users;
     }
 
     public LiveData<Integer> getPageAmount() {
@@ -75,18 +69,14 @@ public class SearchGamesViewModel extends ViewModel {
         return errorMessage;
     }
 
-    public LiveData<List<ListedGenreEntity>> getGenres() {
-        return genres;
-    }
-
     public void loadPage(int pageNr) {
         currentPage.postValue(pageNr);
-        fetchGames(pageNr);
+        fetchUsers(pageNr);
     }
 
     public void refreshPage() {
         Integer page = currentPage.getValue();
-        fetchGames(page == null ? 1 : page);
+        fetchUsers(page == null ? 1 : page);
     }
 
     public void nextPage() {
@@ -104,8 +94,8 @@ public class SearchGamesViewModel extends ViewModel {
         }
     }
 
-    public void setGameTitleParam(String newGameTitleParam) {
-        gameTitleParam = newGameTitleParam;
+    public void setUsernameParam(String newUsernameParam) {
+        usernameParam = newUsernameParam;
     }
 
     public void setSortReverse(boolean sortReverse) {
@@ -116,46 +106,24 @@ public class SearchGamesViewModel extends ViewModel {
         this.sortBy = sortBy;
     }
 
-    public void setAdvancedSearchParameters(AdvancedSearchParameters params) {
-        advancedSearchParameters = params;
-    }
-
-    public AdvancedSearchParameters getAdvancedSearchParameters() {
-        return advancedSearchParameters;
-    }
-
-    private void fetchGames(int pageNr) {
+    private void fetchUsers(int pageNr) {
         isLoading.postValue(true);
-        gameService.getSearchedGames(gameTitleParam, advancedSearchParameters, pageNr, sortBy, sortReverse, new PaginatedCallback<ListedGameEntity>() {
+        userService.getSearchedUsers(usernameParam, pageNr, sortBy, sortReverse, new PaginatedCallback<SimpleUserEntity>() {
             @Override
             public void onError(Exception e) {
-                errorMessage.postValue("Couldn't Fetch Games");
+                errorMessage.postValue("Couldn't Fetch Users");
             }
 
             @Override
-            public void onSuccess(List<ListedGameEntity> fetchedGames, int newPageAmount) {
-                games.postValue(fetchedGames);
+            public void onSuccess(List<SimpleUserEntity> fetchedUsers, int newPageAmount) {
+                users.postValue(fetchedUsers);
                 Integer currPage = currentPage.getValue();
                 pageAmount.postValue(newPageAmount);
                 isLoading.postValue(false);
                 if (currPage != null && currPage > newPageAmount) {
                     currentPage.postValue(newPageAmount);
-                    fetchGames(newPageAmount);
+                    fetchUsers(newPageAmount);
                 }
-            }
-        });
-    }
-
-    private void fetchGenres() {
-        genreService.getAllGenres(new ServiceCallback<List<ListedGenreEntity>>() {
-            @Override
-            public void onSuccess(List<ListedGenreEntity> result) {
-                genres.postValue(result);
-            }
-
-            @Override
-            public void onError(Exception e) {
-                e.printStackTrace();
             }
         });
     }
