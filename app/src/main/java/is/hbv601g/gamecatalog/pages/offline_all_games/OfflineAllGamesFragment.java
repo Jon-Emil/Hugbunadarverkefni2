@@ -52,7 +52,7 @@ public class OfflineAllGamesFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        gameAdapter = new GameAdapter(game -> openSpecificGame(game.getId()));
+        gameAdapter = new GameAdapter((game, coverImage) -> openSpecificGame(game.getId()));
         binding.gameRecycler.setLayoutManager(
                 new LinearLayoutManager(
                         requireContext(),
@@ -141,7 +141,6 @@ public class OfflineAllGamesFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putLong("game_id", gameId);
 
-        //Navigate to offline specific game fragment
         NavController navController = Navigation.findNavController(requireView());
         navController.navigate(R.id.navigation_offline_specific_game, bundle);
     }

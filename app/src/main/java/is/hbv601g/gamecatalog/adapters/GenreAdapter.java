@@ -44,7 +44,6 @@ public class GenreAdapter
         SimpleGenreEntity genre = genres.get(position);
 
         holder.title.setText(genre.getTitle());
-        holder.count.setText(String.valueOf(genre.getGameAmount()));
     }
 
     @Override
@@ -55,13 +54,11 @@ public class GenreAdapter
     static class GenreViewHolder extends RecyclerView.ViewHolder {
 
         TextView title;
-        TextView count;
 
         GenreViewHolder(View itemView) {
             super(itemView);
 
             title = itemView.findViewById(R.id.genreTitle);
-            count = itemView.findViewById(R.id.genreCount);
         }
     }
 }

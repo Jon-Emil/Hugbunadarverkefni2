@@ -21,7 +21,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
+import android.graphics.drawable.Drawable;
+
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import android.util.Log;
@@ -63,6 +69,10 @@ public class SpecificGameFragment extends Fragment {
     private ReviewAdapter reviewAdapter;
 
     private GameService gameService;
+
+    private boolean wasFavoritesProcessing = false;
+    private boolean wasWantToPlayProcessing = false;
+    private boolean wasHasPlayedProcessing = false;
 
     //Code boilerplate from developer.android.com
     //Inflates the layout for this fragment
@@ -109,6 +119,36 @@ public class SpecificGameFragment extends Fragment {
             throw new IllegalArgumentException("Missing gameId argument");
         }
         long gameId = args.getLong(ARG_GAME_ID);
+        String previewImageUrl = args.getString("cover_image_url", null);
+
+        // Set up shared element name to match the list item's transitionName.
+        binding.gameImage.setTransitionName("game_cover_" + gameId);
+
+        // Load the cover image immediately from cache so the shared element
+        // transition can start without waiting for the full API response.
+        postponeEnterTransition();
+        if (previewImageUrl != null && !previewImageUrl.isEmpty()) {
+            Glide.with(this)
+                 .load(previewImageUrl)
+                 .centerCrop()
+                 .listener(new RequestListener<Drawable>() {
+                     @Override
+                     public boolean onLoadFailed(@Nullable GlideException e, Object model,
+                             Target<Drawable> target, boolean isFirstResource) {
+                         startPostponedEnterTransition();
+                         return false;
+                     }
+                     @Override
+                     public boolean onResourceReady(Drawable resource, Object model,
+                             Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                         startPostponedEnterTransition();
+                         return false;
+                     }
+                 })
+                 .into(binding.gameImage);
+        } else {
+            startPostponedEnterTransition();
+        }
 
         NetworkService networkService = new NetworkService(requireContext());
         gameService = new GameService(networkService);
@@ -141,11 +181,15 @@ public class SpecificGameFragment extends Fragment {
             binding.favoriteButton.setEnabled(!isLoading);
             if (isLoading) {
                 binding.favoriteButton.setText("Loading...");
+                wasFavoritesProcessing = true;
+            } else if (wasFavoritesProcessing) {
+                wasFavoritesProcessing = false;
+                showDoneState(binding.favoriteButton, GameCollections.FAVORITE);
             }
         });
         viewModel.getIsInFavorites().observe(getViewLifecycleOwner(), isFavorite -> {
-            binding.favoriteButton.setText(getNewCollectionText(GameCollections.FAVORITE, isFavorite));
-            // couple of unnecessary calls but it's a lightweight function so not a big deal.
+            if (!wasFavoritesProcessing)
+                binding.favoriteButton.setText(getNewCollectionText(GameCollections.FAVORITE, isFavorite));
             updateCollectionsAmount();
         });
         binding.favoriteButton.setOnClickListener(v -> {
@@ -161,11 +205,15 @@ public class SpecificGameFragment extends Fragment {
             binding.wantToPlayButton.setEnabled(!isLoading);
             if (isLoading) {
                 binding.wantToPlayButton.setText("Loading...");
+                wasWantToPlayProcessing = true;
+            } else if (wasWantToPlayProcessing) {
+                wasWantToPlayProcessing = false;
+                showDoneState(binding.wantToPlayButton, GameCollections.WANT_TO_PLAY);
             }
         });
         viewModel.getIsInWantToPlay().observe(getViewLifecycleOwner(), isInWantToPlay -> {
-            binding.wantToPlayButton.setText(getNewCollectionText(GameCollections.WANT_TO_PLAY, isInWantToPlay));
-            // couple of unnecessary calls but it's a lightweight function so not a big deal.
+            if (!wasWantToPlayProcessing)
+                binding.wantToPlayButton.setText(getNewCollectionText(GameCollections.WANT_TO_PLAY, isInWantToPlay));
             updateCollectionsAmount();
         });
         binding.wantToPlayButton.setOnClickListener(v -> {
@@ -181,11 +229,15 @@ public class SpecificGameFragment extends Fragment {
             binding.havePlayedButton.setEnabled(!isLoading);
             if (isLoading) {
                 binding.havePlayedButton.setText("Loading...");
+                wasHasPlayedProcessing = true;
+            } else if (wasHasPlayedProcessing) {
+                wasHasPlayedProcessing = false;
+                showDoneState(binding.havePlayedButton, GameCollections.HAS_PLAYED);
             }
         });
         viewModel.getIsInHasPlayed().observe(getViewLifecycleOwner(), isInHasPlayed -> {
-            binding.havePlayedButton.setText(getNewCollectionText(GameCollections.HAS_PLAYED, isInHasPlayed));
-            // couple of unnecessary calls but it's a lightweight function so not a big deal.
+            if (!wasHasPlayedProcessing)
+                binding.havePlayedButton.setText(getNewCollectionText(GameCollections.HAS_PLAYED, isInHasPlayed));
             updateCollectionsAmount();
         });
         binding.havePlayedButton.setOnClickListener(v -> {
@@ -366,12 +418,18 @@ public class SpecificGameFragment extends Fragment {
 
             @Override
             public void onSuccess() {
-                binding.reviewTextInput.setText("");
-                binding.reviewTitleInput.setText("");
-                binding.reviewRatingPicker.setValue(0f);
-
-                //refresh the page to show something happened and reset the inputs
-                viewModel.refreshGame();
+                requireActivity().runOnUiThread(() -> {
+                    binding.reviewTextInput.setText("");
+                    binding.reviewTitleInput.setText("");
+                    binding.reviewRatingPicker.setValue(0f);
+                    // Dismiss keyboard after submit
+                    android.view.inputmethod.InputMethodManager imm =
+                        (android.view.inputmethod.InputMethodManager) requireContext()
+                            .getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
+                    View focus = requireActivity().getCurrentFocus();
+                    if (focus != null) imm.hideSoftInputFromWindow(focus.getWindowToken(), 0);
+                    viewModel.refreshGame();
+                });
             }
         });
     }
@@ -383,7 +441,26 @@ public class SpecificGameFragment extends Fragment {
         binding.gameTitle.setText(title);
         binding.gameDescription.setText(game.getDescription());
 
-        Glide.with(requireContext()).load(game.getCoverImage()).into(binding.gameImage);
+        Glide.with(requireContext())
+             .load(game.getCoverImage())
+             .placeholder(android.R.drawable.ic_menu_gallery)
+             .error(android.R.drawable.ic_menu_report_image)
+             .centerCrop()
+             .listener(new RequestListener<Drawable>() {
+                 @Override
+                 public boolean onLoadFailed(@Nullable GlideException e, Object model,
+                         Target<Drawable> target, boolean isFirstResource) {
+                     startPostponedEnterTransition();
+                     return false;
+                 }
+                 @Override
+                 public boolean onResourceReady(Drawable resource, Object model,
+                         Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                     startPostponedEnterTransition();
+                     return false;
+                 }
+             })
+             .into(binding.gameImage);
 
         String formatted = game.getReleaseDate();
         try {
@@ -448,6 +525,49 @@ public class SpecificGameFragment extends Fragment {
             }
         });
 
+    }
+
+    private void showDoneState(android.widget.Button button, GameCollections collection) {
+        Boolean current;
+        String doneText;
+        switch (collection) {
+            case FAVORITE:
+                current = viewModel.getIsInFavorites().getValue();
+                doneText = (current != null && current) ? "Added to Favorites" : "Removed from Favorites";
+                break;
+            case WANT_TO_PLAY:
+                current = viewModel.getIsInWantToPlay().getValue();
+                doneText = (current != null && current) ? "Added to Want to Play" : "Removed from Want to Play";
+                break;
+            case HAS_PLAYED:
+                current = viewModel.getIsInHasPlayed().getValue();
+                doneText = (current != null && current) ? "Added to Have Played" : "Removed from Have Played";
+                break;
+            default:
+                doneText = "Done";
+                break;
+        }
+        button.setText(doneText);
+        button.setEnabled(false);
+        button.postDelayed(() -> {
+            if (binding == null) return;
+            Boolean latest;
+            switch (collection) {
+                case FAVORITE:
+                    latest = viewModel.getIsInFavorites().getValue();
+                    button.setText(getNewCollectionText(collection, latest != null && latest));
+                    break;
+                case WANT_TO_PLAY:
+                    latest = viewModel.getIsInWantToPlay().getValue();
+                    button.setText(getNewCollectionText(collection, latest != null && latest));
+                    break;
+                case HAS_PLAYED:
+                    latest = viewModel.getIsInHasPlayed().getValue();
+                    button.setText(getNewCollectionText(collection, latest != null && latest));
+                    break;
+            }
+            button.setEnabled(true);
+        }, 1200);
     }
 
     private String getNewCollectionText(GameCollections selectedCollection, boolean isInCollection) {

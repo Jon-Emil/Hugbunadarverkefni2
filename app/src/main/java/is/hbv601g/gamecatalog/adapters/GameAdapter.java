@@ -3,7 +3,6 @@ package is.hbv601g.gamecatalog.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import is.hbv601g.gamecatalog.R;
@@ -53,13 +52,17 @@ public class GameAdapter
         ListedGameEntity game = games.get(position);
 
         holder.gameTitleText.setText(game.getTitle());
+        holder.gameImage.setTransitionName("game_cover_" + game.getId());
 
-        holder.gameDetailsButton.setOnClickListener(v ->
-                listener.onGameClick(game)
+        holder.itemView.setOnClickListener(v ->
+                listener.onGameClick(game, holder.gameImage)
         );
 
         Glide.with(holder.itemView)
              .load(game.getCoverImage())
+             .placeholder(android.R.drawable.ic_menu_gallery)
+             .error(android.R.drawable.ic_menu_report_image)
+             .centerCrop()
              .into(holder.gameImage);
     }
 
@@ -72,18 +75,16 @@ public class GameAdapter
 
         private ImageView gameImage;
         private TextView gameTitleText;
-        private Button gameDetailsButton;
 
         GameViewHolder(View itemView) {
             super(itemView);
 
             gameImage = itemView.findViewById(R.id.gameImage);
             gameTitleText = itemView.findViewById(R.id.gameTitle);
-            gameDetailsButton = itemView.findViewById(R.id.gameDetailsButton);
         }
     }
 
     public interface OnGameClickListener {
-        void onGameClick(ListedGameEntity game);
+        void onGameClick(ListedGameEntity game, ImageView coverImage);
     }
 }

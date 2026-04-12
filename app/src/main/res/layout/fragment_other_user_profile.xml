@@ -120,6 +120,7 @@
             android:layout_marginBottom="20dp">
             <Button
                 android:id="@+id/followButton"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/placeholder_text"/>

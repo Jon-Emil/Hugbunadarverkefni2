@@ -15,241 +15,278 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/gameImage"
+            <!-- Cover image with rounded corners and shadow -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                android:scaleType="centerCrop"
                 android:layout_marginBottom="16dp"
-                android:contentDescription="@string/game_image_description"/>
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp">
 
+                <ImageView
+                    android:id="@+id/gameImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:background="?attr/colorSurfaceVariant"
+                    android:contentDescription="@string/game_image_description"/>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Title -->
             <TextView
                 android:id="@+id/gameTitle"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/placeholder_text"
                 android:textSize="24sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
 
+            <!-- Description -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Description:"
-                android:textSize="18sp"
-                android:layout_marginTop="8dp"
-                android:textStyle="bold"/>
+                android:text="Description"
+                android:textSize="12sp"
+                android:textColor="?attr/colorOnSurfaceVariant"/>
 
             <TextView
                 android:id="@+id/gameDescription"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/placeholder_text"
-                android:textSize="18sp"
-                android:layout_marginTop="8dp" />
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="16dp"/>
 
-            <LinearLayout
-                android:layout_width="wrap_content"
+            <!-- Metadata card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                app:strokeColor="?attr/colorOutline"
+                app:strokeWidth="1dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Released: "
-                    android:textSize="18sp"
-                    android:layout_marginTop="8dp"
-                    android:textStyle="bold"/>
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <TextView
-                    android:id="@+id/gameReleaseDate"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Released"
+                        android:textSize="12sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"/>
+
+                    <TextView
+                        android:id="@+id/gameReleaseDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/placeholder_text"
+                        android:textSize="16sp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="12dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Price"
+                        android:textSize="12sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"/>
+
+                    <TextView
+                        android:id="@+id/gamePrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/placeholder_text"
+                        android:textSize="16sp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="12dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Developer"
+                        android:textSize="12sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"/>
+
+                    <TextView
+                        android:id="@+id/gameDeveloper"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/placeholder_text"
+                        android:textSize="16sp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="12dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Publisher"
+                        android:textSize="12sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"/>
+
+                    <TextView
+                        android:id="@+id/gamePublisher"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/placeholder_text"
+                        android:textSize="16sp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="12dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Average Rating"
+                        android:textSize="12sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"/>
+
+                    <TextView
+                        android:id="@+id/gameRating"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/placeholder_text"
+                        android:textSize="16sp"
+                        android:layout_marginTop="2dp"/>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Collection stats row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/placeholder_text"
-                    android:textSize="18sp"
-                    android:layout_marginTop="8dp" />
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Favorites"
+                        android:textSize="12sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"/>
+
+                    <TextView
+                        android:id="@+id/gameFavoriteAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/placeholder_text"
+                        android:textSize="20sp"
+                        android:textStyle="bold"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Want to Play"
+                        android:textSize="12sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"/>
+
+                    <TextView
+                        android:id="@+id/gameWantToPlayAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/placeholder_text"
+                        android:textSize="20sp"
+                        android:textStyle="bold"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Have Played"
+                        android:textSize="12sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"/>
+
+                    <TextView
+                        android:id="@+id/gameHavePlayedAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/placeholder_text"
+                        android:textSize="20sp"
+                        android:textStyle="bold"/>
+
+                </LinearLayout>
+
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Price: "
-                    android:textSize="18sp"
-                    android:layout_marginTop="8dp"
-                    android:textStyle="bold"/>
-
-                <TextView
-                    android:id="@+id/gamePrice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/placeholder_text"
-                    android:textSize="18sp"
-                    android:layout_marginTop="8dp" />
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Developed By:"
-                android:textSize="18sp"
-                android:layout_marginTop="8dp"
-                android:textStyle="bold"/>
-
-            <TextView
-                android:id="@+id/gameDeveloper"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/placeholder_text"
-                android:textSize="18sp"
-                android:layout_marginTop="8dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Published By:"
-                android:textSize="18sp"
-                android:layout_marginTop="8dp"
-                android:textStyle="bold"/>
-
-            <TextView
-                android:id="@+id/gamePublisher"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/placeholder_text"
-                android:textSize="18sp"
-                android:layout_marginTop="8dp" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Rating: "
-                    android:textSize="18sp"
-                    android:layout_marginTop="8dp"
-                    android:textStyle="bold"/>
-
-                <TextView
-                    android:id="@+id/gameRating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/placeholder_text"
-                    android:textSize="18sp"
-                    android:layout_marginTop="8dp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Favorites: "
-                    android:textSize="18sp"
-                    android:layout_marginTop="8dp"
-                    android:textStyle="bold"/>
-
-                <TextView
-                    android:id="@+id/gameFavoriteAmount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/placeholder_text"
-                    android:textSize="18sp"
-                    android:layout_marginTop="8dp" />
-            </LinearLayout>
-
+            <!-- Collection buttons -->
             <Button
                 android:id="@+id/favoriteButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:stateListAnimator="@animator/button_scale"
                 android:text="@string/placeholder_text"/>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="WantToPlay: "
-                    android:textSize="18sp"
-                    android:layout_marginTop="8dp"
-                    android:textStyle="bold"/>
-
-                <TextView
-                    android:id="@+id/gameWantToPlayAmount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/placeholder_text"
-                    android:textSize="18sp"
-                    android:layout_marginTop="8dp" />
-            </LinearLayout>
 
             <Button
                 android:id="@+id/wantToPlayButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:stateListAnimator="@animator/button_scale"
                 android:text="@string/placeholder_text"/>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="HavePlayed: "
-                    android:textSize="18sp"
-                    android:layout_marginTop="8dp"
-                    android:textStyle="bold"/>
-
-                <TextView
-                    android:id="@+id/gameHavePlayedAmount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/placeholder_text"
-                    android:textSize="18sp"
-                    android:layout_marginTop="8dp" />
-            </LinearLayout>
 
             <Button
                 android:id="@+id/havePlayedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:stateListAnimator="@animator/button_scale"
                 android:text="@string/placeholder_text"/>
 
+            <!-- Genres -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Genres:"
-                android:textSize="18sp"
-                android:layout_marginTop="8dp"
-                android:textStyle="bold"/>
+                android:text="Genres"
+                android:textSize="12sp"
+                android:textColor="?attr/colorOnSurfaceVariant"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/genreRecycler"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"/>
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"/>
 
+            <!-- Write a review -->
             <LinearLayout
                 android:id="@+id/reviewSubmitSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="12dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
                 android:background="@drawable/review_border">
 
                 <TextView
@@ -257,29 +294,33 @@
                     android:layout_height="wrap_content"
                     android:text="Write a review"
                     android:textSize="18sp"
-                    android:layout_marginTop="16dp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Title:"
-                    android:textSize="16sp"
-                    android:layout_marginTop="8dp" />
-
-                <EditText
-                    android:id="@+id/reviewTitleInput"
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="8dp"
                     android:hint="Review title"
-                    android:layout_marginTop="4dp" />
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/reviewTitleInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:inputType="text" />
+
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Rating:"
-                    android:textSize="16sp"
-                    android:layout_marginTop="8dp" />
+                    android:text="Rating"
+                    android:textSize="12sp"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:layout_marginTop="4dp"/>
 
                 <com.google.android.material.slider.Slider
                     android:id="@+id/reviewRatingPicker"
@@ -288,49 +329,48 @@
                     android:valueFrom="0"
                     android:valueTo="100"
                     android:stepSize="1"
-                    app:labelBehavior="floating" />
+                    app:labelBehavior="floating"/>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Review:"
-                    android:textSize="16sp"
-                    android:layout_marginTop="8dp" />
-
-                <EditText
-                    android:id="@+id/reviewTextInput"
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
-                    android:layout_height="120dp"
-                    android:hint="Write here"
-                    android:gravity="top|start"
-                    android:padding="12dp"
-                    android:background="@android:drawable/edit_text"
-                    android:inputType="textMultiLine"
-                    android:maxLines="5"
-                    android:layout_marginTop="4dp" />
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:hint="Write your review"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/reviewTextInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        android:gravity="top|start"
+                        android:inputType="textMultiLine"
+                        android:maxLines="5" />
+
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <Button
                     android:id="@+id/submitReviewButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Submit"
-                    android:layout_marginTop="12dp" />
+                    android:layout_marginTop="12dp"/>
 
             </LinearLayout>
 
+            <!-- Reviews list -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Reviews:"
-                android:textSize="18sp"
-                android:layout_marginTop="8dp"
-                android:textStyle="bold"/>
+                android:text="Reviews"
+                android:textSize="12sp"
+                android:textColor="?attr/colorOnSurfaceVariant"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/reviewRecycler"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginTop="12dp"/>
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false"/>
 
             <TextView
                 android:id="@+id/noReviewsText"
@@ -338,7 +378,8 @@
                 android:layout_height="wrap_content"
                 android:text="No reviews yet"
                 android:textColor="?attr/colorOnSurfaceVariant"
-                android:visibility="gone" />
+                android:visibility="gone"/>
+
         </LinearLayout>
     </ScrollView>
 
