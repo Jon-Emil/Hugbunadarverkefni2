@@ -91,7 +91,10 @@ public class AllGamesViewModel extends ViewModel {
         gameService.getAllGames(pageNr, "title", false, new PaginatedCallback<ListedGameEntity>() {
             @Override
             public void onError(Exception e) {
+
                 errorMessage.postValue("Couldn't Fetch Games");
+                //to stop infinte loading when refreshing
+                isLoading.postValue(false);
             }
 
             @Override

@@ -33,10 +33,13 @@ public class PersonalProfileViewModel extends AndroidViewModel {
 
     public LiveData<DetailedUserEntity> getUser() { return user; }
     public LiveData<String> getErrorMessage() { return errorMessage; }
+
     public LiveData<Boolean> getIsLoading() { return isLoading; }
     public LiveData<Boolean> getLoggedOut() { return loggedOut; }
     public LiveData<Boolean> getAccountDeleted() { return accountDeleted; }
     public void clearErrorMessage() { errorMessage.setValue(null); }
+
+
 
     public void loadProfile() {
         isLoading.setValue(true);
@@ -87,5 +90,22 @@ public class PersonalProfileViewModel extends AndroidViewModel {
 
     public void clearLoggedOut() {
         loggedOut.setValue(null);
+    }
+
+    //for refreshing the data when pull to refresh activated :)
+    public void refreshProfile() {
+        isLoading.postValue(true);
+        userService.getMyProfile(new ServiceCallback<DetailedUserEntity>() {
+            @Override
+            public void onSuccess(DetailedUserEntity fetchedUser) {
+                user.postValue(fetchedUser);
+                isLoading.postValue(false);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                isLoading.postValue(false);
+            }
+        });
     }
 }

@@ -39,7 +39,19 @@ public class PersonalProfileFragment extends BaseProfileFragment {
         // Initialise all shared profile views, avatar, game lists, expand buttons, reviews
         initSharedViews(view);
 
-        personalProfileViewModel.getIsLoading().observe(getViewLifecycleOwner(), this::setLoading);
+
+        personalProfileViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            // Stop the pull-to-refresh animation
+            binding.swipeRefreshLayout.setRefreshing(isLoading);
+
+            // Use the existing setLoading method for the central ProgressBar
+            setLoading(isLoading);
+        });
+
+        binding.swipeRefreshLayout.setOnRefreshListener(() -> {
+            // You can use the existing loadProfile method
+            personalProfileViewModel.loadProfile();
+        });
 
         personalProfileViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
             if (error != null) {
