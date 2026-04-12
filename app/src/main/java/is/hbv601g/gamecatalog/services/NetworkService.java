@@ -16,13 +16,11 @@ public class NetworkService {
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
     private static final String baseUrl = "https://hbv1-gamecatalog.onrender.com";
-    private final OkHttpClient client;
+    private final OkHttpClient client = new OkHttpClient(); // gera OkHttpClient að singleton, allir services eru að deila sama client og connection.
     private final TokenManager tokenManager;
 
 
     public NetworkService(Context context) {
-
-        this.client = new OkHttpClient();
         this.tokenManager = new TokenManager(context);
     }
 

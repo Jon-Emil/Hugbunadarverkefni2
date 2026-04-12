@@ -21,6 +21,15 @@
                 android:layout_height="match_parent"/>
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        <TextView
+            android:id="@+id/emptyGamesMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="No games found"
+            android:textSize="18sp"
+            android:visibility="gone" />
 
         <ProgressBar
             android:id="@+id/loadingIndicator"
@@ -64,9 +73,9 @@
 
         <Button
             android:id="@+id/previousPage"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@android:color/holo_red_light"
             android:text="@string/previous_page"
             android:layout_weight="5"/>
 
@@ -76,13 +85,14 @@
             android:layout_height="wrap_content"
             android:text=""
             android:textAlignment="center"
+            android:gravity="center_vertical"
             android:layout_weight="3"/>
 
         <Button
             android:id="@+id/nextPage"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@android:color/holo_green_light"
             android:text="@string/next_page"
             android:layout_weight="5"/>
 

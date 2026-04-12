@@ -1,5 +1,6 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="20dp"
     android:layout_width="match_parent"
@@ -9,10 +10,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Rating:"
-        android:textSize="16sp" />
+        android:textSize="12sp"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:layout_marginBottom="4dp" />
 
     <com.google.android.material.slider.Slider
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/editReviewRatingPicker"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -21,39 +23,38 @@
         android:stepSize="1"
         app:labelBehavior="floating" />
 
-    <TextView
-        android:layout_width="wrap_content"
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Title:"
-        android:textSize="16sp"
-        android:layout_marginTop="8dp" />
-
-    <EditText
-        android:id="@+id/editReviewTitleInput"
+        android:layout_marginTop="12dp"
         android:hint="Review title"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editReviewTitleInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:inputType="text" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp" />
+        android:layout_marginTop="12dp"
+        android:hint="Write your review"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Review:"
-        android:textSize="16sp"
-        android:layout_marginTop="8dp" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editReviewTextInput"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:gravity="top|start"
+            android:inputType="textMultiLine"
+            android:maxLines="5" />
 
-    <EditText
-        android:id="@+id/editReviewTextInput"
-        android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:hint="Write here"
-        android:gravity="top|start"
-        android:padding="12dp"
-        android:background="@android:drawable/edit_text"
-        android:inputType="textMultiLine"
-        android:maxLines="5"
-        android:layout_marginTop="4dp" />
-
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/saveReviewButton"

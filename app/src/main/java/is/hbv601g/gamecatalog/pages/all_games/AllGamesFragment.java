@@ -13,8 +13,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
+import android.widget.ImageView;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -70,7 +72,7 @@ public class AllGamesFragment extends Fragment {
         else {
             //Load online mode if online
             super.onViewCreated(view, savedInstanceState);
-            gameAdapter = new GameAdapter(game -> openSpecificGame(game.getId()));
+            gameAdapter = new GameAdapter((game, coverImage) -> openSpecificGame(game.getId(), game.getCoverImage(), coverImage));
             binding.gameRecycler.setLayoutManager(
                     new LinearLayoutManager(
                             requireContext(),
@@ -141,6 +143,10 @@ public class AllGamesFragment extends Fragment {
 
     public void updateGamesInfo(List<ListedGameEntity> games) {
         gameAdapter.setData(games);
+        binding.gameRecycler.scrollToPosition(0);
+        boolean isEmpty = games.isEmpty();
+        binding.gameRecycler.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+        binding.emptyGamesMessage.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
     }
 
     public void updatePageInfo(Integer ignored) {
@@ -154,12 +160,16 @@ public class AllGamesFragment extends Fragment {
         binding.pageDisplay.setText(pageDisplayText);
     }
 
-    private void openSpecificGame(long gameId) {
+    private void openSpecificGame(long gameId, String coverImageUrl, ImageView coverImage) {
         Bundle bundle = new Bundle();
         bundle.putLong("game_id", gameId);
+        bundle.putString("cover_image_url", coverImageUrl);
 
+        FragmentNavigator.Extras extras = new FragmentNavigator.Extras.Builder()
+                .addSharedElement(coverImage, "game_cover_" + gameId)
+                .build();
         NavController navController = Navigation.findNavController(requireView());
-        navController.navigate(R.id.navigation_specific_game, bundle);
+        navController.navigate(R.id.navigation_specific_game, bundle, null, extras);
     }
 
     //Code from developer.android.com

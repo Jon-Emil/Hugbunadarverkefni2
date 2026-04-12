@@ -18,6 +18,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 import android.util.Log;
+import android.util.Patterns;
 
 public class AuthService {
     private final NetworkService networkService;
@@ -76,7 +77,12 @@ public class AuthService {
     //SHOULD CHECK IF EMAIL IS VALID!!!
     public void register(LogInCredentials credentials, LoginCallback callback){
         String url = "/register";
-
+        // þetta tékkar á hvort emailið sé löglegt.
+        if (!Patterns.EMAIL_ADDRESS.matcher(credentials.getEmail()).matches()) {
+            new Handler(Looper.getMainLooper()).post(() ->
+                    callback.onError("Invalid email address")
+            );
+        }
         String credentialString = JSONObjectHelper.convertCredentialsToJsonString(credentials);
 
         networkService.postRequest(url, credentialString, new Callback(){

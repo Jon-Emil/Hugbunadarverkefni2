@@ -171,6 +171,7 @@ public class SearchUsersFragment extends Fragment {
 
     public void updateUsersInfo(List<SimpleUserEntity> users) {
         userAdapter.setData(users);
+        binding.userRecycler.scrollToPosition(0);
         String pageDisplay = "Page " + viewModel.getCurrentPage();
         binding.pageDisplay.setText(pageDisplay);
     }

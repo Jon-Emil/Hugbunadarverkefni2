@@ -18,19 +18,30 @@ import is.hbv601g.gamecatalog.entities.review.SimpleReviewEntity;
 
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder> {
 
+    // Used in BaseProfileFragment: clicking any review navigates to that game's page.
+    public interface OnReviewClickListener {
+        void onReviewClick(String gameTitle);
+    }
+
+    // Used in SpecificGameFragment: clicking your own review opens the edit/delete flow.
+    public interface OnEditReviewClickListener {
+        void onReviewClick(SimpleReviewEntity review);
+    }
+
     private final List<SimpleReviewEntity> reviews = new ArrayList<>();
     private String loggedInUsername = null;
     private boolean collapsed = true;
     private static final int PREVIEW_COUNT = 3;
 
-    public interface onReviewClickListener{
-        void onReviewClick(SimpleReviewEntity review);
+    private OnEditReviewClickListener editClickListener;
+    private OnReviewClickListener navClickListener;
+
+    public void setOnReviewClickListener(OnEditReviewClickListener listener) {
+        this.editClickListener = listener;
     }
 
-    private onReviewClickListener clickListener;
-
-    public void setOnReviewClickListener(onReviewClickListener listener) {
-        this.clickListener = listener;
+    public void setOnNavClickListener(OnReviewClickListener listener) {
+        this.navClickListener = listener;
     }
 
     public void setData(List<SimpleReviewEntity> newReviews) {
@@ -55,18 +66,17 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         boolean isUserReview = loggedInUsername != null &&
                 loggedInUsername.equals(review.getAuthor());
         MaterialCardView card = (MaterialCardView) holder.itemView;
-        // own review er þegar kominn með eigin looks format, breytum aðeins litinum á other people´s reviewum. sjaum hvernig þetta lookar.
-        if (!isUserReview) {card.setCardBackgroundColor(MaterialColors.getColor(card, com.google.android.material.R.attr.colorSurface));}
-        // makes only own review is clickable
-        if (isUserReview) {
-            holder.itemView.setOnClickListener(v -> {
-                if (clickListener != null) {
-                    clickListener.onReviewClick(review);
-                }
-            });
+        if (!isUserReview) {
+            card.setCardBackgroundColor(MaterialColors.getColor(card, com.google.android.material.R.attr.colorSurface));
+        }
 
+        // navClickListener (profile page): all reviews are tappable to navigate to the game.
+        // editClickListener (game detail page): only own review is tappable to edit/delete.
+        if (navClickListener != null) {
+            holder.itemView.setOnClickListener(v -> navClickListener.onReviewClick(review.getGameTitle()));
+        } else if (isUserReview && editClickListener != null) {
+            holder.itemView.setOnClickListener(v -> editClickListener.onReviewClick(review));
         } else {
-            // disables click for other reviews
             holder.itemView.setOnClickListener(null);
             holder.itemView.setForeground(null);
         }
@@ -80,17 +90,17 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         return new ReviewViewHolder(view);
     }
 
-
     @Override
     public int getItemCount() {
         if (collapsed) {
             return Math.min(PREVIEW_COUNT, reviews.size());
         } else { return reviews.size(); }
     }
-    public void setCollapsed (boolean collapsed) {
+
+    public void setCollapsed(boolean collapsed) {
         this.collapsed = collapsed;
         notifyDataSetChanged();
-    } // notify app the current status of the collapse status of review block.
+    }
 
     static class ReviewViewHolder extends RecyclerView.ViewHolder {
         TextView title;

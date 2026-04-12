@@ -18,7 +18,10 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import is.hbv601g.gamecatalog.R;
 import is.hbv601g.gamecatalog.adapters.ReviewAdapter;
 import is.hbv601g.gamecatalog.adapters.SimpleGameAdapter;
+import is.hbv601g.gamecatalog.entities.extras.AdvancedSearchParameters;
 import is.hbv601g.gamecatalog.entities.user.DetailedUserEntity;
+import is.hbv601g.gamecatalog.services.GameService;
+import is.hbv601g.gamecatalog.services.NetworkService;
 
 /*
  * Abstract base class shared by PersonalProfileFragment and OtherUserProfileFragment.
@@ -214,6 +217,28 @@ public abstract class BaseProfileFragment extends Fragment {
         reviewAdapter = new ReviewAdapter();
         reviewAdapter.setCollapsed(true);
         reviewAdapter.setData(user.getReviews());
+        reviewAdapter.setOnNavClickListener(gameTitle -> {
+            android.util.Log.d("ProfileReviewClick", "clicked: " + gameTitle);
+            GameService gameService = new GameService(new NetworkService(requireContext()));
+            gameService.getSearchedGames(
+                    gameTitle, new AdvancedSearchParameters(), 1, "title", false,
+                    new is.hbv601g.gamecatalog.helpers.PaginatedCallback<is.hbv601g.gamecatalog.entities.game.ListedGameEntity>() {
+                        @Override
+                        public void onSuccess(java.util.List<is.hbv601g.gamecatalog.entities.game.ListedGameEntity> items, int totalPages) {
+                            android.util.Log.d("ProfileReviewClick", "search results: " + items.size());
+                            if (!items.isEmpty()) {
+                                requireActivity().runOnUiThread(() -> navigateToGame(items.get(0).getId()));
+                            } else {
+                                requireActivity().runOnUiThread(() ->
+                                    android.widget.Toast.makeText(requireContext(), "Game not found", android.widget.Toast.LENGTH_SHORT).show());
+                            }
+                        }
+                        @Override
+                        public void onError(Exception e) {
+                            android.util.Log.e("ProfileReviewClick", "search error", e);
+                        }
+                    });
+        });
         reviewsRV.setAdapter(reviewAdapter);
         boolean hasMoreReviews = user.getReviews().size() > 3;
         expandReviewsBtn.setVisibility(hasMoreReviews ? View.VISIBLE : View.GONE);

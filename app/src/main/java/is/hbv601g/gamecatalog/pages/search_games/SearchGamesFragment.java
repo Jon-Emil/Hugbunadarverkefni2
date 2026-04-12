@@ -16,8 +16,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import android.widget.ImageView;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.util.List;
@@ -57,7 +59,7 @@ public class SearchGamesFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        gameAdapter = new GameAdapter(game -> openSpecificGame(game.getId()));
+        gameAdapter = new GameAdapter((game, coverImage) -> openSpecificGame(game.getId(), game.getCoverImage(), coverImage));
         binding.gameRecycler.setLayoutManager(
                 new LinearLayoutManager(
                         requireContext(),
@@ -186,6 +188,7 @@ public class SearchGamesFragment extends Fragment {
 
     public void updateGamesInfo(List<ListedGameEntity> games) {
         gameAdapter.setData(games);
+        binding.gameRecycler.scrollToPosition(0);
         String pageDisplay = "Page " + viewModel.getCurrentPage();
         binding.pageDisplay.setText(pageDisplay);
     }
@@ -201,12 +204,16 @@ public class SearchGamesFragment extends Fragment {
         binding.pageDisplay.setText(pageDisplayText);
     }
 
-    private void openSpecificGame(long gameId) {
+    private void openSpecificGame(long gameId, String coverImageUrl, ImageView coverImage) {
         Bundle bundle = new Bundle();
         bundle.putLong("game_id", gameId);
+        bundle.putString("cover_image_url", coverImageUrl);
 
+        FragmentNavigator.Extras extras = new FragmentNavigator.Extras.Builder()
+                .addSharedElement(coverImage, "game_cover_" + gameId)
+                .build();
         NavController navController = Navigation.findNavController(requireView());
-        navController.navigate(R.id.navigation_specific_game, bundle);
+        navController.navigate(R.id.navigation_specific_game, bundle, null, extras);
     }
 
     //Code from developer.android.com
