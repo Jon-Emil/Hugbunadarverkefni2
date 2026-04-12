@@ -111,7 +111,7 @@ public class SpecificGameViewModel extends ViewModel {
         userService.getMyProfile(new ServiceCallback<DetailedUserEntity>() {
             @Override
             public void onError(Exception e) {
-                Log.w("DetailedGameViewModel", "Could not fetch user");
+                Log.w("SpecificGameViewModel", "Could not fetch user");
             }
 
             @Override
@@ -304,7 +304,9 @@ public class SpecificGameViewModel extends ViewModel {
         deleteOldCache(fetchedGame.getId());
 
         //clean up the cache database to get rid of old data
-        cleanUpCache();
+        // gæti valdið illegalstateexception ut af reglum Room
+        // Room bannar queries í main thread, þannig executor færir þetta i thread i bakgrunninum.
+        Executors.newSingleThreadExecutor().execute(this::cleanUpCache);
 
         //Cache the game
         CachedGame cachedGame = new CachedGame();
