@@ -12,6 +12,8 @@ This semester and this repository is an Android application for that API.
 Sigurður Ari Stefánsson (sas122@hi.is)
 
 Yi Hu (yih2@hi.is)
+
+Jón Emil Rafnsson (jer8@hi.is)
 ...
 
 ## Polish Backlog
