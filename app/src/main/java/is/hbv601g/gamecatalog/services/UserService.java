@@ -351,17 +351,13 @@ public class UserService {
                     int total = json.getInt("total");
                     int pageAmount = (total / perPage) + 1;
                     callback.onSuccess(fetchedUsers, pageAmount);
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                try {
-                    callback.onSuccess();
                 } catch (Exception e) {
                     callback.onError(e);
                 }
             }
         });
     }
-    
+
     // follow user
     public void followUser(long userId, EmptyCallBack callback) {
         String url = "/users/" + userId + "/follow";
