@@ -217,7 +217,7 @@ public abstract class BaseProfileFragment extends Fragment {
         reviewAdapter = new ReviewAdapter();
         reviewAdapter.setCollapsed(true);
         reviewAdapter.setData(user.getReviews());
-        reviewAdapter.setOnReviewClickListener(gameTitle -> {
+        reviewAdapter.setOnNavClickListener(gameTitle -> {
             android.util.Log.d("ProfileReviewClick", "clicked: " + gameTitle);
             GameService gameService = new GameService(new NetworkService(requireContext()));
             gameService.getSearchedGames(

@@ -24,7 +24,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     }
 
     // Used in SpecificGameFragment: clicking your own review opens the edit/delete flow.
-    public interface onReviewClickListener {
+    public interface OnEditReviewClickListener {
         void onReviewClick(SimpleReviewEntity review);
     }
 
@@ -33,14 +33,14 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     private boolean collapsed = true;
     private static final int PREVIEW_COUNT = 3;
 
-    private onReviewClickListener editClickListener;
+    private OnEditReviewClickListener editClickListener;
     private OnReviewClickListener navClickListener;
 
-    public void setOnReviewClickListener(onReviewClickListener listener) {
+    public void setOnReviewClickListener(OnEditReviewClickListener listener) {
         this.editClickListener = listener;
     }
 
-    public void setOnReviewClickListener(OnReviewClickListener listener) {
+    public void setOnNavClickListener(OnReviewClickListener listener) {
         this.navClickListener = listener;
     }
 

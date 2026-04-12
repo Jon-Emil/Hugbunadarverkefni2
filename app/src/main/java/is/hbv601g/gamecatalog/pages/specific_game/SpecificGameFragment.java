@@ -62,6 +62,8 @@ public class SpecificGameFragment extends Fragment {
 
     private ReviewAdapter reviewAdapter;
 
+    private GameService gameService;
+
     //Code boilerplate from developer.android.com
     //Inflates the layout for this fragment
     @Nullable
@@ -109,7 +111,7 @@ public class SpecificGameFragment extends Fragment {
         long gameId = args.getLong(ARG_GAME_ID);
 
         NetworkService networkService = new NetworkService(requireContext());
-        GameService gameService = new GameService(networkService);
+        gameService = new GameService(networkService);
         UserService userService = new UserService(networkService);
 
         viewModel = new ViewModelProvider(this).get(SpecificGameViewModel.class);
@@ -220,10 +222,6 @@ public class SpecificGameFragment extends Fragment {
         reviewAdapter.setOnReviewClickListener(review -> {
             showEditReviewDialog(review);
         });
-
-
-
-
     }
 
     //for the popup for editing reviews
@@ -276,9 +274,6 @@ public class SpecificGameFragment extends Fragment {
 
     private void deleteReview(Long reviewId) {
         long gameId = getArguments().getLong("game_id");
-
-        GameService gameService = new GameService(new NetworkService(requireContext()));
-
         gameService.deleteReview(gameId, reviewId, new EmptyCallBack() {
 
             //confirmint its deleted helped for debuging and ok leaving it here still
@@ -302,9 +297,6 @@ public class SpecificGameFragment extends Fragment {
 
     private void updateReview(Long reviewId, int rating, String text, String title) {
         long gameId = getArguments().getLong("game_id");
-
-        GameService gameService = new GameService(new NetworkService(requireContext()));
-
         gameService.updateReview(gameId, reviewId, rating, text, title, new EmptyCallBack() {
             //confirmint its changed helped for debuging and ok leaving it here still
             @Override
@@ -327,9 +319,6 @@ public class SpecificGameFragment extends Fragment {
     //submit method for revies
     private void submitReview(int rating, String text, String title) {
         long gameId = getArguments().getLong("game_id");
-
-        GameService gameService = new GameService(new NetworkService(requireContext()));
-
         gameService.addReview(gameId, rating, text, title, new EmptyCallBack() {
             //detailed error handling along with handling network errors for the offline part
             @Override

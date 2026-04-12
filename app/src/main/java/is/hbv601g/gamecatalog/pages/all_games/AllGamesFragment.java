@@ -141,6 +141,9 @@ public class AllGamesFragment extends Fragment {
 
     public void updateGamesInfo(List<ListedGameEntity> games) {
         gameAdapter.setData(games);
+        boolean isEmpty = games.isEmpty();
+        binding.gameRecycler.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+        binding.emptyGamesMessage.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
     }
 
     public void updatePageInfo(Integer ignored) {

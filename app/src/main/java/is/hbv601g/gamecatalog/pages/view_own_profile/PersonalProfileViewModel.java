@@ -39,8 +39,6 @@ public class PersonalProfileViewModel extends AndroidViewModel {
     public LiveData<Boolean> getAccountDeleted() { return accountDeleted; }
     public void clearErrorMessage() { errorMessage.setValue(null); }
 
-
-
     public void loadProfile() {
         isLoading.setValue(true);
         userService.getMyProfile(new ServiceCallback<DetailedUserEntity>() {
